@@ -7,16 +7,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 950px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { text-align: center; margin-top: 0; color: #333; }
         
         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         th, td { border: 1px solid #ccc; padding: 6px; text-align: center; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; font-weight: normal; font-size: 13px; }
         .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; }
+        .zone-sort { background-color: #f0f7ff; }
+        .zone-load { background-color: #fff7e6; }
         
         input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        input[type="text"] { width: 90%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        input[type="text"] { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
         
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
@@ -32,6 +34,7 @@
         .status-error { color: #842029; background: #f8d7da; }
         .status-neutral { color: #664d03; background: #fff3cd; }
         .details { font-weight: normal; font-size: 13px; opacity: 0.85; }
+        .brigade-warning { color: #842029; background: #f8d7da; padding: 8px; border-radius: 4px; margin-top: 8px; font-size: 13px; }
 
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; color: white; transition: 0.2s; min-width: 150px; }
@@ -73,19 +76,22 @@
             <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
             <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
             <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
+            <div class="rec-item">Бриг. Стаф (Сортировка): <input type="number" id="brigSort" min="0" max="1" placeholder="0"></div>
+            <div class="rec-item">Бриг. Стаф (Отгрузка): <input type="number" id="brigLoad" min="0" max="1" placeholder="0"></div>
         </div>
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
+        <div id="brigadeWarning"></div>
     </div>
 
     <table id="reportTable">
         <thead>
             <tr>
-                <th style="width: 30%;">Рабочая станция</th>
-                <th style="width: 15%;">Кол-во<br><small>(Аутстафф)</small></th>
-                <th style="width: 20%;">АК Компания</th>
-                <th style="width: 10%;">Бриг. АК</th>
-                <th style="width: 10%;">Бриг. Стаф</th>
-                <th style="width: 10%;">Штат</th>
+                <th style="width: 28%;">Рабочая станция</th>
+                <th style="width: 11%;">Аутстафф</th>
+                <th style="width: 11%;">Бриг. АК</th>
+                <th style="width: 22%;">АК Компания</th>
+                <th style="width: 14%;">Штат</th>
+                <th style="width: 14%;">Бриг. Стаф</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -102,6 +108,9 @@
 </div>
 
 <script>
+    // Зоны отгрузки (всё остальное — сортировка)
+    const LOAD_ZONES = ["Раскатка буфера", "Отгрузка ЛХ", "Отгрузка АХ ВП"];
+    
     const stations = [
         "Веер, Ромашка", "Батч", "Отгрузка ЛХ", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Раскатка буфера", "Отгрузка МК", 
@@ -124,13 +133,16 @@
 
         stations.forEach(station => {
             const tr = document.createElement('tr');
+            const zoneClass = LOAD_ZONES.includes(station) ? 'zone-load' : 'zone-sort';
+            tr.className = zoneClass;
+            // Новый порядок: Рабочая станция | Аутстафф | Бриг. АК | АК Компания | Штат | Бриг. Стаф
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
-                <td><input type="number" class="input-qty" min="0" placeholder="0"></td>
-                <td><input type="text" class="input-ak" placeholder=""></td>
+                <td><input type="number" class="input-out" min="0" placeholder="0"></td>
                 <td><input type="number" class="input-bak" min="0" placeholder="0"></td>
-                <td><input type="number" class="input-bst" min="0" placeholder="0"></td>
+                <td><input type="text" class="input-ak" placeholder=""></td>
                 <td><input type="number" class="input-sht" min="0" placeholder="0"></td>
+                <td><input type="number" class="input-bst" min="0" placeholder="0"></td>
             `;
             tbody.appendChild(tr);
         });
@@ -139,11 +151,11 @@
         totalTr.className = 'total-row';
         totalTr.innerHTML = `
             <td style="text-align: right; padding-right: 10px;">ИТОГ:</td>
-            <td id="total-qty">0</td>
-            <td></td>
+            <td id="total-out">0</td>
             <td id="total-bak">0</td>
-            <td id="total-bst">0</td>
+            <td></td>
             <td id="total-sht">0</td>
+            <td id="total-bst">0</td>
         `;
         tbody.appendChild(totalTr);
 
@@ -158,31 +170,46 @@
     };
 
     function calculateTotals() {
-        let qty = 0, bak = 0, bst = 0, sht = 0;
+        let out = 0, bak = 0, sht = 0, bst = 0;
+        let brigSortOnSort = 0, brigLoadOnLoad = 0;
         
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            qty += Number(tr.querySelector('.input-qty').value) || 0;
-            bak += Number(tr.querySelector('.input-bak').value) || 0;
-            bst += Number(tr.querySelector('.input-bst').value) || 0;
-            sht += Number(tr.querySelector('.input-sht').value) || 0;
+            const outVal = Number(tr.querySelector('.input-out').value) || 0;
+            const bakVal = Number(tr.querySelector('.input-bak').value) || 0;
+            const shtVal = Number(tr.querySelector('.input-sht').value) || 0;
+            const bstVal = Number(tr.querySelector('.input-bst').value) || 0;
+            
+            out += outVal;
+            bak += bakVal;
+            sht += shtVal;
+            bst += bstVal;
+
+            const station = tr.querySelector('.station-name').textContent;
+            const isLoadZone = LOAD_ZONES.includes(station);
+            
+            if (bstVal > 0) {
+                if (isLoadZone) brigLoadOnLoad += bstVal;
+                else brigSortOnSort += bstVal;
+            }
         });
 
-        document.getElementById('total-qty').textContent = qty;
+        document.getElementById('total-out').textContent = out;
         document.getElementById('total-bak').textContent = bak;
-        document.getElementById('total-bst').textContent = bst;
         document.getElementById('total-sht').textContent = sht;
+        document.getElementById('total-bst').textContent = bst;
 
         const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
         const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
+        const brigSort = Number(document.getElementById('brigSort').value) || 0;
+        const brigLoad = Number(document.getElementById('brigLoad').value) || 0;
         
-        // Новая логика: Админка НЕ считается
-        // На смене = Штатные + Аутстафф + Бригадиры АК
+        // На смене = Штатные + Аутстафф + Бригадиры АК (без Админки и Бриг. Стаф)
         const declaredTotal = totalStaff + totalOut + totalBrig;
         
-        // Распределено = Кол-во (Аутстафф) + Штат + Бриг. АК
-        const actualTotal = qty + sht + bak;
+        // Распределено = Аутстафф + Штат + Бриг. АК
+        const actualTotal = out + sht + bak;
         
         const diff = declaredTotal - actualTotal;
         const statusDiv = document.getElementById('recStatus');
@@ -193,17 +220,34 @@
         } else if (diff === 0) {
             statusDiv.innerHTML = `
                 ✅ <b>Всё сходится!</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig}) <i>[Админка: ${totalAdmin} справочно]</i><br>
-                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${qty}, Штат: ${sht}, Бриг. АК: ${bak})</span>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-ok";
         } else {
             statusDiv.innerHTML = `
                 ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff} чел.</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig}) <i>[Админка: ${totalAdmin} справочно]</i><br>
-                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${qty}, Штат: ${sht}, Бриг. АК: ${bak})</span>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-error";
+        }
+
+        // Проверка бригадиров стаф
+        const brigadeWarning = document.getElementById('brigadeWarning');
+        let warnings = [];
+        
+        if (brigSort > 0 && brigSortOnSort === 0) {
+            warnings.push(`⚠️ Бригадир сортировки (${brigSort}) НЕ поставлен ни на одну зону сортировки.`);
+        }
+        if (brigLoad > 0 && brigLoadOnLoad === 0) {
+            warnings.push(`⚠️ Бригадир отгрузки (${brigLoad}) НЕ поставлен ни на одну зону отгрузки.`);
+        }
+
+        if (warnings.length > 0) {
+            brigadeWarning.innerHTML = `<div class="brigade-warning">${warnings.join('<br>')}</div>`;
+        } else {
+            brigadeWarning.innerHTML = '';
         }
     }
 
@@ -215,7 +259,9 @@
                 admin: document.getElementById('totalAdmin').value,
                 staff: document.getElementById('totalStaff').value,
                 out: document.getElementById('totalOut').value,
-                brig: document.getElementById('totalBrig').value
+                brig: document.getElementById('totalBrig').value,
+                brigSort: document.getElementById('brigSort').value,
+                brigLoad: document.getElementById('brigLoad').value
             },
             rows: []
         };
@@ -223,11 +269,11 @@
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
             data.rows.push({
                 station: tr.querySelector('.station-name').textContent,
-                qty: tr.querySelector('.input-qty').value,
-                ak: tr.querySelector('.input-ak').value,
+                out: tr.querySelector('.input-out').value,
                 bak: tr.querySelector('.input-bak').value,
-                bst: tr.querySelector('.input-bst').value,
-                sht: tr.querySelector('.input-sht').value
+                ak: tr.querySelector('.input-ak').value,
+                sht: tr.querySelector('.input-sht').value,
+                bst: tr.querySelector('.input-bst').value
             });
         });
 
@@ -252,20 +298,22 @@
         document.getElementById('reportTime').value = data.time;
         
         if (data.totals) {
-            document.getElementById('totalAdmin').value = data.totals.admin;
-            document.getElementById('totalStaff').value = data.totals.staff;
-            document.getElementById('totalOut').value = data.totals.out;
-            document.getElementById('totalBrig').value = data.totals.brig;
+            document.getElementById('totalAdmin').value = data.totals.admin || '';
+            document.getElementById('totalStaff').value = data.totals.staff || '';
+            document.getElementById('totalOut').value = data.totals.out || '';
+            document.getElementById('totalBrig').value = data.totals.brig || '';
+            document.getElementById('brigSort').value = data.totals.brigSort || '';
+            document.getElementById('brigLoad').value = data.totals.brigLoad || '';
         }
 
         const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
         data.rows.forEach((row, index) => {
             if (rows[index]) {
-                rows[index].querySelector('.input-qty').value = row.qty;
-                rows[index].querySelector('.input-ak').value = row.ak;
-                rows[index].querySelector('.input-bak').value = row.bak;
-                rows[index].querySelector('.input-bst').value = row.bst;
-                rows[index].querySelector('.input-sht').value = row.sht;
+                rows[index].querySelector('.input-out').value = row.out || '';
+                rows[index].querySelector('.input-bak').value = row.bak || '';
+                rows[index].querySelector('.input-ak').value = row.ak || '';
+                rows[index].querySelector('.input-sht').value = row.sht || '';
+                rows[index].querySelector('.input-bst').value = row.bst || '';
             }
         });
         calculateTotals();
@@ -283,7 +331,7 @@
     }
 
     function exportCSV() {
-        let csv = 'Рабочая станция;Кол-во (Аутстафф);АК Компания;Бригадир АК;Бригадир Стаф;Штат\n';
+        let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
         
         document.querySelectorAll('#reportTable tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
@@ -300,6 +348,8 @@
         csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
         csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
+        csv += `Бриг. Стаф (Сортировка);${document.getElementById('brigSort').value}\n`;
+        csv += `Бриг. Стаф (Отгрузка);${document.getElementById('brigLoad').value}\n`;
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
