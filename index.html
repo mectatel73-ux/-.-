@@ -55,7 +55,6 @@
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
 
-        /* СТЕППЕР: [ − ] [ число ] [ + ] */
         .stepper {
             display: inline-flex;
             align-items: center;
@@ -64,59 +63,25 @@
             user-select: none;
         }
         .stepper .btn-minus {
-            width: 34px;
-            height: 34px;
-            border: none;
-            border-radius: 6px;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            color: white;
-            padding: 0;
-            margin: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: rgba(220, 53, 69, 0.75);
-            line-height: 1;
-            font-family: Arial, sans-serif;
-            opacity: 0.85;
+            width: 34px; height: 34px; border: none; border-radius: 6px;
+            font-size: 20px; font-weight: 700; cursor: pointer; color: white;
+            padding: 0; margin: 0; display: inline-flex; align-items: center;
+            justify-content: center; flex-shrink: 0;
+            background: rgba(220, 53, 69, 0.75); line-height: 1; font-family: Arial, sans-serif;
         }
         .stepper .btn-plus {
-            width: 34px;
-            height: 34px;
-            border: none;
-            border-radius: 6px;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            color: white;
-            padding: 0;
-            margin: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: rgba(25, 135, 84, 0.75);
-            line-height: 1;
-            font-family: Arial, sans-serif;
-            opacity: 0.85;
+            width: 34px; height: 34px; border: none; border-radius: 6px;
+            font-size: 20px; font-weight: 700; cursor: pointer; color: white;
+            padding: 0; margin: 0; display: inline-flex; align-items: center;
+            justify-content: center; flex-shrink: 0;
+            background: rgba(25, 135, 84, 0.75); line-height: 1; font-family: Arial, sans-serif;
         }
-        .stepper .btn-minus:active,
-        .stepper .btn-plus:active { transform: scale(0.9); opacity: 1; }
+        .stepper .btn-minus:active, .stepper .btn-plus:active { transform: scale(0.9); }
 
         .stepper input {
-            width: 40px;
-            height: 34px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 700;
-            padding: 0;
-            background: white;
-            margin: 0;
+            width: 40px; height: 34px; text-align: center;
+            border: 1px solid #ccc; border-radius: 6px;
+            font-size: 16px; font-weight: 700; padding: 0; background: white; margin: 0;
         }
         .stepper input::-webkit-outer-spin-button,
         .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -132,54 +97,32 @@
         .brig-cell .stepper .btn-minus,
         .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
 
-        .clean-view table { min-width: auto; }
-
         .grand-total-box { 
-            background: #d1e7dd; 
-            border: 2px solid #198754; 
-            border-radius: 6px; 
-            padding: 10px; 
-            margin-bottom: 12px; 
-            text-align: center; 
-            font-size: 14px; 
-            font-weight: 700; 
-            color: #0f5132; 
+            background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; 
+            padding: 10px; margin-bottom: 12px; text-align: center; 
+            font-size: 14px; font-weight: 700; color: #0f5132; 
         }
         .grand-total-box span { font-size: 22px; color: #0a3622; }
 
         .reconciliation-box { 
-            background: #fff3cd; 
-            border: 1px solid #ffe69c; 
-            border-radius: 6px; 
-            padding: 12px; 
-            margin-bottom: 12px; 
+            background: #fff3cd; border: 1px solid #ffe69c; 
+            border-radius: 6px; padding: 12px; margin-bottom: 12px; 
         }
         .reconciliation-box h3 { margin: 0 0 10px 0; color: #664d03; font-size: 15px; }
         .rec-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 8px; 
-            margin-bottom: 8px; 
+            gap: 8px; margin-bottom: 8px; 
         }
         .rec-item { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            gap: 6px; 
-            font-weight: 600; 
-            font-size: 14px;
-            background: rgba(255,255,255,0.5);
-            padding: 6px 8px;
-            border-radius: 5px;
+            display: flex; align-items: center; justify-content: space-between; 
+            gap: 6px; font-weight: 600; font-size: 14px;
+            background: rgba(255,255,255,0.5); padding: 6px 8px; border-radius: 5px;
         }
         .rec-item.admin { opacity: 0.75; }
         .rec-status { 
-            margin-top: 10px; 
-            font-size: 13px; 
-            font-weight: 700; 
-            padding: 10px; 
-            border-radius: 4px; 
-            line-height: 1.5; 
+            margin-top: 10px; font-size: 13px; font-weight: 700; 
+            padding: 10px; border-radius: 4px; line-height: 1.5; 
         }
         .status-ok { color: #0f5132; background: #d1e7dd; }
         .status-error { color: #842029; background: #f8d7da; }
@@ -234,7 +177,30 @@
             display: none; z-index: 9999; 
         }
 
-        /* Мобильная портретная */
+        /* Класс для режима картинки: скрываем все кнопки + / − */
+        body.snapshot-mode .stepper .btn-minus,
+        body.snapshot-mode .stepper .btn-plus { 
+            visibility: hidden;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+        body.snapshot-mode .stepper {
+            gap: 0;
+        }
+        body.snapshot-mode .stepper input {
+            border: 1px solid #999;
+            background: #ffffff;
+        }
+        body.snapshot-mode .buttons,
+        body.snapshot-mode .install-btn,
+        body.snapshot-mode .autosave-indicator,
+        body.snapshot-mode .analytics-box,
+        body.snapshot-mode .date-time-row { 
+            display: none !important; 
+        }
+
         @media (max-width: 768px) {
             body { padding: 5px; }
             .container { padding: 8px; border-radius: 6px; }
@@ -245,12 +211,10 @@
             th { font-size: 11px; padding: 6px 3px; }
             .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
             .stepper { gap: 2px; }
-            .stepper .btn-minus,
-            .stepper .btn-plus { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
             .stepper input { width: 36px; height: 30px; font-size: 14px; border-radius: 5px; }
             .brig-cell { padding: 6px 3px; }
-            .brig-cell .stepper .btn-minus,
-            .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 20px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 20px; }
             .brig-cell .stepper input { width: 50px; height: 36px; font-size: 18px; }
             .grand-total-box { padding: 8px; font-size: 13px; }
             .grand-total-box span { font-size: 20px; }
@@ -265,59 +229,45 @@
         }
 
         @media (max-width: 480px) {
-            .stepper .btn-minus,
-            .stepper .btn-plus { width: 28px; height: 28px; font-size: 16px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 28px; height: 28px; font-size: 16px; }
             .stepper input { width: 32px; height: 28px; font-size: 13px; }
-            .brig-cell .stepper .btn-minus,
-            .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; }
             .brig-cell .stepper input { width: 45px; height: 32px; font-size: 16px; }
             .station-name { max-width: 80px; font-size: 10px; }
             th { font-size: 10px; }
         }
 
-        /* === ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ === */
         @media (orientation: landscape) and (max-height: 500px) {
             body { padding: 4px; font-size: 11px; }
             .container { padding: 6px; max-width: 100%; }
             h2 { font-size: 14px; margin-bottom: 6px; }
-            
             .date-time-row { margin-bottom: 6px; gap: 8px; }
             .date-time-row label { font-size: 11px; }
             .date-time-row input { padding: 3px; font-size: 11px; }
-            
             .grand-total-box { padding: 6px; font-size: 12px; margin-bottom: 6px; }
             .grand-total-box span { font-size: 16px; }
             .grand-total-box div { font-size: 10px !important; }
-            
             .reconciliation-box { padding: 6px; margin-bottom: 6px; }
             .reconciliation-box h3 { font-size: 12px; margin-bottom: 6px; }
             .rec-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
             .rec-item { font-size: 11px; padding: 3px 5px; gap: 3px; }
             .rec-status { font-size: 11px; padding: 6px; margin-top: 6px; }
-            
             .table-wrap { overflow: visible; margin-bottom: 6px; }
             table { min-width: auto; width: 100%; table-layout: fixed; }
             th { font-size: 9px; padding: 3px 1px; }
             td { padding: 2px 1px; }
             .station-name { font-size: 9px; padding: 2px 3px; white-space: normal; word-break: break-word; }
-            
             .stepper { gap: 1px; }
-            .stepper .btn-minus,
-            .stepper .btn-plus { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
             .stepper input { width: 24px; height: 20px; font-size: 11px; border-radius: 3px; }
             .brig-cell { padding: 2px 1px; }
-            .brig-cell .stepper .btn-minus,
-            .brig-cell .stepper .btn-plus { width: 22px; height: 24px; font-size: 14px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 22px; height: 24px; font-size: 14px; }
             .brig-cell .stepper input { width: 30px; height: 24px; font-size: 13px; border: 1px solid #555; }
-            
             .total-row td { padding: 4px 1px; font-size: 11px; }
-            
             .buttons { gap: 4px; margin-top: 8px; }
             .buttons button { padding: 8px 4px; font-size: 11px; }
             .autosave-indicator { font-size: 10px; margin-top: 3px; }
-            
             .input-ak { padding: 3px !important; font-size: 10px !important; }
-            
             .analytics-box { padding: 8px; margin-top: 10px; }
             .analytics-box h3 { font-size: 13px; }
             .analytics-section { padding: 8px; margin-bottom: 6px; }
@@ -327,7 +277,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="captureArea">
     <h2>📦 Отчет по складу</h2>
     
     <div class="date-time-row">
@@ -409,7 +359,6 @@
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
-    // === PWA ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -428,7 +377,6 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // === Степпер: [ − ] [ input ] [ + ] ===
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -447,7 +395,6 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // === Станции ===
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
@@ -465,15 +412,11 @@
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
         }
-        
-        // Вставляем степперы в блок сверки
         document.querySelectorAll('.rec-item .stepper-container').forEach(container => {
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
-        
         renderTable();
-        
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => { calculateTotals(); saveData(false); });
         });
@@ -853,87 +796,36 @@
         link.click();
     }
 
+    // === НОВЫЙ downloadImage — просто скрываем кнопки через CSS-класс ===
     function downloadImage() {
         const date = document.getElementById('reportDate').value;
         const time = document.getElementById('reportTime').value.replace(':', '-');
+        const captureArea = document.getElementById('captureArea');
 
-        const buttons = document.querySelector('.buttons');
-        const indicator = document.getElementById('autosaveIndicator');
-        const analytics = document.querySelector('.analytics-box');
-        if (installBtn) installBtn.style.display = 'none';
-        buttons.style.display = 'none';
-        indicator.style.display = 'none';
-        analytics.style.display = 'none';
+        // 1. Добавляем класс snapshot-mode — CSS сам скроет все кнопки
+        document.body.classList.add('snapshot-mode');
 
-        const table = document.getElementById('reportTable');
-        const originalHTML = table.innerHTML;
-        const wrap = document.querySelector('.table-wrap');
-        const originalWrapClass = wrap.className;
+        // 2. Небольшая пауза, чтобы браузер успел перерисовать
+        setTimeout(() => {
+            html2canvas(captureArea, { 
+                scale: 2, 
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                // 3. Убираем класс — кнопки возвращаются
+                document.body.classList.remove('snapshot-mode');
 
-        const rowsData = [];
-        const sortBst = document.getElementById('bstSort')?.value || '0';
-        const loadBst = document.getElementById('bstLoad')?.value || '0';
-        
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            const station = tr.querySelector('.station-name').textContent;
-            const out = tr.querySelector('.input-out')?.value || '0';
-            const bak = tr.querySelector('.input-bak')?.value || '0';
-            const ak = tr.querySelector('.input-ak')?.value || '';
-            const sht = tr.querySelector('.input-sht')?.value || '0';
-            let bst = '';
-            if (idx === 0) bst = sortBst;
-            else if (idx === SORT_ZONES.length) bst = loadBst;
-            rowsData.push({ station, out, bak, ak, sht, bst, idx });
-        });
-
-        let cleanHTML = `<table><thead><tr>
-            <th>Рабочая станция</th><th>Аутстафф</th><th>Бриг. АК</th><th>АК Компания</th><th>Штат</th><th>Бриг. Стаф</th>
-        </tr></thead><tbody>`;
-        
-        rowsData.forEach(row => {
-            const isLoad = row.idx >= SORT_ZONES.length && row.idx < SORT_ZONES.length + LOAD_ZONES.length;
-            const isBreak = row.idx >= SORT_ZONES.length + LOAD_ZONES.length;
-            let rowStyle = '';
-            if (isLoad) rowStyle = 'style="background-color: #fff7e6;"';
-            else if (isBreak) rowStyle = 'style="background-color: #f5f5f5;"';
-            else rowStyle = 'style="background-color: #f0f7ff;"';
-            cleanHTML += `<tr ${rowStyle}>
-                <td class="station-name">${row.station}</td>
-                <td>${row.out}</td>
-                <td>${row.bak}</td>
-                <td>${row.ak}</td>
-                <td>${row.sht}</td>
-                <td>${row.bst}</td>
-            </tr>`;
-        });
-
-        cleanHTML += `<tr class="total-row">
-            <td style="text-align: right; font-weight: bold;">ИТОГ:</td>
-            <td>${document.getElementById('total-out').textContent}</td>
-            <td>${document.getElementById('total-bak').textContent}</td>
-            <td></td>
-            <td>${document.getElementById('total-sht').textContent}</td>
-            <td>${document.getElementById('total-bst').textContent}</td>
-        </tr>`;
-        cleanHTML += '</tbody></table>';
-
-        table.innerHTML = cleanHTML;
-        wrap.className = 'table-wrap clean-view';
-
-        const container = document.querySelector('.container');
-        html2canvas(container, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
-            table.innerHTML = originalHTML;
-            wrap.className = originalWrapClass;
-            buttons.style.display = 'grid';
-            indicator.style.display = 'block';
-            analytics.style.display = 'block';
-            if (installBtn && deferredPrompt) installBtn.style.display = 'block';
-            window.dispatchEvent(new Event('load'));
-            const link = document.createElement('a');
-            link.download = `Отчет_${date}_${time}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
+                // 4. Скачиваем
+                const link = document.createElement('a');
+                link.download = `Отчет_${date}_${time}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                document.body.classList.remove('snapshot-mode');
+                alert('Ошибка при создании картинки: ' + err);
+            });
+        }, 100);
     }
 </script>
 
