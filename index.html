@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
     
-    <!-- ИКОНКИ -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
     
-    <!-- PWA -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -51,7 +49,7 @@
 
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
 
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; font-weight: 600; font-size: 12px; padding: 8px 4px; white-space: nowrap; }
         .station-name { text-align: left; font-weight: 600; background-color: #f8f9fa; font-size: 13px; white-space: nowrap; padding: 6px 8px; }
@@ -100,6 +98,130 @@
         .brig-cell .stepper input { width: 60px; height: 44px; font-size: 22px; border: 2px solid #555; }
         .brig-cell .stepper .btn-minus,
         .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
+
+        /* === КОМПАНИИ (чипсы) === */
+        .companies-cell {
+            text-align: left;
+            padding: 4px 6px;
+            vertical-align: top;
+            min-width: 180px;
+        }
+        .companies-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+        .company-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+            border-radius: 14px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .company-chip .remove-chip {
+            cursor: pointer;
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1;
+            margin-left: 2px;
+            padding: 0 2px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+        .company-chip .remove-chip:active { background: #ffcdd2; }
+        
+        .add-company-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .add-company-btn:active { background: #388e3c; }
+
+        /* === МОДАЛЬНОЕ ОКНО ВЫБОРА КОМПАНИИ === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+            text-align: center;
+        }
+        .modal-company-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .modal-company-item {
+            padding: 12px 8px;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .modal-company-item:hover { background: #e0e0e0; }
+        .modal-company-item.selected {
+            background: #c8e6c9;
+            border-color: #4CAF50;
+            color: #1b5e20;
+        }
+        .modal-company-item.disabled {
+            background: #eeeeee;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .modal-close-btn {
+            display: block;
+            margin: 15px auto 0;
+            padding: 10px 30px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
 
         .grand-total-box { 
             background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; 
@@ -191,10 +313,10 @@
             overflow: hidden;
         }
         body.snapshot-mode .stepper { gap: 0; }
-        body.snapshot-mode .stepper input { 
-            border: 1px solid #999; 
-            background: #ffffff; 
-        }
+        body.snapshot-mode .stepper input { border: 1px solid #999; background: #ffffff; }
+        body.snapshot-mode .add-company-btn { display: none !important; }
+        body.snapshot-mode .company-chip .remove-chip { display: none !important; }
+        body.snapshot-mode .company-chip { padding: 4px 8px; }
         body.snapshot-mode .buttons,
         body.snapshot-mode .install-btn,
         body.snapshot-mode .autosave-indicator,
@@ -219,13 +341,7 @@
             user-select: none;
         }
         .snapshot-hint:hover { background: #ffe69c; }
-        .snapshot-hint small {
-            display: block;
-            font-weight: 400;
-            font-size: 12px;
-            margin-top: 6px;
-            color: #666;
-        }
+        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
 
         @media (max-width: 768px) {
             body { padding: 5px; }
@@ -251,7 +367,9 @@
             .rec-status { font-size: 12px; padding: 8px; }
             .buttons { gap: 6px; }
             .buttons button { padding: 10px 6px; font-size: 13px; }
-            table { min-width: 650px; }
+            table { min-width: 750px; }
+            .company-chip { font-size: 10px; padding: 3px 6px; }
+            .add-company-btn { font-size: 10px; padding: 4px 8px; }
         }
 
         @media (max-width: 480px) {
@@ -293,11 +411,13 @@
             .buttons { gap: 4px; margin-top: 8px; }
             .buttons button { padding: 8px 4px; font-size: 11px; }
             .autosave-indicator { font-size: 10px; margin-top: 3px; }
-            .input-ak { padding: 3px !important; font-size: 10px !important; }
             .analytics-box { padding: 8px; margin-top: 10px; }
             .analytics-box h3 { font-size: 13px; }
             .analytics-section { padding: 8px; margin-bottom: 6px; }
             .analytics-section h4 { font-size: 12px; }
+            .companies-cell { min-width: 120px; padding: 2px 3px; }
+            .company-chip { font-size: 9px; padding: 2px 5px; }
+            .add-company-btn { font-size: 9px; padding: 3px 6px; }
         }
     </style>
 </head>
@@ -387,9 +507,30 @@
     </div>
 </div>
 
+<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА КОМПАНИИ -->
+<div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
+    <div class="modal">
+        <h3>Выберите компанию</h3>
+        <div class="modal-company-list" id="modalCompanyList"></div>
+        <button class="modal-close-btn" onclick="closeCompanyModal()">Закрыть</button>
+    </div>
+</div>
+
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
+    // Список доступных компаний
+    const COMPANIES = [
+        "Кадры",
+        "Чередниченко",
+        "Армас",
+        "Мирус",
+        "Виро-Стафф",
+        "Скилла",
+        "Юнитворк",
+        "Эг Стафф"
+    ];
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -426,11 +567,97 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // === Режим подготовки к скриншоту ===
+    // ===== РАБОТА С КОМПАНИЯМИ (чипсами) =====
+    let currentEditingCompanyRow = null;
+
+    function openCompanyModal(rowIdx) {
+        currentEditingCompanyRow = rowIdx;
+        const current = getRowCompanies(rowIdx);
+        const modalList = document.getElementById('modalCompanyList');
+        modalList.innerHTML = '';
+        
+        COMPANIES.forEach(comp => {
+            const div = document.createElement('div');
+            div.className = 'modal-company-item';
+            div.textContent = comp;
+            if (current.includes(comp)) {
+                div.classList.add('selected');
+            }
+            div.onclick = () => toggleCompanyInModal(comp, div);
+            modalList.appendChild(div);
+        });
+        
+        document.getElementById('companyModal').classList.add('active');
+    }
+
+    function toggleCompanyInModal(comp, el) {
+        el.classList.toggle('selected');
+        // Применяем сразу — обновляем чипсы в строке
+        applySelectedCompanies();
+    }
+
+    function applySelectedCompanies() {
+        if (currentEditingCompanyRow === null) return;
+        const rowIdx = currentEditingCompanyRow;
+        const selected = [];
+        document.querySelectorAll('#modalCompanyList .modal-company-item.selected').forEach(el => {
+            selected.push(el.textContent);
+        });
+        setRowCompanies(rowIdx, selected);
+    }
+
+    function closeCompanyModal() {
+        document.getElementById('companyModal').classList.remove('active');
+        currentEditingCompanyRow = null;
+        saveData(false);
+    }
+
+    function getRowCompanies(rowIdx) {
+        const row = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[rowIdx];
+        if (!row) return [];
+        const chips = row.querySelectorAll('.companies-list .company-chip');
+        const result = [];
+        chips.forEach(chip => {
+            const name = chip.getAttribute('data-company');
+            if (name) result.push(name);
+        });
+        return result;
+    }
+
+    function setRowCompanies(rowIdx, companies) {
+        const row = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[rowIdx];
+        if (!row) return;
+        const list = row.querySelector('.companies-list');
+        if (!list) return;
+        
+        // Сохраняем кнопку "+"
+        const addBtn = list.querySelector('.add-company-btn');
+        
+        // Очищаем все чипсы
+        list.querySelectorAll('.company-chip').forEach(c => c.remove());
+        
+        // Вставляем новые чипсы перед кнопкой
+        companies.forEach(comp => {
+            const chip = document.createElement('span');
+            chip.className = 'company-chip';
+            chip.setAttribute('data-company', comp);
+            chip.innerHTML = `${comp}<span class="remove-chip" onclick="removeCompany(${rowIdx}, '${comp.replace(/'/g, "\\'")}')">×</span>`;
+            list.insertBefore(chip, addBtn);
+        });
+    }
+
+    function removeCompany(rowIdx, comp) {
+        const current = getRowCompanies(rowIdx);
+        const updated = current.filter(c => c !== comp);
+        setRowCompanies(rowIdx, updated);
+        saveData(false);
+        calculateTotals();
+    }
+
+    // ===== СКРИНШОТ =====
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
-        const hint = document.getElementById('snapshotHint');
 
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
@@ -440,10 +667,6 @@
             body.classList.add('snapshot-mode');
             if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (hint) {
-                hint.style.animation = 'none';
-                setTimeout(() => { hint.style.animation = ''; }, 10);
-            }
         }
     }
 
@@ -472,9 +695,6 @@
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => { calculateTotals(); saveData(false); });
         });
-        document.querySelectorAll('input[type="text"]').forEach(input => {
-            input.addEventListener('input', () => saveData(false));
-        });
         loadData();
         renderAnalytics();
     });
@@ -493,12 +713,16 @@
             if (idx >= breakStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
 
-            const outId = `out_${idx}`, bakId = `bak_${idx}`, akId = `ak_${idx}`, shtId = `sht_${idx}`;
+            const outId = `out_${idx}`, bakId = `bak_${idx}`, shtId = `sht_${idx}`;
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
                 <td>${createStepperHTML(outId, 'input-out')}</td>
                 <td>${createStepperHTML(bakId, 'input-bak')}</td>
-                <td><input type="text" id="${akId}" class="input-ak" placeholder="" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px;"></td>
+                <td class="companies-cell">
+                    <div class="companies-list" data-row="${idx}">
+                        <button type="button" class="add-company-btn" onclick="openCompanyModal(${idx})">+ Добавить</button>
+                    </div>
+                </td>
                 <td>${createStepperHTML(shtId, 'input-sht')}</td>
             `;
             if (idx === 0) {
@@ -577,12 +801,13 @@
 
     function saveData(showAlert) {
         const rows = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            const companies = getRowCompanies(idx);
             rows.push({
                 station: tr.querySelector('.station-name').textContent,
                 out: tr.querySelector('.input-out')?.value || '',
                 bak: tr.querySelector('.input-bak')?.value || '',
-                ak: tr.querySelector('.input-ak')?.value || '',
+                companies: companies,
                 sht: tr.querySelector('.input-sht')?.value || ''
             });
         });
@@ -612,13 +837,13 @@
     function archiveCurrentReport() {
         const rows = [];
         let totalOut = 0, totalBak = 0, totalSht = 0;
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
             const out = Number(tr.querySelector('.input-out')?.value) || 0;
             const bak = Number(tr.querySelector('.input-bak')?.value) || 0;
-            const ak = tr.querySelector('.input-ak')?.value || '';
+            const companies = getRowCompanies(idx);
             const sht = Number(tr.querySelector('.input-sht')?.value) || 0;
-            rows.push({ station, out, bak, ak, sht });
+            rows.push({ station, out, bak, companies, sht });
             totalOut += out; totalBak += bak; totalSht += sht;
         });
         const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
@@ -756,12 +981,14 @@
             if (rows[index]) {
                 const outInput = rows[index].querySelector('.input-out');
                 const bakInput = rows[index].querySelector('.input-bak');
-                const akInput = rows[index].querySelector('.input-ak');
                 const shtInput = rows[index].querySelector('.input-sht');
                 if (outInput) outInput.value = row.out || 0;
                 if (bakInput) bakInput.value = row.bak || 0;
-                if (akInput) akInput.value = row.ak || '';
                 if (shtInput) shtInput.value = row.sht || 0;
+                // Компании
+                if (row.companies && Array.isArray(row.companies)) {
+                    setRowCompanies(index, row.companies);
+                }
             }
         });
         calculateTotals();
@@ -797,12 +1024,14 @@
             if (rows[index]) {
                 const outInput = rows[index].querySelector('.input-out');
                 const bakInput = rows[index].querySelector('.input-bak');
-                const akInput = rows[index].querySelector('.input-ak');
                 const shtInput = rows[index].querySelector('.input-sht');
                 if (outInput) outInput.value = row.out || '';
                 if (bakInput) bakInput.value = row.bak || '';
-                if (akInput) akInput.value = row.ak || '';
                 if (shtInput) shtInput.value = row.sht || '';
+                // Компании
+                if (row.companies && Array.isArray(row.companies)) {
+                    setRowCompanies(index, row.companies);
+                }
             }
         });
         calculateTotals();
@@ -811,7 +1040,11 @@
     function clearData() {
         if(confirm('Очистить все поля?')) {
             document.querySelectorAll('input').forEach(input => {
-                if(input.type === 'number' || input.type === 'text') input.value = '';
+                if(input.type === 'number') input.value = '';
+            });
+            // Убираем все чипсы
+            document.querySelectorAll('.companies-list').forEach(list => {
+                list.querySelectorAll('.company-chip').forEach(c => c.remove());
             });
             localStorage.removeItem('warehouseReport');
             calculateTotals();
@@ -827,12 +1060,12 @@
             const station = tr.querySelector('.station-name').textContent;
             const out = tr.querySelector('.input-out')?.value || '';
             const bak = tr.querySelector('.input-bak')?.value || '';
-            const ak = tr.querySelector('.input-ak')?.value || '';
+            const companies = getRowCompanies(idx).join(', ');
             const sht = tr.querySelector('.input-sht')?.value || '';
             let bst = '';
             if (idx === 0) bst = sortBst;
             if (idx === SORT_ZONES.length) bst = loadBst;
-            csv += `${station};${out};${bak};${ak};${sht};${bst}\n`;
+            csv += `${station};${out};${bak};${companies};${sht};${bst}\n`;
         });
         csv += '\n--- СВЕРКА ---\n';
         csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
