@@ -303,8 +303,7 @@
         body.snapshot-mode .autosave-indicator,
         body.snapshot-mode .analytics-box,
         body.snapshot-mode .date-time-row,
-        body.snapshot-mode .sync-status,
-        body.snapshot-mode .zoom-panel { 
+        body.snapshot-mode .sync-status { 
             display: none !important; 
         }
         body.snapshot-mode .snapshot-hint { display: block !important; }
@@ -317,7 +316,6 @@
             min-width: auto !important;
             width: 100% !important;
             table-layout: fixed !important;
-            transform: none !important;
         }
         body.snapshot-mode th {
             font-size: 9px !important;
@@ -539,7 +537,7 @@
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
     </div>
 
-    <div class="zoom-panel">
+    <div class="zoom-panel" id="zoomPanel">
         <span class="zoom-label">🔍 Масштаб:</span>
         <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
         <span class="zoom-value" id="zoomValue">100%</span>
@@ -752,12 +750,12 @@
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
             if (btn) btn.innerHTML = '📸 Подготовить скрин';
-            // Возвращаем масштаб, который был до скриншота
-            applyZoom();
+            setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             body.classList.add('snapshot-mode');
             if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
+            setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
@@ -772,14 +770,6 @@
         const table = document.querySelector('#reportTable');
         const wrap = document.getElementById('tableWrap');
         if (!table || !wrap) return;
-
-        // В режиме скриншота масштаб не применяем (там своя логика сжатия)
-        if (document.body.classList.contains('snapshot-mode')) {
-            table.style.transform = '';
-            table.style.transformOrigin = '';
-            wrap.style.height = '';
-            return;
-        }
 
         const scale = currentZoom / 100;
         table.style.transform = `scale(${scale})`;
@@ -853,9 +843,7 @@
     });
 
     window.addEventListener('resize', () => {
-        if (!document.body.classList.contains('snapshot-mode')) {
-            applyZoom();
-        }
+        applyZoom();
     });
 
     function initFirebase() {
