@@ -10,49 +10,44 @@
         .container { max-width: 900px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { text-align: center; margin-top: 0; color: #333; }
         
-        /* Стили для таблицы */
         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         th, td { border: 1px solid #ccc; padding: 6px; text-align: center; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; font-weight: normal; font-size: 13px; }
         .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; }
         
-        /* Поля ввода */
-        input[type="number"] { width: 50px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         input[type="text"] { width: 90%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
         
-        /* Итоговая строка */
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
 
-        /* Блок сверки */
         .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-        .reconciliation-box h3 { margin-top: 0; color: #664d03; }
+        .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 16px; }
         .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; }
         .rec-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
-        .rec-item input { width: 60px; }
-        .rec-status { margin-top: 10px; font-size: 16px; font-weight: bold; }
-        .status-ok { color: #198754; }
-        .status-error { color: #dc3545; }
+        .rec-item input { width: 65px; }
+        .rec-status { margin-top: 12px; font-size: 15px; font-weight: bold; padding: 8px; border-radius: 4px; text-align: center; }
+        .status-ok { color: #0f5132; background: #d1e7dd; }
+        .status-error { color: #842029; background: #f8d7da; }
 
-        /* Кнопки */
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; color: white; transition: 0.2s; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; color: white; transition: 0.2s; min-width: 150px; }
         .btn-save { background-color: #0d6efd; }
         .btn-save:hover { background-color: #0b5ed7; }
         .btn-export { background-color: #198754; }
         .btn-export:hover { background-color: #157347; }
         .btn-img { background-color: #6f42c1; }
         .btn-img:hover { background-color: #5a32a3; }
-        .btn-clear { background-color: #dc3545; flex: 0 0 100px; }
+        .btn-clear { background-color: #dc3545; }
         .btn-clear:hover { background-color: #bb2d3b; }
 
-        /* Адаптив для телефонов */
         @media (max-width: 700px) {
-            th, td { padding: 4px; font-size: 12px; }
-            input[type="number"] { width: 40px; padding: 2px; }
-            input[type="text"] { width: 100%; }
-            .container { padding: 10px; }
+            th, td { padding: 3px; font-size: 11px; }
+            input[type="number"] { width: 40px; padding: 2px; font-size: 12px; }
+            input[type="text"] { width: 100%; font-size: 11px; }
+            .container { padding: 8px; }
             .rec-grid { flex-direction: column; gap: 8px; }
+            .rec-item { justify-content: space-between; }
         }
     </style>
 </head>
@@ -61,12 +56,11 @@
 <div class="container">
     <h2>📦 Отчет по складу</h2>
     
-    <div style="text-align: center; margin-bottom: 10px;">
+    <div style="text-align: center; margin-bottom: 15px;">
         <label>Дата: <input type="date" id="reportDate" style="padding: 4px;"></label>
-        <label>Время: <input type="time" id="reportTime" style="padding: 4px;"></label>
+        <label style="margin-left: 10px;">Время: <input type="time" id="reportTime" style="padding: 4px;"></label>
     </div>
 
-    <!-- Блок контроля расхождений -->
     <div class="reconciliation-box">
         <h3>👥 Всего людей на смене (для сверки)</h3>
         <div class="rec-grid">
@@ -89,41 +83,26 @@
                 <th style="width: 10%;">Штат</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Строки будут добавлены через JavaScript -->
-        </tbody>
+        <tbody></tbody>
     </table>
 
     <div class="buttons">
         <button class="btn-save" onclick="saveData()">💾 Сохранить</button>
-        <button class="btn-export" onclick="exportCSV()">📥 Скачать Excel (CSV)</button>
+        <button class="btn-export" onclick="exportCSV()">📥 Скачать Excel</button>
         <button class="btn-img" onclick="downloadImage()">📸 Скачать картинку</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
     </div>
 </div>
 
 <script>
-    // Список ваших станций
     const stations = [
-        "Веер, Ромашка",
-        "Батч",
-        "Отгрузка ЛХ",
-        "КГТ",
-        "Сорт ВП",
-        "Перебор хранения",
-        "МК",
-        "Раскатка буфера",
-        "Отгрузка МК",
-        "Саппорт СКК",
-        "Отгрузка АХ ВП",
-        "Наведение порядка",
-        "Перебор оборотной тары",
-        "Прием мерчей",
-        "Обед (30 минут)",
-        "Перекур (15 минут)"
+        "Веер, Ромашка", "Батч", "Отгрузка ЛХ", "КГТ", "Сорт ВП", 
+        "Перебор хранения", "МК", "Раскатка буфера", "Отгрузка МК", 
+        "Саппорт СКК", "Отгрузка АХ ВП", "Наведение порядка", 
+        "Перебор оборотной тары", "Прием мерчей", 
+        "Обед (30 минут)", "Перекур (15 минут)"
     ];
 
-    // Инициализация таблицы при загрузке
     window.onload = function() {
         const now = new Date();
         document.getElementById('reportDate').value = now.toISOString().split('T')[0];
@@ -132,7 +111,6 @@
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
 
-        // Генерируем строки
         stations.forEach(station => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -146,7 +124,6 @@
             tbody.appendChild(tr);
         });
 
-        // Добавляем итоговую строку
         const totalTr = document.createElement('tr');
         totalTr.className = 'total-row';
         totalTr.innerHTML = `
@@ -159,16 +136,13 @@
         `;
         tbody.appendChild(totalTr);
 
-        // Добавляем слушателей для автоматического пересчета
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateTotals);
         });
 
-        // Загружаем сохраненные данные
         loadData();
     };
 
-    // Функция подсчета итогов и сверки
     function calculateTotals() {
         let qty = 0, bak = 0, bst = 0, sht = 0;
         
@@ -184,17 +158,13 @@
         document.getElementById('total-bst').textContent = bst;
         document.getElementById('total-sht').textContent = sht;
 
-        // Логика сверки
         const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
         const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
         
         const declaredTotal = totalAdmin + totalStaff + totalOut + totalBrig;
-        
-        // Сумма всех людей, распределенных по зонам (сумма всех бригадиров и штата)
         const actualTotal = bak + bst + sht;
-        
         const diff = declaredTotal - actualTotal;
         const statusDiv = document.getElementById('recStatus');
 
@@ -210,7 +180,6 @@
         }
     }
 
-    // Сохранение в LocalStorage
     function saveData() {
         const data = {
             date: document.getElementById('reportDate').value,
@@ -236,10 +205,9 @@
         });
 
         localStorage.setItem('warehouseReport', JSON.stringify(data));
-        alert('✅ Отчет сохранен в память устройства!');
+        alert('✅ Отчет сохранен!');
     }
 
-    // Загрузка из LocalStorage
     function loadData() {
         const saved = localStorage.getItem('warehouseReport');
         if (!saved) return;
@@ -268,7 +236,6 @@
         calculateTotals();
     }
 
-    // Очистка полей
     function clearData() {
         if(confirm('Вы уверены, что хотите очистить все поля?')) {
             document.querySelectorAll('input').forEach(input => {
@@ -279,48 +246,32 @@
         }
     }
 
-    // Экспорт в CSV (открывается в Excel)
     function exportCSV() {
         let csv = 'Рабочая станция;Количество;АК Компания;Бригадир АК;Бригадир Стаф;Штат\n';
         
         document.querySelectorAll('#reportTable tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
             const rowData = [];
-            
             cells.forEach((cell, index) => {
-                if (index === 0 || index === 2) {
-                    const input = cell.querySelector('input');
-                    rowData.push(input ? input.value : cell.textContent);
-                } else {
-                    const input = cell.querySelector('input');
-                    rowData.push(input ? input.value : cell.textContent);
-                }
+                const input = cell.querySelector('input');
+                rowData.push(input ? input.value : cell.textContent);
             });
-            
-            csv += rowData.join(';').replace(/;/g, ',') + '\n';
+            csv += rowData.join(';') + '\n';
         });
 
-        // Добавляем данные сверки в конец CSV
         csv += '\n--- СВЕРКА ---\n';
         csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
         csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
         csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
-        csv += `Итого на смене;${(Number(document.getElementById('totalAdmin').value)||0)+(Number(document.getElementById('totalStaff').value)||0)+(Number(document.getElementById('totalOut').value)||0)+(Number(document.getElementById('totalBrig').value)||0)}\n`;
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
+        link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', `Отчет_склад_${document.getElementById('reportDate').value}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
     }
 
-    // Функция скачивания картинки
     function downloadImage() {
         const element = document.querySelector('.container');
         const date = document.getElementById('reportDate').value;
@@ -331,7 +282,6 @@
 
         html2canvas(element, { scale: 2 }).then(canvas => {
             buttons.style.display = 'flex';
-
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
