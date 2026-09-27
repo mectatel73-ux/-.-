@@ -754,9 +754,6 @@
         renderTable();
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => {
-                if (input.id === 'totalStaff') {
-                    distributeStaffFromTop();
-                }
                 calculateTotals();
                 saveDataToFirebase();
             });
@@ -981,17 +978,6 @@
             <td id="total-bst">0</td>
         `;
         tbody.appendChild(totalTr);
-    }
-
-    // === ВАРИАНТ А: раскидываем «Штатные» сверху по колонке «Штат» в таблице ===
-    function distributeStaffFromTop() {
-        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
-        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-        if (rows.length === 0) return;
-        const firstRowSht = rows[0].querySelector('.input-sht');
-        if (firstRowSht) {
-            firstRowSht.value = totalStaff;
-        }
     }
 
     function calculateTotals() {
