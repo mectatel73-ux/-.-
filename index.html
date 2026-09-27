@@ -37,6 +37,20 @@
         }
         h2 { text-align: center; margin: 0 0 12px 0; color: #333; font-size: 18px; }
         
+        /* Индикатор синхронизации */
+        .sync-status {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        .sync-online { background: #d1e7dd; color: #0f5132; }
+        .sync-offline { background: #f8d7da; color: #842029; }
+        .sync-connecting { background: #fff3cd; color: #664d03; }
+        
         .date-time-row {
             display: flex;
             justify-content: center;
@@ -100,127 +114,53 @@
         .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
 
         /* === КОМПАНИИ (чипсы) === */
-        .companies-cell {
-            text-align: left;
-            padding: 4px 6px;
-            vertical-align: top;
-            min-width: 180px;
-        }
-        .companies-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-        }
+        .companies-cell { text-align: left; padding: 4px 6px; vertical-align: top; min-width: 180px; }
+        .companies-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .company-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #e3f2fd;
-            color: #0d47a1;
-            border: 1px solid #90caf9;
-            border-radius: 14px;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #e3f2fd; color: #0d47a1;
+            border: 1px solid #90caf9; border-radius: 14px;
+            padding: 4px 8px; font-size: 12px; font-weight: 600; white-space: nowrap;
         }
         .company-chip .remove-chip {
-            cursor: pointer;
-            color: #d32f2f;
-            font-weight: bold;
-            font-size: 14px;
-            line-height: 1;
-            margin-left: 2px;
-            padding: 0 2px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
+            cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 14px;
+            line-height: 1; margin-left: 2px; padding: 0 2px;
+            border-radius: 50%; background: rgba(255,255,255,0.5);
         }
         .company-chip .remove-chip:active { background: #ffcdd2; }
-        
         .add-company-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 14px;
-            padding: 5px 10px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #4CAF50; color: white; border: none;
+            border-radius: 14px; padding: 5px 10px;
+            font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap;
         }
         .add-company-btn:active { background: #388e3c; }
 
-        /* === МОДАЛЬНОЕ ОКНО ВЫБОРА КОМПАНИИ === */
+        /* === МОДАЛЬНОЕ ОКНО === */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 10000;
+            align-items: center; justify-content: center; padding: 20px;
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
+            background: white; border-radius: 12px; padding: 20px;
+            max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        .modal h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 16px;
-            text-align: center;
-        }
-        .modal-company-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
+        .modal h3 { margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center; }
+        .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .modal-company-item {
-            padding: 12px 8px;
-            background: #f5f5f5;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            user-select: none;
+            padding: 12px 8px; background: #f5f5f5; border: 2px solid transparent;
+            border-radius: 8px; text-align: center; font-weight: 600;
+            font-size: 13px; cursor: pointer; user-select: none;
         }
         .modal-company-item:hover { background: #e0e0e0; }
-        .modal-company-item.selected {
-            background: #c8e6c9;
-            border-color: #4CAF50;
-            color: #1b5e20;
-        }
-        .modal-company-item.disabled {
-            background: #eeeeee;
-            color: #999;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
+        .modal-company-item.selected { background: #c8e6c9; border-color: #4CAF50; color: #1b5e20; }
         .modal-close-btn {
-            display: block;
-            margin: 15px auto 0;
-            padding: 10px 30px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
+            display: block; margin: 15px auto 0; padding: 10px 30px;
+            background: #dc3545; color: white; border: none;
+            border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer;
         }
 
         .grand-total-box { 
@@ -236,8 +176,7 @@
         }
         .reconciliation-box h3 { margin: 0 0 10px 0; color: #664d03; font-size: 15px; }
         .rec-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
             gap: 8px; margin-bottom: 8px; 
         }
         .rec-item { 
@@ -303,42 +242,31 @@
             display: none; z-index: 9999; 
         }
 
-        /* === РЕЖИМ СКРИНШОТА === */
+        /* Режим скриншота */
         body.snapshot-mode .stepper .btn-minus,
         body.snapshot-mode .stepper .btn-plus { 
-            visibility: hidden;
-            width: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden;
+            visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
         }
         body.snapshot-mode .stepper { gap: 0; }
         body.snapshot-mode .stepper input { border: 1px solid #999; background: #ffffff; }
         body.snapshot-mode .add-company-btn { display: none !important; }
         body.snapshot-mode .company-chip .remove-chip { display: none !important; }
-        body.snapshot-mode .company-chip { padding: 4px 8px; }
         body.snapshot-mode .buttons,
         body.snapshot-mode .install-btn,
         body.snapshot-mode .autosave-indicator,
         body.snapshot-mode .analytics-box,
-        body.snapshot-mode .date-time-row { 
+        body.snapshot-mode .date-time-row,
+        body.snapshot-mode .sync-status { 
             display: none !important; 
         }
         body.snapshot-mode .snapshot-hint { display: block !important; }
 
         .snapshot-hint {
             display: none;
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            color: #664d03;
-            padding: 14px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            user-select: none;
+            background: #fff3cd; border: 2px solid #ffc107; color: #664d03;
+            padding: 14px; border-radius: 8px; text-align: center;
+            font-weight: 700; font-size: 14px; margin-bottom: 12px;
+            cursor: pointer; user-select: none;
         }
         .snapshot-hint:hover { background: #ffe69c; }
         .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
@@ -426,6 +354,8 @@
 <div class="container" id="captureArea">
     <h2>📦 Отчет по складу</h2>
     
+    <div class="sync-status sync-connecting" id="syncStatus">🔄 Подключение к серверу...</div>
+    
     <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
         📸 <b>Готово к скриншоту!</b>
         <small>Сделайте скриншот телефона. Нажмите сюда, чтобы вернуть кнопки.</small>
@@ -507,7 +437,6 @@
     </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ВЫБОРА КОМПАНИИ -->
 <div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
     <div class="modal">
         <h3>Выберите компанию</h3>
@@ -518,19 +447,65 @@
 
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
-<script>
-    // Список доступных компаний
-    const COMPANIES = [
-        "Кадры",
-        "Чередниченко",
-        "Армас",
-        "Мирус",
-        "Виро-Стафф",
-        "Скилла",
-        "Юнитворк",
-        "Эг Стафф"
-    ];
+<!-- ============ FIREBASE SDK ============ -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    const firebaseConfig = {
+        apiKey: "AIzaSyCzOIfr5R7Y2U4ijB--hBPMX-SK25J6ews",
+        authDomain: "check-6564d.firebaseapp.com",
+        projectId: "check-6564d",
+        storageBucket: "check-6564d.firebasestorage.app",
+        messagingSenderId: "510286120071",
+        appId: "1:510286120071:web:9b90235ff2ba721b46a422",
+        measurementId: "G-TMR2BB11R0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Включаем офлайн-режим
+    try {
+        await enableIndexedDbPersistence(db);
+        console.log('✅ Офлайн-режим Firestore включён');
+    } catch (err) {
+        console.log('ℹ️ Офлайн-режим:', err.code);
+    }
+
+    // Даём доступ к функциям синхронизации из основного скрипта
+    window.FB = { db, doc, setDoc, onSnapshot, getDoc };
+
+    // Сообщаем основному скрипту, что Firebase готов
+    window.dispatchEvent(new Event('firebaseReady'));
+</script>
+
+<script>
+    // ============ ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ============
+    const COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
+    
+    // Статус синхронизации
+    const syncStatusEl = () => document.getElementById('syncStatus');
+    function setSyncStatus(status, text) {
+        const el = syncStatusEl();
+        if (!el) return;
+        el.className = 'sync-status sync-' + status;
+        el.textContent = text;
+    }
+
+    // Проверка онлайна
+    function updateOnlineStatus() {
+        if (navigator.onLine) {
+            setSyncStatus('online', '✅ Синхронизировано');
+        } else {
+            setSyncStatus('offline', '📴 Нет интернета — данные сохранятся при подключении');
+        }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -549,6 +524,7 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
+    // Степперы
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -567,7 +543,7 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // ===== РАБОТА С КОМПАНИЯМИ (чипсами) =====
+    // Компании
     let currentEditingCompanyRow = null;
 
     function openCompanyModal(rowIdx) {
@@ -575,24 +551,19 @@
         const current = getRowCompanies(rowIdx);
         const modalList = document.getElementById('modalCompanyList');
         modalList.innerHTML = '';
-        
         COMPANIES.forEach(comp => {
             const div = document.createElement('div');
             div.className = 'modal-company-item';
             div.textContent = comp;
-            if (current.includes(comp)) {
-                div.classList.add('selected');
-            }
+            if (current.includes(comp)) div.classList.add('selected');
             div.onclick = () => toggleCompanyInModal(comp, div);
             modalList.appendChild(div);
         });
-        
         document.getElementById('companyModal').classList.add('active');
     }
 
     function toggleCompanyInModal(comp, el) {
         el.classList.toggle('selected');
-        // Применяем сразу — обновляем чипсы в строке
         applySelectedCompanies();
     }
 
@@ -609,7 +580,7 @@
     function closeCompanyModal() {
         document.getElementById('companyModal').classList.remove('active');
         currentEditingCompanyRow = null;
-        saveData(false);
+        saveDataToFirebase();
     }
 
     function getRowCompanies(rowIdx) {
@@ -629,14 +600,8 @@
         if (!row) return;
         const list = row.querySelector('.companies-list');
         if (!list) return;
-        
-        // Сохраняем кнопку "+"
         const addBtn = list.querySelector('.add-company-btn');
-        
-        // Очищаем все чипсы
         list.querySelectorAll('.company-chip').forEach(c => c.remove());
-        
-        // Вставляем новые чипсы перед кнопкой
         companies.forEach(comp => {
             const chip = document.createElement('span');
             chip.className = 'company-chip';
@@ -650,15 +615,13 @@
         const current = getRowCompanies(rowIdx);
         const updated = current.filter(c => c !== comp);
         setRowCompanies(rowIdx, updated);
-        saveData(false);
-        calculateTotals();
+        saveDataToFirebase();
     }
 
-    // ===== СКРИНШОТ =====
+    // Скриншот
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
-
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
             if (btn) btn.innerHTML = '📸 Подготовить скрин';
@@ -680,10 +643,14 @@
     const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
+    // Инициализация
+    let firebaseReady = false;
+    let initialLoadDone = false;
+    let unsubscribeSnapshot = null;
+
     window.addEventListener('load', function() {
         const now = new Date();
-        const saved = localStorage.getItem('warehouseReport');
-        if (!saved) {
+        if (!localStorage.getItem('warehouseReport')) {
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
         }
@@ -693,11 +660,165 @@
         });
         renderTable();
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => { calculateTotals(); saveData(false); });
+            input.addEventListener('input', () => { calculateTotals(); saveDataToFirebase(); });
         });
-        loadData();
+        // Слушаем события изменения даты/времени
+        document.getElementById('reportDate').addEventListener('change', saveDataToFirebase);
+        document.getElementById('reportTime').addEventListener('change', saveDataToFirebase);
+        
+        loadFromLocalStorage();
+        calculateTotals();
         renderAnalytics();
+        updateOnlineStatus();
+
+        // Ждём Firebase
+        if (window.FB) initFirebase();
+        else window.addEventListener('firebaseReady', initFirebase);
     });
+
+    function initFirebase() {
+        firebaseReady = true;
+        const { db, doc, onSnapshot } = window.FB;
+        const reportDoc = doc(db, 'reports', 'current');
+        const archiveDoc = doc(db, 'reports', 'archive');
+
+        // Подписка на текущий отчёт
+        onSnapshot(reportDoc, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (!initialLoadDone) {
+                    // Первая загрузка: если локальные данные новее — сохраняем их, иначе берём из облака
+                    const localData = JSON.parse(localStorage.getItem('warehouseReport') || 'null');
+                    const localTime = localData && localData.lastModified ? localData.lastModified : 0;
+                    if (data.lastModified && data.lastModified >= localTime) {
+                        applyDataToUI(data);
+                        saveToLocalStorage(data);
+                    }
+                    initialLoadDone = true;
+                } else {
+                    // Живое обновление от другого устройства
+                    applyDataToUI(docSnap.data());
+                    saveToLocalStorage(docSnap.data());
+                }
+                setSyncStatus('online', '✅ Синхронизировано');
+            } else {
+                // В облаке пусто — отправляем локальные данные
+                saveDataToFirebase();
+            }
+        }, (err) => {
+            console.error('Ошибка подписки:', err);
+            setSyncStatus('offline', '⚠️ Ошибка связи, работаем локально');
+        });
+
+        // Подписка на архив
+        onSnapshot(archiveDoc, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.archive && Array.isArray(data.archive)) {
+                    localStorage.setItem('warehouseArchive', JSON.stringify(data.archive));
+                    renderAnalytics();
+                }
+            }
+        });
+    }
+
+    // Применение данных к интерфейсу
+    function applyDataToUI(data) {
+        if (!data) return;
+        if (data.date) document.getElementById('reportDate').value = data.date;
+        if (data.time) document.getElementById('reportTime').value = data.time;
+        if (data.totals) {
+            document.getElementById('totalAdmin').value = data.totals.admin || '0';
+            document.getElementById('totalStaff').value = data.totals.staff || '0';
+            document.getElementById('totalOut').value = data.totals.out || '0';
+            document.getElementById('totalBrig').value = data.totals.brig || '0';
+        }
+        const sortBst = document.getElementById('bstSort');
+        const loadBst = document.getElementById('bstLoad');
+        if (sortBst && data.bstSort !== undefined) sortBst.value = data.bstSort || '';
+        if (loadBst && data.bstLoad !== undefined) loadBst.value = data.bstLoad || '';
+        
+        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
+        if (data.rows) {
+            data.rows.forEach((row, index) => {
+                if (rows[index]) {
+                    const outInput = rows[index].querySelector('.input-out');
+                    const bakInput = rows[index].querySelector('.input-bak');
+                    const shtInput = rows[index].querySelector('.input-sht');
+                    if (outInput) outInput.value = row.out || '';
+                    if (bakInput) bakInput.value = row.bak || '';
+                    if (shtInput) shtInput.value = row.sht || '';
+                    if (row.companies && Array.isArray(row.companies)) {
+                        setRowCompanies(index, row.companies);
+                    }
+                }
+            });
+        }
+        calculateTotals();
+    }
+
+    // Сохранение в облако
+    function saveDataToFirebase() {
+        const data = collectDataFromUI();
+        data.lastModified = Date.now();
+        saveToLocalStorage(data);
+
+        if (!firebaseReady) return;
+        const { db, doc, setDoc } = window.FB;
+        const reportDoc = doc(db, 'reports', 'current');
+        setDoc(reportDoc, data).then(() => {
+            setSyncStatus('online', '✅ Синхронизировано');
+        }).catch(err => {
+            console.error('Ошибка сохранения:', err);
+            setSyncStatus('offline', '📴 Нет интернета — сохраним позже');
+        });
+    }
+
+    function collectDataFromUI() {
+        const rows = [];
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            const companies = getRowCompanies(idx);
+            rows.push({
+                station: tr.querySelector('.station-name').textContent,
+                out: tr.querySelector('.input-out')?.value || '',
+                bak: tr.querySelector('.input-bak')?.value || '',
+                companies: companies,
+                sht: tr.querySelector('.input-sht')?.value || ''
+            });
+        });
+        return {
+            date: document.getElementById('reportDate').value,
+            time: document.getElementById('reportTime').value,
+            totals: {
+                admin: document.getElementById('totalAdmin').value,
+                staff: document.getElementById('totalStaff').value,
+                out: document.getElementById('totalOut').value,
+                brig: document.getElementById('totalBrig').value
+            },
+            bstSort: document.getElementById('bstSort')?.value || '',
+            bstLoad: document.getElementById('bstLoad')?.value || '',
+            rows: rows
+        };
+    }
+
+    function saveToLocalStorage(data) {
+        localStorage.setItem('warehouseReport', JSON.stringify(data));
+        const indicator = document.getElementById('autosaveIndicator');
+        if (indicator) {
+            const now = new Date();
+            indicator.textContent = `💾 Сохранено в ${now.toTimeString().slice(0,5)}`;
+            setTimeout(() => { indicator.textContent = ''; }, 3000);
+        }
+    }
+
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem('warehouseReport');
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            applyDataToUI(data);
+        } catch (e) { console.error('Ошибка загрузки:', e); }
+    }
 
     function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
@@ -799,69 +920,30 @@
         renderAnalytics();
     }
 
-    function saveData(showAlert) {
-        const rows = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            const companies = getRowCompanies(idx);
-            rows.push({
-                station: tr.querySelector('.station-name').textContent,
-                out: tr.querySelector('.input-out')?.value || '',
-                bak: tr.querySelector('.input-bak')?.value || '',
-                companies: companies,
-                sht: tr.querySelector('.input-sht')?.value || ''
-            });
-        });
-        const data = {
-            date: document.getElementById('reportDate').value,
-            time: document.getElementById('reportTime').value,
-            totals: {
-                admin: document.getElementById('totalAdmin').value,
-                staff: document.getElementById('totalStaff').value,
-                out: document.getElementById('totalOut').value,
-                brig: document.getElementById('totalBrig').value
-            },
-            bstSort: document.getElementById('bstSort')?.value || '',
-            bstLoad: document.getElementById('bstLoad')?.value || '',
-            rows: rows
-        };
-        localStorage.setItem('warehouseReport', JSON.stringify(data));
-        if (showAlert) alert('✅ Отчет сохранен!');
-        else {
-            const indicator = document.getElementById('autosaveIndicator');
-            const now = new Date();
-            indicator.textContent = `💾 Автосохранено в ${now.toTimeString().slice(0,5)}`;
-            setTimeout(() => { indicator.textContent = ''; }, 3000);
-        }
-    }
-
     function archiveCurrentReport() {
-        const rows = [];
+        const data = collectDataFromUI();
         let totalOut = 0, totalBak = 0, totalSht = 0;
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            const station = tr.querySelector('.station-name').textContent;
-            const out = Number(tr.querySelector('.input-out')?.value) || 0;
-            const bak = Number(tr.querySelector('.input-bak')?.value) || 0;
-            const companies = getRowCompanies(idx);
-            const sht = Number(tr.querySelector('.input-sht')?.value) || 0;
-            rows.push({ station, out, bak, companies, sht });
+        const archiveRows = [];
+        data.rows.forEach(r => {
+            const out = Number(r.out) || 0, bak = Number(r.bak) || 0, sht = Number(r.sht) || 0;
+            archiveRows.push({ station: r.station, out, bak, companies: r.companies, sht });
             totalOut += out; totalBak += bak; totalSht += sht;
         });
-        const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
-        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
-        const declaredOut = Number(document.getElementById('totalOut').value) || 0;
-        const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
-        const bst = (Number(document.getElementById('bstSort')?.value) || 0) + (Number(document.getElementById('bstLoad')?.value) || 0);
+        const totalAdmin = Number(data.totals.admin) || 0;
+        const totalStaff = Number(data.totals.staff) || 0;
+        const declaredOut = Number(data.totals.out) || 0;
+        const totalBrig = Number(data.totals.brig) || 0;
+        const bst = (Number(data.bstSort) || 0) + (Number(data.bstLoad) || 0);
         const actualTotal = totalOut + totalSht + totalBak;
         const declaredTotal = totalStaff + declaredOut + totalBrig;
         const report = {
             id: Date.now(),
-            date: document.getElementById('reportDate').value,
-            time: document.getElementById('reportTime').value,
+            date: data.date, time: data.time,
             admin: totalAdmin, staff: totalStaff, out: declaredOut, brig: totalBrig, bst: bst,
             grandTotal: totalAdmin + totalStaff + declaredOut + totalBrig + bst,
-            actualTotal: actualTotal, declaredTotal: declaredTotal,
+            actualTotal, declaredTotal,
             diff: declaredTotal - actualTotal,
-            rows: rows
+            rows: archiveRows
         };
         let archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
         const existingIndex = archive.findIndex(r => r.date === report.date && r.time === report.time);
@@ -869,8 +951,20 @@
         else archive.unshift(report);
         if (archive.length > 50) archive = archive.slice(0, 50);
         localStorage.setItem('warehouseArchive', JSON.stringify(archive));
-        alert('✅ Отчет добавлен в архив!');
         renderAnalytics();
+
+        // Сохраняем архив в Firebase
+        if (firebaseReady) {
+            const { db, doc, setDoc } = window.FB;
+            setDoc(doc(db, 'reports', 'archive'), { archive: archive }).then(() => {
+                alert('✅ Отчет добавлен в архив и синхронизирован!');
+            }).catch(err => {
+                console.error('Ошибка сохранения архива:', err);
+                alert('✅ Отчет добавлен в локальный архив (синхронизация позже)');
+            });
+        } else {
+            alert('✅ Отчет добавлен в локальный архив');
+        }
     }
 
     function toggleAnalytics() {
@@ -985,14 +1079,13 @@
                 if (outInput) outInput.value = row.out || 0;
                 if (bakInput) bakInput.value = row.bak || 0;
                 if (shtInput) shtInput.value = row.sht || 0;
-                // Компании
                 if (row.companies && Array.isArray(row.companies)) {
                     setRowCompanies(index, row.companies);
                 }
             }
         });
         calculateTotals();
-        saveData(false);
+        saveDataToFirebase();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         alert('✅ Отчет загружен!');
     }
@@ -1000,41 +1093,11 @@
     function clearArchive() {
         if (!confirm('Удалить весь архив?')) return;
         localStorage.removeItem('warehouseArchive');
-        renderAnalytics();
-    }
-
-    function loadData() {
-        const saved = localStorage.getItem('warehouseReport');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        document.getElementById('reportDate').value = data.date;
-        document.getElementById('reportTime').value = data.time;
-        if (data.totals) {
-            document.getElementById('totalAdmin').value = data.totals.admin || '0';
-            document.getElementById('totalStaff').value = data.totals.staff || '0';
-            document.getElementById('totalOut').value = data.totals.out || '0';
-            document.getElementById('totalBrig').value = data.totals.brig || '0';
+        if (firebaseReady) {
+            const { db, doc, setDoc } = window.FB;
+            setDoc(doc(db, 'reports', 'archive'), { archive: [] }).catch(err => console.error(err));
         }
-        const sortBst = document.getElementById('bstSort');
-        const loadBst = document.getElementById('bstLoad');
-        if (sortBst && data.bstSort) sortBst.value = data.bstSort;
-        if (loadBst && data.bstLoad) loadBst.value = data.bstLoad;
-        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-        data.rows.forEach((row, index) => {
-            if (rows[index]) {
-                const outInput = rows[index].querySelector('.input-out');
-                const bakInput = rows[index].querySelector('.input-bak');
-                const shtInput = rows[index].querySelector('.input-sht');
-                if (outInput) outInput.value = row.out || '';
-                if (bakInput) bakInput.value = row.bak || '';
-                if (shtInput) shtInput.value = row.sht || '';
-                // Компании
-                if (row.companies && Array.isArray(row.companies)) {
-                    setRowCompanies(index, row.companies);
-                }
-            }
-        });
-        calculateTotals();
+        renderAnalytics();
     }
 
     function clearData() {
@@ -1042,11 +1105,14 @@
             document.querySelectorAll('input').forEach(input => {
                 if(input.type === 'number') input.value = '';
             });
-            // Убираем все чипсы
             document.querySelectorAll('.companies-list').forEach(list => {
                 list.querySelectorAll('.company-chip').forEach(c => c.remove());
             });
             localStorage.removeItem('warehouseReport');
+            if (firebaseReady) {
+                const { db, doc, setDoc } = window.FB;
+                setDoc(doc(db, 'reports', 'current'), {}).catch(err => console.error(err));
+            }
             calculateTotals();
             document.getElementById('autosaveIndicator').textContent = '';
         }
