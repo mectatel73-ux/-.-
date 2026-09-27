@@ -26,6 +26,7 @@
         .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
         .rec-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
         .rec-item input { width: 65px; }
+        .rec-item.admin { opacity: 0.6; }
         .rec-status { margin-top: 12px; font-size: 14px; font-weight: bold; padding: 10px; border-radius: 4px; line-height: 1.6; }
         .status-ok { color: #0f5132; background: #d1e7dd; }
         .status-error { color: #842029; background: #f8d7da; }
@@ -68,7 +69,7 @@
     <div class="reconciliation-box">
         <h3>👥 Всего людей на смене (для сверки)</h3>
         <div class="rec-grid">
-            <div class="rec-item">Админка: <input type="number" id="totalAdmin" min="0" placeholder="0"></div>
+            <div class="rec-item admin">Админка (справочно): <input type="number" id="totalAdmin" min="0" placeholder="0"></div>
             <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
             <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
             <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
@@ -80,7 +81,7 @@
         <thead>
             <tr>
                 <th style="width: 30%;">Рабочая станция</th>
-                <th style="width: 15%;">Кол-во</th>
+                <th style="width: 15%;">Кол-во<br><small>(Аутстафф)</small></th>
                 <th style="width: 20%;">АК Компания</th>
                 <th style="width: 10%;">Бриг. АК</th>
                 <th style="width: 10%;">Бриг. Стаф</th>
@@ -111,7 +112,6 @@
 
     window.onload = function() {
         const now = new Date();
-        // Устанавливаем текущие дату/время только если они ещё не сохранены
         const saved = localStorage.getItem('warehouseReport');
         
         if (!saved) {
@@ -147,15 +147,13 @@
         `;
         tbody.appendChild(totalTr);
 
-        // Слушатели для автосохранения и пересчета
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
                 calculateTotals();
-                saveData(false); // Автосохранение без алерта
+                saveData(false);
             });
         });
 
-        // Загружаем сохраненные данные
         loadData();
     };
 
@@ -179,8 +177,13 @@
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
         
-        const declaredTotal = totalAdmin + totalStaff + totalOut + totalBrig;
-        const actualTotal = bak + bst + sht;
+        // Новая логика: Админка НЕ считается
+        // На смене = Штатные + Аутстафф + Бригадиры АК
+        const declaredTotal = totalStaff + totalOut + totalBrig;
+        
+        // Распределено = Кол-во (Аутстафф) + Штат + Бриг. АК
+        const actualTotal = qty + sht + bak;
+        
         const diff = declaredTotal - actualTotal;
         const statusDiv = document.getElementById('recStatus');
 
@@ -190,15 +193,15 @@
         } else if (diff === 0) {
             statusDiv.innerHTML = `
                 ✅ <b>Всё сходится!</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Админка: ${totalAdmin}, Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бригадиры: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> чел. (Бриг. АК: ${bak}, Бриг. Стаф: ${bst}, Штат: ${sht})</span>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig}) <i>[Админка: ${totalAdmin} справочно]</i><br>
+                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${qty}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-ok";
         } else {
             statusDiv.innerHTML = `
                 ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff} чел.</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Админка: ${totalAdmin}, Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бригадиры: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> чел. (Бриг. АК: ${bak}, Бриг. Стаф: ${bst}, Штат: ${sht})</span>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig}) <i>[Админка: ${totalAdmin} справочно]</i><br>
+                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${qty}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-error";
         }
@@ -233,7 +236,6 @@
         if (showAlert) {
             alert('✅ Отчет сохранен!');
         } else {
-            // Показываем индикатор автосохранения
             const indicator = document.getElementById('autosaveIndicator');
             const now = new Date();
             indicator.textContent = `💾 Автосохранено в ${now.toTimeString().slice(0,5)}`;
@@ -281,7 +283,7 @@
     }
 
     function exportCSV() {
-        let csv = 'Рабочая станция;Количество;АК Компания;Бригадир АК;Бригадир Стаф;Штат\n';
+        let csv = 'Рабочая станция;Кол-во (Аутстафф);АК Компания;Бригадир АК;Бригадир Стаф;Штат\n';
         
         document.querySelectorAll('#reportTable tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
@@ -294,7 +296,7 @@
         });
 
         csv += '\n--- СВЕРКА ---\n';
-        csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
+        csv += `Админка (справочно);${document.getElementById('totalAdmin').value}\n`;
         csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
         csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
