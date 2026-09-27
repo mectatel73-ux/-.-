@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отчет по складу</title>
+    
+    <!-- PWA настройки -->
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Отчет склада">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; }
@@ -24,27 +34,13 @@
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
 
-        /* Стиль для объединенной ячейки бригадира */
-        .brig-cell {
-            vertical-align: middle;
-            padding: 10px;
-        }
-        .brig-cell.sort {
-            background-color: #cfe2ff;
-        }
-        .brig-cell.load {
-            background-color: #ffd8a8;
-        }
-        .brig-cell input {
-            width: 70px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            background: white;
-            border: 2px solid #666;
-            border-radius: 6px;
-            padding: 8px;
-        }
+        .brig-cell { vertical-align: middle; padding: 10px; text-align: center; }
+        .brig-cell.sort { background-color: #cfe2ff; }
+        .brig-cell.load { background-color: #ffd8a8; }
+        .brig-cell input { width: 70px; font-size: 22px; font-weight: bold; text-align: center; background: white; border: 2px solid #555; border-radius: 6px; padding: 10px; }
+
+        .grand-total-box { background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; padding: 12px; margin-bottom: 15px; text-align: center; font-size: 16px; font-weight: bold; color: #0f5132; }
+        .grand-total-box span { font-size: 22px; color: #0a3622; }
 
         .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 16px; }
@@ -71,14 +67,35 @@
 
         .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 5px; height: 15px; }
 
+        /* Кнопка установки */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 9999;
+            transition: 0.3s;
+        }
+        .install-btn:hover { background: #45a049; transform: scale(1.05); }
+
         @media (max-width: 700px) {
             th, td { padding: 3px; font-size: 11px; }
             input[type="number"] { width: 40px; padding: 2px; font-size: 12px; }
             input[type="text"] { width: 100%; font-size: 11px; }
-            .brig-cell input { width: 50px; font-size: 16px; padding: 4px; }
+            .brig-cell input { width: 55px; font-size: 18px; padding: 6px; }
             .container { padding: 8px; }
             .rec-grid { flex-direction: column; gap: 8px; }
             .rec-item { justify-content: space-between; }
+            .install-btn { bottom: 10px; right: 10px; padding: 12px 20px; font-size: 14px; }
         }
     </style>
 </head>
@@ -90,6 +107,11 @@
     <div style="text-align: center; margin-bottom: 15px;">
         <label>Дата: <input type="date" id="reportDate" style="padding: 4px;"></label>
         <label style="margin-left: 10px;">Время: <input type="time" id="reportTime" style="padding: 4px;"></label>
+    </div>
+
+    <div class="grand-total-box">
+        Итого человек на смене: <span id="grandTotal">0</span> чел.
+        <div style="font-size: 12px; font-weight: normal; margin-top: 4px;">(включая админку — для справки, в сверке не участвует)</div>
     </div>
 
     <div class="reconciliation-box">
@@ -127,24 +149,60 @@
     </div>
 </div>
 
+<!-- Кнопка установки приложения -->
+<button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить приложение</button>
+
 <script>
-    // Новый порядок: сначала все сортировки, потом все отгрузки, потом обед/перекур
-    const stations = [
-        // Блок СОРТИРОВКИ
+    // === PWA: Регистрация Service Worker ===
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker зарегистрирован:', reg.scope))
+                .catch(err => console.log('Ошибка регистрации SW:', err));
+        });
+    }
+
+    // === PWA: Установка ===
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('Пользователь установил приложение');
+                }
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            });
+        }
+    }
+
+    window.addEventListener('appinstalled', () => {
+        console.log('Приложение установлено');
+        installBtn.style.display = 'none';
+    });
+
+    // === ОСНОВНАЯ ЛОГИКА ===
+    const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
         "Саппорт СКК", "Наведение порядка", 
-        "Перебор оборотной тары", "Прием мерчей",
-        // Блок ОТГРУЗКИ (три подряд)
-        "Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП",
-        // Блок ОБЕД/ПЕРЕКУР
-        "Обед (30 минут)", "Перекур (15 минут)"
+        "Перебор оборотной тары", "Прием мерчей"
     ];
-
-    // Зоны отгрузки (для назначения бригадира)
     const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
+    const BREAK_ZONES = ["Обед (30 минут)", "Перекур (15 минут)"];
 
-    window.onload = function() {
+    const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
+
+    window.addEventListener('load', function() {
         const now = new Date();
         const saved = localStorage.getItem('warehouseReport');
         
@@ -161,28 +219,22 @@
             });
         });
         loadData();
-    };
+    });
 
-    // Функция отрисовки таблицы с объединенными ячейками
     function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
 
-        // Определяем границы блоков
-        // Блок 1: сортировка (индексы 0..10) — 11 строк
-        // Блок 2: отгрузка (индексы 11..13) — 3 строки
-        // Блок 3: обед/перекур (индексы 14..15) — 2 строки (без бригадира)
-
-        const sortBlockEnd = 11; // строки 0-10 — сортировка
-        const loadBlockStart = 11; // строка 11 — начало отгрузки
-        const loadBlockEnd = 13; // строки 11-13 — отгрузка
-        const breakBlockStart = 14; // строка 14 — начало обеда/перекура
+        const sortStart = 0;
+        const loadStart = SORT_ZONES.length;
+        const loadEnd = loadStart + LOAD_ZONES.length - 1;
+        const breakStart = loadEnd + 1;
 
         stations.forEach((station, idx) => {
             const tr = document.createElement('tr');
             let zoneClass = 'zone-sort';
-            if (idx >= loadBlockStart && idx <= loadBlockEnd) zoneClass = 'zone-load';
-            if (idx >= breakBlockStart) zoneClass = 'zone-break';
+            if (idx >= loadStart && idx <= loadEnd) zoneClass = 'zone-load';
+            if (idx >= breakStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
             
             tr.innerHTML = `
@@ -193,10 +245,9 @@
                 <td><input type="number" class="input-sht" min="0" placeholder="0"></td>
             `;
 
-            // Первая строка блока сортировки — добавляем объединенную ячейку
-            if (idx === 0) {
+            if (idx === sortStart) {
                 const td = document.createElement('td');
-                td.rowSpan = sortBlockEnd; // 11 строк
+                td.rowSpan = SORT_ZONES.length;
                 td.className = 'brig-cell sort';
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -207,10 +258,9 @@
                 tr.appendChild(td);
             }
 
-            // Первая строка блока отгрузки — добавляем объединенную ячейку
-            if (idx === loadBlockStart) {
+            if (idx === loadStart) {
                 const td = document.createElement('td');
-                td.rowSpan = loadBlockEnd - loadBlockStart + 1; // 3 строки
+                td.rowSpan = LOAD_ZONES.length;
                 td.className = 'brig-cell load';
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -221,18 +271,16 @@
                 tr.appendChild(td);
             }
 
-            // Для строк обеда/перекура оставляем пустую ячейку
-            if (idx >= breakBlockStart) {
+            if (idx >= breakStart) {
                 const td = document.createElement('td');
-                td.textContent = '—';
-                td.style.color = '#999';
+                td.textContent = '';
+                td.style.background = '#f5f5f5';
                 tr.appendChild(td);
             }
 
             tbody.appendChild(tr);
         });
 
-        // Итоговая строка
         const totalTr = document.createElement('tr');
         totalTr.className = 'total-row';
         totalTr.innerHTML = `
@@ -258,7 +306,6 @@
             if (shtInput) sht += Number(shtInput.value) || 0;
         });
 
-        // Сумма бригадиров Стаф
         const sortBst = document.querySelector('.input-bst-sort');
         const loadBst = document.querySelector('.input-bst-load');
         bst = (Number(sortBst?.value) || 0) + (Number(loadBst?.value) || 0);
@@ -273,6 +320,9 @@
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
         
+        const grandTotal = totalAdmin + totalStaff + totalOut + totalBrig + bst;
+        document.getElementById('grandTotal').textContent = grandTotal;
+
         const declaredTotal = totalStaff + totalOut + totalBrig;
         const actualTotal = out + sht + bak;
         const diff = declaredTotal - actualTotal;
@@ -399,10 +449,9 @@
             const ak = tr.querySelector('.input-ak')?.value || '';
             const sht = tr.querySelector('.input-sht')?.value || '';
             
-            // В CSV ставим значение бригадира только в первой строке его блока
             let bst = '';
             if (idx === 0) bst = sortBst;
-            if (idx === 11) bst = loadBst;
+            if (idx === SORT_ZONES.length) bst = loadBst;
             
             csv += `${station};${out};${bak};${ak};${sht};${bst}\n`;
         });
@@ -429,12 +478,71 @@
 
         const buttons = document.querySelector('.buttons');
         const indicator = document.getElementById('autosaveIndicator');
+        const installBtn = document.getElementById('installBtn');
         buttons.style.display = 'none';
         indicator.style.display = 'none';
+        if (installBtn) installBtn.style.display = 'none';
+
+        const table = document.getElementById('reportTable');
+        const originalHTML = table.innerHTML;
+        
+        const rowsData = [];
+        const sortBst = document.querySelector('.input-bst-sort')?.value || '0';
+        const loadBst = document.querySelector('.input-bst-load')?.value || '0';
+        
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            const station = tr.querySelector('.station-name').textContent;
+            const out = tr.querySelector('.input-out')?.value || '0';
+            const bak = tr.querySelector('.input-bak')?.value || '0';
+            const ak = tr.querySelector('.input-ak')?.value || '';
+            const sht = tr.querySelector('.input-sht')?.value || '0';
+            
+            let bst = '';
+            if (idx === 0) bst = sortBst;
+            else if (idx === SORT_ZONES.length) bst = loadBst;
+            
+            rowsData.push({ station, out, bak, ak, sht, bst, idx });
+        });
+
+        const tbody = document.querySelector('#reportTable tbody');
+        tbody.innerHTML = '';
+        
+        rowsData.forEach(row => {
+            const tr = document.createElement('tr');
+            const isLoad = row.idx >= SORT_ZONES.length && row.idx < SORT_ZONES.length + LOAD_ZONES.length;
+            const isBreak = row.idx >= SORT_ZONES.length + LOAD_ZONES.length;
+            tr.className = isLoad ? 'zone-load' : (isBreak ? 'zone-break' : 'zone-sort');
+            tr.innerHTML = `
+                <td class="station-name">${row.station}</td>
+                <td>${row.out}</td>
+                <td>${row.bak}</td>
+                <td>${row.ak}</td>
+                <td>${row.sht}</td>
+                <td>${row.bst}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        const totalTr = document.createElement('tr');
+        totalTr.className = 'total-row';
+        totalTr.innerHTML = `
+            <td style="text-align: right; padding-right: 10px;">ИТОГ:</td>
+            <td>${document.getElementById('total-out').textContent}</td>
+            <td>${document.getElementById('total-bak').textContent}</td>
+            <td></td>
+            <td>${document.getElementById('total-sht').textContent}</td>
+            <td>${document.getElementById('total-bst').textContent}</td>
+        `;
+        tbody.appendChild(totalTr);
 
         html2canvas(element, { scale: 2 }).then(canvas => {
+            table.innerHTML = originalHTML;
             buttons.style.display = 'flex';
             indicator.style.display = 'block';
+            if (installBtn && deferredPrompt) installBtn.style.display = 'block';
+            
+            window.dispatchEvent(new Event('load'));
+            
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
