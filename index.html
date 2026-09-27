@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
-    
+
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
-    
+
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Отчет склада">
     <link rel="manifest" href="manifest.json">
-    
+
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -36,7 +36,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
         h2 { text-align: center; margin: 0 0 12px 0; color: #333; font-size: 18px; }
-        
+
         /* Индикатор синхронизации */
         .sync-status {
             text-align: center;
@@ -50,7 +50,7 @@
         .sync-online { background: #d1e7dd; color: #0f5132; }
         .sync-offline { background: #f8d7da; color: #842029; }
         .sync-connecting { background: #fff3cd; color: #664d03; }
-        
+
         .date-time-row {
             display: flex;
             justify-content: center;
@@ -200,10 +200,10 @@
         .analytics-box h3.collapsed .arrow { transform: rotate(-90deg); }
         .analytics-content { margin-top: 12px; }
         .analytics-content.hidden { display: none; }
-        
+
         .analytics-section { background: white; border-radius: 6px; padding: 10px; margin-bottom: 10px; border-left: 4px solid #0d6efd; }
         .analytics-section h4 { margin: 0 0 8px 0; font-size: 13px; color: #084298; }
-        
+
         .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
         .history-table th { background: #0d6efd; color: white; padding: 5px; font-size: 11px; }
         .history-table td { padding: 5px; border-bottom: 1px solid #eee; }
@@ -270,6 +270,85 @@
         }
         .snapshot-hint:hover { background: #ffe69c; }
         .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
+
+        /* === РЕЖИМ СКРИНШОТА: таблица влезает целиком === */
+        body.snapshot-mode .table-wrap {
+            overflow: visible !important;
+        }
+        body.snapshot-mode table {
+            min-width: auto !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+        body.snapshot-mode th {
+            font-size: 9px !important;
+            padding: 4px 2px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+        }
+        body.snapshot-mode td {
+            padding: 2px 1px !important;
+        }
+        body.snapshot-mode .station-name {
+            font-size: 10px !important;
+            padding: 3px 3px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            max-width: 70px !important;
+        }
+        body.snapshot-mode .stepper input {
+            width: 28px !important;
+            height: 26px !important;
+            font-size: 12px !important;
+            border: 1px solid #999 !important;
+        }
+        body.snapshot-mode .companies-cell {
+            min-width: 0 !important;
+            padding: 2px 2px !important;
+        }
+        body.snapshot-mode .company-chip {
+            font-size: 9px !important;
+            padding: 2px 4px !important;
+            border-radius: 8px !important;
+        }
+        body.snapshot-mode .brig-cell .stepper input {
+            width: 32px !important;
+            height: 28px !important;
+            font-size: 14px !important;
+        }
+        body.snapshot-mode .total-row td {
+            font-size: 11px !important;
+            padding: 4px 1px !important;
+        }
+        body.snapshot-mode .grand-total-box {
+            padding: 6px !important;
+            font-size: 12px !important;
+        }
+        body.snapshot-mode .grand-total-box span {
+            font-size: 18px !important;
+        }
+        body.snapshot-mode .reconciliation-box {
+            padding: 8px !important;
+        }
+        body.snapshot-mode .rec-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 4px !important;
+        }
+        body.snapshot-mode .rec-item {
+            font-size: 11px !important;
+            padding: 4px 6px !important;
+        }
+        body.snapshot-mode .rec-status {
+            font-size: 11px !important;
+            padding: 6px !important;
+        }
+        body.snapshot-mode .container {
+            padding: 6px !important;
+        }
+        body.snapshot-mode h2 {
+            font-size: 14px !important;
+            margin-bottom: 6px !important;
+        }
 
         @media (max-width: 768px) {
             body { padding: 5px; }
@@ -353,14 +432,14 @@
 
 <div class="container" id="captureArea">
     <h2>📦 Отчет по складу</h2>
-    
+
     <div class="sync-status sync-connecting" id="syncStatus">🔄 Подключение к серверу...</div>
-    
+
     <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
         📸 <b>Готово к скриншоту!</b>
         <small>Сделайте скриншот телефона. Нажмите сюда, чтобы вернуть кнопки.</small>
     </div>
-    
+
     <div class="date-time-row">
         <label>Дата: <input type="date" id="reportDate"></label>
         <label>Время: <input type="time" id="reportTime"></label>
@@ -466,7 +545,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Включаем офлайн-режим
     try {
         await enableIndexedDbPersistence(db);
         console.log('✅ Офлайн-режим Firestore включён');
@@ -474,18 +552,13 @@
         console.log('ℹ️ Офлайн-режим:', err.code);
     }
 
-    // Даём доступ к функциям синхронизации из основного скрипта
     window.FB = { db, doc, setDoc, onSnapshot, getDoc };
-
-    // Сообщаем основному скрипту, что Firebase готов
     window.dispatchEvent(new Event('firebaseReady'));
 </script>
 
 <script>
-    // ============ ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ============
     const COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
-    
-    // Статус синхронизации
+
     const syncStatusEl = () => document.getElementById('syncStatus');
     function setSyncStatus(status, text) {
         const el = syncStatusEl();
@@ -494,7 +567,6 @@
         el.textContent = text;
     }
 
-    // Проверка онлайна
     function updateOnlineStatus() {
         if (navigator.onLine) {
             setSyncStatus('online', '✅ Синхронизировано');
@@ -505,7 +577,6 @@
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-    // PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -524,7 +595,6 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // Степперы
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -543,7 +613,6 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // Компании
     let currentEditingCompanyRow = null;
 
     function openCompanyModal(rowIdx) {
@@ -618,18 +687,27 @@
         saveDataToFirebase();
     }
 
-    // Скриншот
+    // === ИСПРАВЛЕНО: режим скриншота ===
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
+        const tableWrap = document.querySelector('.table-wrap');
+
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
             if (btn) btn.innerHTML = '📸 Подготовить скрин';
+            if (tableWrap) tableWrap.style.overflowX = 'auto';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             body.classList.add('snapshot-mode');
             if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
+            if (tableWrap) tableWrap.style.overflowX = 'visible';
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                document.querySelectorAll('.stepper input').forEach(inp => {
+                    inp.style.width = '';
+                });
+            }, 50);
         }
     }
 
@@ -643,7 +721,6 @@
     const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
-    // Инициализация
     let firebaseReady = false;
     let initialLoadDone = false;
     let unsubscribeSnapshot = null;
@@ -662,16 +739,14 @@
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => { calculateTotals(); saveDataToFirebase(); });
         });
-        // Слушаем события изменения даты/времени
         document.getElementById('reportDate').addEventListener('change', saveDataToFirebase);
         document.getElementById('reportTime').addEventListener('change', saveDataToFirebase);
-        
+
         loadFromLocalStorage();
         calculateTotals();
         renderAnalytics();
         updateOnlineStatus();
 
-        // Ждём Firebase
         if (window.FB) initFirebase();
         else window.addEventListener('firebaseReady', initFirebase);
     });
@@ -682,12 +757,10 @@
         const reportDoc = doc(db, 'reports', 'current');
         const archiveDoc = doc(db, 'reports', 'archive');
 
-        // Подписка на текущий отчёт
         onSnapshot(reportDoc, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 if (!initialLoadDone) {
-                    // Первая загрузка: если локальные данные новее — сохраняем их, иначе берём из облака
                     const localData = JSON.parse(localStorage.getItem('warehouseReport') || 'null');
                     const localTime = localData && localData.lastModified ? localData.lastModified : 0;
                     if (data.lastModified && data.lastModified >= localTime) {
@@ -696,13 +769,11 @@
                     }
                     initialLoadDone = true;
                 } else {
-                    // Живое обновление от другого устройства
                     applyDataToUI(docSnap.data());
                     saveToLocalStorage(docSnap.data());
                 }
                 setSyncStatus('online', '✅ Синхронизировано');
             } else {
-                // В облаке пусто — отправляем локальные данные
                 saveDataToFirebase();
             }
         }, (err) => {
@@ -710,7 +781,6 @@
             setSyncStatus('offline', '⚠️ Ошибка связи, работаем локально');
         });
 
-        // Подписка на архив
         onSnapshot(archiveDoc, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -722,7 +792,6 @@
         });
     }
 
-    // Применение данных к интерфейсу
     function applyDataToUI(data) {
         if (!data) return;
         if (data.date) document.getElementById('reportDate').value = data.date;
@@ -737,7 +806,7 @@
         const loadBst = document.getElementById('bstLoad');
         if (sortBst && data.bstSort !== undefined) sortBst.value = data.bstSort || '';
         if (loadBst && data.bstLoad !== undefined) loadBst.value = data.bstLoad || '';
-        
+
         const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
         if (data.rows) {
             data.rows.forEach((row, index) => {
@@ -757,7 +826,6 @@
         calculateTotals();
     }
 
-    // Сохранение в облако
     function saveDataToFirebase() {
         const data = collectDataFromUI();
         data.lastModified = Date.now();
@@ -953,7 +1021,6 @@
         localStorage.setItem('warehouseArchive', JSON.stringify(archive));
         renderAnalytics();
 
-        // Сохраняем архив в Firebase
         if (firebaseReady) {
             const { db, doc, setDoc } = window.FB;
             setDoc(doc(db, 'reports', 'archive'), { archive: archive }).then(() => {
