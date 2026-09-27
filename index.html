@@ -2,10 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
     
-    <!-- PWA настройки -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,58 +15,113 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 950px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: #333; }
+        h2 { text-align: center; margin-top: 0; color: #333; font-size: 20px; }
         
         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; vertical-align: middle; }
-        th { background-color: #4CAF50; color: white; font-weight: normal; font-size: 13px; }
-        .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; }
+        th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
+        th { background-color: #4CAF50; color: white; font-weight: normal; font-size: 12px; padding: 8px 4px; }
+        .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; font-size: 13px; }
         .zone-sort { background-color: #f0f7ff; }
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
         
-        input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        input[type="text"] { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        
+        /* Степпер (кнопки +/-) */
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            user-select: none;
+        }
+        .stepper button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: 0.1s;
+            min-width: unset;
+        }
+        .stepper button:active { transform: scale(0.9); }
+        .stepper button.minus { background: #dc3545; }
+        .stepper button.plus { background: #198754; }
+        .stepper input {
+            width: 42px;
+            height: 32px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 0;
+            -moz-appearance: textfield;
+            background: white;
+        }
+        .stepper input::-webkit-outer-spin-button,
+        .stepper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
 
+        /* Стиль для бригадиров */
         .brig-cell { vertical-align: middle; padding: 10px; text-align: center; }
         .brig-cell.sort { background-color: #cfe2ff; }
         .brig-cell.load { background-color: #ffd8a8; }
-        .brig-cell input { width: 70px; font-size: 22px; font-weight: bold; text-align: center; background: white; border: 2px solid #555; border-radius: 6px; padding: 10px; }
+        .brig-cell .stepper input {
+            width: 55px;
+            height: 40px;
+            font-size: 22px;
+            border: 2px solid #555;
+        }
+        .brig-cell .stepper button { width: 40px; height: 40px; font-size: 24px; }
 
-        .grand-total-box { background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; padding: 12px; margin-bottom: 15px; text-align: center; font-size: 16px; font-weight: bold; color: #0f5132; }
+        .grand-total-box { background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; padding: 12px; margin-bottom: 15px; text-align: center; font-size: 15px; font-weight: bold; color: #0f5132; }
         .grand-total-box span { font-size: 22px; color: #0a3622; }
 
-        .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-        .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 16px; }
-        .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
-        .rec-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
-        .rec-item input { width: 65px; }
-        .rec-item.admin { opacity: 0.6; }
-        .rec-status { margin-top: 12px; font-size: 14px; font-weight: bold; padding: 10px; border-radius: 4px; line-height: 1.6; }
+        .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
+        .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 15px; }
+        .rec-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+        .rec-item { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 14px; }
+        .rec-item.admin { opacity: 0.7; }
+        .rec-status { margin-top: 12px; font-size: 13px; font-weight: bold; padding: 10px; border-radius: 4px; line-height: 1.5; }
         .status-ok { color: #0f5132; background: #d1e7dd; }
         .status-error { color: #842029; background: #f8d7da; }
         .status-neutral { color: #664d03; background: #fff3cd; }
-        .details { font-weight: normal; font-size: 13px; opacity: 0.85; }
+        .details { font-weight: normal; font-size: 12px; opacity: 0.85; }
 
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; color: white; transition: 0.2s; min-width: 150px; }
+        .buttons button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+            min-width: 150px;
+            font-weight: bold;
+        }
         .btn-save { background-color: #0d6efd; }
-        .btn-save:hover { background-color: #0b5ed7; }
         .btn-export { background-color: #198754; }
-        .btn-export:hover { background-color: #157347; }
         .btn-img { background-color: #6f42c1; }
-        .btn-img:hover { background-color: #5a32a3; }
         .btn-clear { background-color: #dc3545; }
-        .btn-clear:hover { background-color: #bb2d3b; }
 
         .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 5px; height: 15px; }
 
-        /* Кнопка установки */
         .install-btn {
             position: fixed;
             bottom: 20px;
@@ -83,19 +137,29 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             display: none;
             z-index: 9999;
-            transition: 0.3s;
         }
-        .install-btn:hover { background: #45a049; transform: scale(1.05); }
 
+        /* Адаптив для телефонов */
         @media (max-width: 700px) {
-            th, td { padding: 3px; font-size: 11px; }
-            input[type="number"] { width: 40px; padding: 2px; font-size: 12px; }
-            input[type="text"] { width: 100%; font-size: 11px; }
-            .brig-cell input { width: 55px; font-size: 18px; padding: 6px; }
+            body { padding: 5px; font-size: 13px; }
             .container { padding: 8px; }
+            h2 { font-size: 17px; }
+            th, td { padding: 3px 2px; font-size: 11px; }
+            .station-name { font-size: 11px; }
+            
+            .stepper { gap: 1px; }
+            .stepper button { width: 26px; height: 26px; font-size: 16px; border-radius: 5px; }
+            .stepper input { width: 34px; height: 26px; font-size: 14px; border-radius: 5px; }
+            
+            .brig-cell .stepper button { width: 32px; height: 32px; font-size: 20px; }
+            .brig-cell .stepper input { width: 45px; height: 32px; font-size: 18px; }
+
             .rec-grid { flex-direction: column; gap: 8px; }
             .rec-item { justify-content: space-between; }
-            .install-btn { bottom: 10px; right: 10px; padding: 12px 20px; font-size: 14px; }
+            .rec-item .stepper input { width: 45px; }
+            .rec-item .stepper button { width: 32px; height: 32px; }
+            
+            .buttons button { padding: 12px; font-size: 14px; min-width: 130px; }
         }
     </style>
 </head>
@@ -105,35 +169,40 @@
     <h2>📦 Отчет по складу</h2>
     
     <div style="text-align: center; margin-bottom: 15px;">
-        <label>Дата: <input type="date" id="reportDate" style="padding: 4px;"></label>
-        <label style="margin-left: 10px;">Время: <input type="time" id="reportTime" style="padding: 4px;"></label>
+        <label style="font-size: 12px;">Дата: <input type="date" id="reportDate" style="padding: 4px; font-size: 13px;"></label>
+        <label style="font-size: 12px; margin-left: 8px;">Время: <input type="time" id="reportTime" style="padding: 4px; font-size: 13px;"></label>
     </div>
 
     <div class="grand-total-box">
         Итого человек на смене: <span id="grandTotal">0</span> чел.
-        <div style="font-size: 12px; font-weight: normal; margin-top: 4px;">(включая админку — для справки, в сверке не участвует)</div>
+        <div style="font-size: 11px; font-weight: normal; margin-top: 4px;">(включая админку — для справки, в сверке не участвует)</div>
     </div>
 
     <div class="reconciliation-box">
         <h3>👥 Всего людей на смене (для сверки)</h3>
         <div class="rec-grid">
-            <div class="rec-item admin">Админка (справочно): <input type="number" id="totalAdmin" min="0" placeholder="0"></div>
-            <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
-            <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
-            <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
+            <div class="rec-item admin">Админка: <span class="stepper" data-target="totalAdmin"></span></div>
+            <div class="rec-item">Штатные: <span class="stepper" data-target="totalStaff"></span></div>
+            <div class="rec-item">Аутстафф: <span class="stepper" data-target="totalOut"></span></div>
+            <div class="rec-item">Бригадиры АК: <span class="stepper" data-target="totalBrig"></span></div>
         </div>
+        <!-- Скрытые input для совместимости с логикой -->
+        <input type="hidden" id="totalAdmin" value="0">
+        <input type="hidden" id="totalStaff" value="0">
+        <input type="hidden" id="totalOut" value="0">
+        <input type="hidden" id="totalBrig" value="0">
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
     </div>
 
     <table id="reportTable">
         <thead>
             <tr>
-                <th style="width: 28%;">Рабочая станция</th>
-                <th style="width: 11%;">Аутстафф</th>
-                <th style="width: 11%;">Бриг. АК</th>
-                <th style="width: 22%;">АК Компания</th>
-                <th style="width: 14%;">Штат</th>
-                <th style="width: 14%;">Бриг. Стаф</th>
+                <th style="width: 26%;">Рабочая станция</th>
+                <th style="width: 15%;">Аутстафф</th>
+                <th style="width: 13%;">Бриг. АК</th>
+                <th style="width: 16%;">АК Компания</th>
+                <th style="width: 15%;">Штат</th>
+                <th style="width: 15%;">Бриг. Стаф</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -143,54 +212,64 @@
 
     <div class="buttons">
         <button class="btn-save" onclick="saveData(true)">💾 Сохранить</button>
-        <button class="btn-export" onclick="exportCSV()">📥 Скачать Excel</button>
-        <button class="btn-img" onclick="downloadImage()">📸 Скачать картинку</button>
+        <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
+        <button class="btn-img" onclick="downloadImage()">📸 Картинка</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
     </div>
 </div>
 
-<!-- Кнопка установки приложения -->
-<button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить приложение</button>
+<button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
-    // === PWA: Регистрация Service Worker ===
+    // === PWA ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker зарегистрирован:', reg.scope))
-                .catch(err => console.log('Ошибка регистрации SW:', err));
+                .then(reg => console.log('SW OK:', reg.scope))
+                .catch(err => console.log('SW err:', err));
         });
     }
 
-    // === PWA: Установка ===
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
-
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
         installBtn.style.display = 'block';
     });
-
     function installPWA() {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('Пользователь установил приложение');
-                }
-                deferredPrompt = null;
-                installBtn.style.display = 'none';
-            });
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
         }
     }
+    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    window.addEventListener('appinstalled', () => {
-        console.log('Приложение установлено');
-        installBtn.style.display = 'none';
-    });
+    // === Утилита: создание степпера ===
+    // Возвращает HTML-разметку степпера с кнопками и полем
+    function createStepperHTML(id, className, defaultValue = '') {
+        return `
+            <div class="stepper">
+                <button type="button" class="minus" onclick="stepperChange('${id}', -1)">−</button>
+                <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
+                <button type="button" class="plus" onclick="stepperChange('${id}', 1)">+</button>
+            </div>
+        `;
+    }
 
-    // === ОСНОВНАЯ ЛОГИКА ===
+    // Изменение значения степпера
+    function stepperChange(id, delta) {
+        const input = document.getElementById(id);
+        if (!input) return;
+        let current = parseInt(input.value) || 0;
+        let newVal = current + delta;
+        if (newVal < 0) newVal = 0;
+        input.value = newVal;
+        // Триггерим событие input для пересчета и автосохранения
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // === Основная логика ===
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
@@ -199,7 +278,6 @@
     ];
     const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
     const BREAK_ZONES = ["Обед (30 минут)", "Перекур (15 минут)"];
-
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
     window.addEventListener('load', function() {
@@ -211,13 +289,26 @@
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
         }
 
+        // Вставляем степперы в блок сверки
+        document.querySelectorAll('.rec-item .stepper').forEach(container => {
+            const targetId = container.dataset.target;
+            container.outerHTML = createStepperHTML(targetId, 'rec-input');
+        });
+
         renderTable();
-        document.querySelectorAll('input').forEach(input => {
+        
+        // Навешиваем обработчики на все числовые поля
+        document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => {
                 calculateTotals();
                 saveData(false);
             });
         });
+        // Текстовые поля (АК Компания)
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.addEventListener('input', () => saveData(false));
+        });
+        
         loadData();
     });
 
@@ -225,7 +316,6 @@
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
 
-        const sortStart = 0;
         const loadStart = SORT_ZONES.length;
         const loadEnd = loadStart + LOAD_ZONES.length - 1;
         const breakStart = loadEnd + 1;
@@ -236,41 +326,38 @@
             if (idx >= loadStart && idx <= loadEnd) zoneClass = 'zone-load';
             if (idx >= breakStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
-            
+
+            // Генерируем уникальные ID для полей на основе индекса строки
+            const outId = `out_${idx}`;
+            const bakId = `bak_${idx}`;
+            const akId = `ak_${idx}`;
+            const shtId = `sht_${idx}`;
+
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
-                <td><input type="number" class="input-out" min="0" placeholder="0"></td>
-                <td><input type="number" class="input-bak" min="0" placeholder="0"></td>
-                <td><input type="text" class="input-ak" placeholder=""></td>
-                <td><input type="number" class="input-sht" min="0" placeholder="0"></td>
+                <td>${createStepperHTML(outId, 'input-out')}</td>
+                <td>${createStepperHTML(bakId, 'input-bak')}</td>
+                <td><input type="text" id="${akId}" class="input-ak" placeholder=""></td>
+                <td>${createStepperHTML(shtId, 'input-sht')}</td>
             `;
 
-            if (idx === sortStart) {
+            // Ячейка с бригадиром сортировки
+            if (idx === 0) {
                 const td = document.createElement('td');
                 td.rowSpan = SORT_ZONES.length;
                 td.className = 'brig-cell sort';
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.min = '0';
-                input.placeholder = '0';
-                input.className = 'input-bst-sort';
-                td.appendChild(input);
+                td.innerHTML = createStepperHTML('bstSort', 'input-bst-sort');
                 tr.appendChild(td);
             }
-
+            // Ячейка с бригадиром отгрузки
             if (idx === loadStart) {
                 const td = document.createElement('td');
                 td.rowSpan = LOAD_ZONES.length;
                 td.className = 'brig-cell load';
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.min = '0';
-                input.placeholder = '0';
-                input.className = 'input-bst-load';
-                td.appendChild(input);
+                td.innerHTML = createStepperHTML('bstLoad', 'input-bst-load');
                 tr.appendChild(td);
             }
-
+            // Обед/перекур
             if (idx >= breakStart) {
                 const td = document.createElement('td');
                 td.textContent = '';
@@ -295,7 +382,7 @@
     }
 
     function calculateTotals() {
-        let out = 0, bak = 0, sht = 0, bst = 0;
+        let out = 0, bak = 0, sht = 0;
         
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
             const outInput = tr.querySelector('.input-out');
@@ -306,9 +393,9 @@
             if (shtInput) sht += Number(shtInput.value) || 0;
         });
 
-        const sortBst = document.querySelector('.input-bst-sort');
-        const loadBst = document.querySelector('.input-bst-load');
-        bst = (Number(sortBst?.value) || 0) + (Number(loadBst?.value) || 0);
+        const sortBst = document.getElementById('bstSort');
+        const loadBst = document.getElementById('bstLoad');
+        const bst = (Number(sortBst?.value) || 0) + (Number(loadBst?.value) || 0);
 
         document.getElementById('total-out').textContent = out;
         document.getElementById('total-bak').textContent = bak;
@@ -334,21 +421,32 @@
         } else if (diff === 0) {
             statusDiv.innerHTML = `
                 ✅ <b>Всё сходится!</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
+                <span class="details">На смене: <b>${declaredTotal}</b> (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-ok";
         } else {
             statusDiv.innerHTML = `
-                ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff} чел.</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> чел. (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
+                ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff}</b><br>
+                <span class="details">На смене: <b>${declaredTotal}</b> (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
             `;
             statusDiv.className = "rec-status status-error";
         }
     }
 
     function saveData(showAlert) {
+        const rows = [];
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            rows.push({
+                station: tr.querySelector('.station-name').textContent,
+                out: tr.querySelector('.input-out')?.value || '',
+                bak: tr.querySelector('.input-bak')?.value || '',
+                ak: tr.querySelector('.input-ak')?.value || '',
+                sht: tr.querySelector('.input-sht')?.value || ''
+            });
+        });
+
         const data = {
             date: document.getElementById('reportDate').value,
             time: document.getElementById('reportTime').value,
@@ -358,24 +456,10 @@
                 out: document.getElementById('totalOut').value,
                 brig: document.getElementById('totalBrig').value
             },
-            bstSort: document.querySelector('.input-bst-sort')?.value || '',
-            bstLoad: document.querySelector('.input-bst-load')?.value || '',
-            rows: []
+            bstSort: document.getElementById('bstSort')?.value || '',
+            bstLoad: document.getElementById('bstLoad')?.value || '',
+            rows: rows
         };
-
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            const outInput = tr.querySelector('.input-out');
-            const bakInput = tr.querySelector('.input-bak');
-            const akInput = tr.querySelector('.input-ak');
-            const shtInput = tr.querySelector('.input-sht');
-            data.rows.push({
-                station: tr.querySelector('.station-name').textContent,
-                out: outInput ? outInput.value : '',
-                bak: bakInput ? bakInput.value : '',
-                ak: akInput ? akInput.value : '',
-                sht: shtInput ? shtInput.value : ''
-            });
-        });
 
         localStorage.setItem('warehouseReport', JSON.stringify(data));
         
@@ -398,14 +482,14 @@
         document.getElementById('reportTime').value = data.time;
         
         if (data.totals) {
-            document.getElementById('totalAdmin').value = data.totals.admin || '';
-            document.getElementById('totalStaff').value = data.totals.staff || '';
-            document.getElementById('totalOut').value = data.totals.out || '';
-            document.getElementById('totalBrig').value = data.totals.brig || '';
+            document.getElementById('totalAdmin').value = data.totals.admin || '0';
+            document.getElementById('totalStaff').value = data.totals.staff || '0';
+            document.getElementById('totalOut').value = data.totals.out || '0';
+            document.getElementById('totalBrig').value = data.totals.brig || '0';
         }
 
-        const sortBst = document.querySelector('.input-bst-sort');
-        const loadBst = document.querySelector('.input-bst-load');
+        const sortBst = document.getElementById('bstSort');
+        const loadBst = document.getElementById('bstLoad');
         if (sortBst && data.bstSort) sortBst.value = data.bstSort;
         if (loadBst && data.bstLoad) loadBst.value = data.bstLoad;
 
@@ -426,7 +510,7 @@
     }
 
     function clearData() {
-        if(confirm('Вы уверены, что хотите очистить все поля?')) {
+        if(confirm('Очистить все поля?')) {
             document.querySelectorAll('input').forEach(input => {
                 if(input.type === 'number' || input.type === 'text') input.value = '';
             });
@@ -439,8 +523,8 @@
     function exportCSV() {
         let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
         
-        const sortBst = document.querySelector('.input-bst-sort')?.value || '';
-        const loadBst = document.querySelector('.input-bst-load')?.value || '';
+        const sortBst = document.getElementById('bstSort')?.value || '';
+        const loadBst = document.getElementById('bstLoad')?.value || '';
 
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
@@ -478,17 +562,17 @@
 
         const buttons = document.querySelector('.buttons');
         const indicator = document.getElementById('autosaveIndicator');
-        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.style.display = 'none';
         buttons.style.display = 'none';
         indicator.style.display = 'none';
-        if (installBtn) installBtn.style.display = 'none';
 
         const table = document.getElementById('reportTable');
         const originalHTML = table.innerHTML;
         
+        // Собираем данные и делаем плоскую таблицу для картинки
         const rowsData = [];
-        const sortBst = document.querySelector('.input-bst-sort')?.value || '0';
-        const loadBst = document.querySelector('.input-bst-load')?.value || '0';
+        const sortBst = document.getElementById('bstSort')?.value || '0';
+        const loadBst = document.getElementById('bstLoad')?.value || '0';
         
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
