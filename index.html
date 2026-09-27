@@ -16,13 +16,35 @@
         .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; }
         .zone-sort { background-color: #f0f7ff; }
         .zone-load { background-color: #fff7e6; }
+        .zone-break { background-color: #f5f5f5; }
         
         input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         input[type="text"] { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        select { padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white; }
         
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
+
+        /* Стиль для объединенной ячейки бригадира */
+        .brig-cell {
+            vertical-align: middle;
+            padding: 10px;
+        }
+        .brig-cell.sort {
+            background-color: #cfe2ff;
+        }
+        .brig-cell.load {
+            background-color: #ffd8a8;
+        }
+        .brig-cell input {
+            width: 70px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            background: white;
+            border: 2px solid #666;
+            border-radius: 6px;
+            padding: 8px;
+        }
 
         .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 16px; }
@@ -35,7 +57,6 @@
         .status-error { color: #842029; background: #f8d7da; }
         .status-neutral { color: #664d03; background: #fff3cd; }
         .details { font-weight: normal; font-size: 13px; opacity: 0.85; }
-        .brigade-warning { color: #842029; background: #f8d7da; padding: 8px; border-radius: 4px; margin-top: 8px; font-size: 13px; }
 
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; color: white; transition: 0.2s; min-width: 150px; }
@@ -54,6 +75,7 @@
             th, td { padding: 3px; font-size: 11px; }
             input[type="number"] { width: 40px; padding: 2px; font-size: 12px; }
             input[type="text"] { width: 100%; font-size: 11px; }
+            .brig-cell input { width: 50px; font-size: 16px; padding: 4px; }
             .container { padding: 8px; }
             .rec-grid { flex-direction: column; gap: 8px; }
             .rec-item { justify-content: space-between; }
@@ -77,11 +99,8 @@
             <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
             <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
             <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
-            <div class="rec-item">Бриг. Стаф (Сортировка): <input type="number" id="brigSort" min="0" max="1" placeholder="1"></div>
-            <div class="rec-item">Бриг. Стаф (Отгрузка): <input type="number" id="brigLoad" min="0" max="1" placeholder="1"></div>
         </div>
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
-        <div id="brigadeWarning"></div>
     </div>
 
     <table id="reportTable">
@@ -109,15 +128,21 @@
 </div>
 
 <script>
-    const LOAD_ZONES = ["Раскатка буфера", "Отгрузка ЛХ", "Отгрузка АХ ВП"];
-    
+    // Новый порядок: сначала все сортировки, потом все отгрузки, потом обед/перекур
     const stations = [
-        "Веер, Ромашка", "Батч", "Отгрузка ЛХ", "КГТ", "Сорт ВП", 
-        "Перебор хранения", "МК", "Раскатка буфера", "Отгрузка МК", 
-        "Саппорт СКК", "Отгрузка АХ ВП", "Наведение порядка", 
-        "Перебор оборотной тары", "Прием мерчей", 
+        // Блок СОРТИРОВКИ
+        "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
+        "Перебор хранения", "МК", "Отгрузка МК", 
+        "Саппорт СКК", "Наведение порядка", 
+        "Перебор оборотной тары", "Прием мерчей",
+        // Блок ОТГРУЗКИ (три подряд)
+        "Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП",
+        // Блок ОБЕД/ПЕРЕКУР
         "Обед (30 минут)", "Перекур (15 минут)"
     ];
+
+    // Зоны отгрузки (для назначения бригадира)
+    const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
 
     window.onload = function() {
         const now = new Date();
@@ -126,36 +151,88 @@
         if (!saved) {
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
-            // По умолчанию 1 бригадир сортировки и 1 отгрузки
-            document.getElementById('brigSort').value = 1;
-            document.getElementById('brigLoad').value = 1;
         }
 
+        renderTable();
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                calculateTotals();
+                saveData(false);
+            });
+        });
+        loadData();
+    };
+
+    // Функция отрисовки таблицы с объединенными ячейками
+    function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
 
-        stations.forEach(station => {
+        // Определяем границы блоков
+        // Блок 1: сортировка (индексы 0..10) — 11 строк
+        // Блок 2: отгрузка (индексы 11..13) — 3 строки
+        // Блок 3: обед/перекур (индексы 14..15) — 2 строки (без бригадира)
+
+        const sortBlockEnd = 11; // строки 0-10 — сортировка
+        const loadBlockStart = 11; // строка 11 — начало отгрузки
+        const loadBlockEnd = 13; // строки 11-13 — отгрузка
+        const breakBlockStart = 14; // строка 14 — начало обеда/перекура
+
+        stations.forEach((station, idx) => {
             const tr = document.createElement('tr');
-            const zoneClass = LOAD_ZONES.includes(station) ? 'zone-load' : 'zone-sort';
+            let zoneClass = 'zone-sort';
+            if (idx >= loadBlockStart && idx <= loadBlockEnd) zoneClass = 'zone-load';
+            if (idx >= breakBlockStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
-            // Вместо числового поля для Бриг. Стаф — выпадающий список
+            
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
                 <td><input type="number" class="input-out" min="0" placeholder="0"></td>
                 <td><input type="number" class="input-bak" min="0" placeholder="0"></td>
                 <td><input type="text" class="input-ak" placeholder=""></td>
                 <td><input type="number" class="input-sht" min="0" placeholder="0"></td>
-                <td>
-                    <select class="input-bst">
-                        <option value="">—</option>
-                        <option value="sort">Сортировка</option>
-                        <option value="load">Отгрузка</option>
-                    </select>
-                </td>
             `;
+
+            // Первая строка блока сортировки — добавляем объединенную ячейку
+            if (idx === 0) {
+                const td = document.createElement('td');
+                td.rowSpan = sortBlockEnd; // 11 строк
+                td.className = 'brig-cell sort';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.placeholder = '0';
+                input.className = 'input-bst-sort';
+                td.appendChild(input);
+                tr.appendChild(td);
+            }
+
+            // Первая строка блока отгрузки — добавляем объединенную ячейку
+            if (idx === loadBlockStart) {
+                const td = document.createElement('td');
+                td.rowSpan = loadBlockEnd - loadBlockStart + 1; // 3 строки
+                td.className = 'brig-cell load';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.placeholder = '0';
+                input.className = 'input-bst-load';
+                td.appendChild(input);
+                tr.appendChild(td);
+            }
+
+            // Для строк обеда/перекура оставляем пустую ячейку
+            if (idx >= breakBlockStart) {
+                const td = document.createElement('td');
+                td.textContent = '—';
+                td.style.color = '#999';
+                tr.appendChild(td);
+            }
+
             tbody.appendChild(tr);
         });
 
+        // Итоговая строка
         const totalTr = document.createElement('tr');
         totalTr.className = 'total-row';
         totalTr.innerHTML = `
@@ -164,48 +241,37 @@
             <td id="total-bak">0</td>
             <td></td>
             <td id="total-sht">0</td>
-            <td></td>
+            <td id="total-bst">0</td>
         `;
         tbody.appendChild(totalTr);
-
-        document.querySelectorAll('input, select').forEach(input => {
-            input.addEventListener('input', () => {
-                calculateTotals();
-                saveData(false);
-            });
-            input.addEventListener('change', () => {
-                calculateTotals();
-                saveData(false);
-            });
-        });
-
-        loadData();
-    };
+    }
 
     function calculateTotals() {
-        let out = 0, bak = 0, sht = 0;
-        let sortZonesMarked = 0, loadZonesMarked = 0;
+        let out = 0, bak = 0, sht = 0, bst = 0;
         
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            out += Number(tr.querySelector('.input-out').value) || 0;
-            bak += Number(tr.querySelector('.input-bak').value) || 0;
-            sht += Number(tr.querySelector('.input-sht').value) || 0;
-
-            const bstVal = tr.querySelector('.input-bst').value;
-            if (bstVal === 'sort') sortZonesMarked++;
-            if (bstVal === 'load') loadZonesMarked++;
+            const outInput = tr.querySelector('.input-out');
+            const bakInput = tr.querySelector('.input-bak');
+            const shtInput = tr.querySelector('.input-sht');
+            if (outInput) out += Number(outInput.value) || 0;
+            if (bakInput) bak += Number(bakInput.value) || 0;
+            if (shtInput) sht += Number(shtInput.value) || 0;
         });
+
+        // Сумма бригадиров Стаф
+        const sortBst = document.querySelector('.input-bst-sort');
+        const loadBst = document.querySelector('.input-bst-load');
+        bst = (Number(sortBst?.value) || 0) + (Number(loadBst?.value) || 0);
 
         document.getElementById('total-out').textContent = out;
         document.getElementById('total-bak').textContent = bak;
         document.getElementById('total-sht').textContent = sht;
+        document.getElementById('total-bst').textContent = bst;
 
         const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
         const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
-        const brigSort = Number(document.getElementById('brigSort').value) || 0;
-        const brigLoad = Number(document.getElementById('brigLoad').value) || 0;
         
         const declaredTotal = totalStaff + totalOut + totalBrig;
         const actualTotal = out + sht + bak;
@@ -230,29 +296,6 @@
             `;
             statusDiv.className = "rec-status status-error";
         }
-
-        // Проверка бригадиров стаф
-        const brigadeWarning = document.getElementById('brigadeWarning');
-        let warnings = [];
-        
-        if (brigSort > 0 && sortZonesMarked === 0) {
-            warnings.push(`⚠️ Бригадир сортировки указан (${brigSort}), но ни одна зона не отмечена как "Сортировка".`);
-        }
-        if (brigLoad > 0 && loadZonesMarked === 0) {
-            warnings.push(`⚠️ Бригадир отгрузки указан (${brigLoad}), но ни одна зона не отмечена как "Отгрузка".`);
-        }
-        if (brigSort > 0 && sortZonesMarked > brigSort) {
-            warnings.push(`⚠️ Зон "Сортировка" больше, чем бригадиров (${sortZonesMarked} > ${brigSort}).`);
-        }
-        if (brigLoad > 0 && loadZonesMarked > brigLoad) {
-            warnings.push(`⚠️ Зон "Отгрузка" больше, чем бригадиров (${loadZonesMarked} > ${brigLoad}).`);
-        }
-
-        if (warnings.length > 0) {
-            brigadeWarning.innerHTML = `<div class="brigade-warning">${warnings.join('<br>')}</div>`;
-        } else {
-            brigadeWarning.innerHTML = '';
-        }
     }
 
     function saveData(showAlert) {
@@ -263,21 +306,24 @@
                 admin: document.getElementById('totalAdmin').value,
                 staff: document.getElementById('totalStaff').value,
                 out: document.getElementById('totalOut').value,
-                brig: document.getElementById('totalBrig').value,
-                brigSort: document.getElementById('brigSort').value,
-                brigLoad: document.getElementById('brigLoad').value
+                brig: document.getElementById('totalBrig').value
             },
+            bstSort: document.querySelector('.input-bst-sort')?.value || '',
+            bstLoad: document.querySelector('.input-bst-load')?.value || '',
             rows: []
         };
 
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
+            const outInput = tr.querySelector('.input-out');
+            const bakInput = tr.querySelector('.input-bak');
+            const akInput = tr.querySelector('.input-ak');
+            const shtInput = tr.querySelector('.input-sht');
             data.rows.push({
                 station: tr.querySelector('.station-name').textContent,
-                out: tr.querySelector('.input-out').value,
-                bak: tr.querySelector('.input-bak').value,
-                ak: tr.querySelector('.input-ak').value,
-                sht: tr.querySelector('.input-sht').value,
-                bst: tr.querySelector('.input-bst').value
+                out: outInput ? outInput.value : '',
+                bak: bakInput ? bakInput.value : '',
+                ak: akInput ? akInput.value : '',
+                sht: shtInput ? shtInput.value : ''
             });
         });
 
@@ -306,18 +352,24 @@
             document.getElementById('totalStaff').value = data.totals.staff || '';
             document.getElementById('totalOut').value = data.totals.out || '';
             document.getElementById('totalBrig').value = data.totals.brig || '';
-            document.getElementById('brigSort').value = data.totals.brigSort || '';
-            document.getElementById('brigLoad').value = data.totals.brigLoad || '';
         }
+
+        const sortBst = document.querySelector('.input-bst-sort');
+        const loadBst = document.querySelector('.input-bst-load');
+        if (sortBst && data.bstSort) sortBst.value = data.bstSort;
+        if (loadBst && data.bstLoad) loadBst.value = data.bstLoad;
 
         const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
         data.rows.forEach((row, index) => {
             if (rows[index]) {
-                rows[index].querySelector('.input-out').value = row.out || '';
-                rows[index].querySelector('.input-bak').value = row.bak || '';
-                rows[index].querySelector('.input-ak').value = row.ak || '';
-                rows[index].querySelector('.input-sht').value = row.sht || '';
-                rows[index].querySelector('.input-bst').value = row.bst || '';
+                const outInput = rows[index].querySelector('.input-out');
+                const bakInput = rows[index].querySelector('.input-bak');
+                const akInput = rows[index].querySelector('.input-ak');
+                const shtInput = rows[index].querySelector('.input-sht');
+                if (outInput) outInput.value = row.out || '';
+                if (bakInput) bakInput.value = row.bak || '';
+                if (akInput) akInput.value = row.ak || '';
+                if (shtInput) shtInput.value = row.sht || '';
             }
         });
         calculateTotals();
@@ -328,7 +380,6 @@
             document.querySelectorAll('input').forEach(input => {
                 if(input.type === 'number' || input.type === 'text') input.value = '';
             });
-            document.querySelectorAll('select').forEach(sel => sel.value = '');
             localStorage.removeItem('warehouseReport');
             calculateTotals();
             document.getElementById('autosaveIndicator').textContent = '';
@@ -338,22 +389,22 @@
     function exportCSV() {
         let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
         
-        document.querySelectorAll('#reportTable tbody tr').forEach(tr => {
-            const cells = tr.querySelectorAll('td');
-            const rowData = [];
-            cells.forEach((cell) => {
-                const input = cell.querySelector('input');
-                const select = cell.querySelector('select');
-                if (input) {
-                    rowData.push(input.value);
-                } else if (select) {
-                    const val = select.value;
-                    rowData.push(val === 'sort' ? 'Сортировка' : val === 'load' ? 'Отгрузка' : '—');
-                } else {
-                    rowData.push(cell.textContent);
-                }
-            });
-            csv += rowData.join(';') + '\n';
+        const sortBst = document.querySelector('.input-bst-sort')?.value || '';
+        const loadBst = document.querySelector('.input-bst-load')?.value || '';
+
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            const station = tr.querySelector('.station-name').textContent;
+            const out = tr.querySelector('.input-out')?.value || '';
+            const bak = tr.querySelector('.input-bak')?.value || '';
+            const ak = tr.querySelector('.input-ak')?.value || '';
+            const sht = tr.querySelector('.input-sht')?.value || '';
+            
+            // В CSV ставим значение бригадира только в первой строке его блока
+            let bst = '';
+            if (idx === 0) bst = sortBst;
+            if (idx === 11) bst = loadBst;
+            
+            csv += `${station};${out};${bak};${ak};${sht};${bst}\n`;
         });
 
         csv += '\n--- СВЕРКА ---\n';
@@ -361,8 +412,8 @@
         csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
         csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
-        csv += `Бриг. Стаф (Сортировка);${document.getElementById('brigSort').value}\n`;
-        csv += `Бриг. Стаф (Отгрузка);${document.getElementById('brigLoad').value}\n`;
+        csv += `Бриг. Стаф (Сортировка);${sortBst}\n`;
+        csv += `Бриг. Стаф (Отгрузка);${loadBst}\n`;
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
