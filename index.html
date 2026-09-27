@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
     
+    <!-- ИКОНКИ -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+    <link rel="shortcut icon" href="icon-192.png">
+    
+    <!-- PWA -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Отчет склада">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-512.png">
-    <link rel="apple-touch-icon" href="icon-512.png">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -177,7 +181,7 @@
             display: none; z-index: 9999; 
         }
 
-        /* Класс для режима картинки: скрываем все кнопки + / − */
+        /* === РЕЖИМ СКРИНШОТА === */
         body.snapshot-mode .stepper .btn-minus,
         body.snapshot-mode .stepper .btn-plus { 
             visibility: hidden;
@@ -186,12 +190,10 @@
             padding: 0 !important;
             overflow: hidden;
         }
-        body.snapshot-mode .stepper {
-            gap: 0;
-        }
-        body.snapshot-mode .stepper input {
-            border: 1px solid #999;
-            background: #ffffff;
+        body.snapshot-mode .stepper { gap: 0; }
+        body.snapshot-mode .stepper input { 
+            border: 1px solid #999; 
+            background: #ffffff; 
         }
         body.snapshot-mode .buttons,
         body.snapshot-mode .install-btn,
@@ -199,6 +201,30 @@
         body.snapshot-mode .analytics-box,
         body.snapshot-mode .date-time-row { 
             display: none !important; 
+        }
+        body.snapshot-mode .snapshot-hint { display: block !important; }
+
+        .snapshot-hint {
+            display: none;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #664d03;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .snapshot-hint:hover { background: #ffe69c; }
+        .snapshot-hint small {
+            display: block;
+            font-weight: 400;
+            font-size: 12px;
+            margin-top: 6px;
+            color: #666;
         }
 
         @media (max-width: 768px) {
@@ -280,6 +306,11 @@
 <div class="container" id="captureArea">
     <h2>📦 Отчет по складу</h2>
     
+    <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
+        📸 <b>Готово к скриншоту!</b>
+        <small>Сделайте скриншот телефона. Нажмите сюда, чтобы вернуть кнопки.</small>
+    </div>
+    
     <div class="date-time-row">
         <label>Дата: <input type="date" id="reportDate"></label>
         <label>Время: <input type="time" id="reportTime"></label>
@@ -326,7 +357,7 @@
     <div class="buttons">
         <button class="btn-save" onclick="archiveCurrentReport()">💾 В архив</button>
         <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
-        <button class="btn-img" onclick="downloadImage()">📸 Картинка</button>
+        <button class="btn-img" id="snapshotBtn" onclick="toggleSnapshot()">📸 Подготовить скрин</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
     </div>
 
@@ -393,6 +424,27 @@
         if (newVal < 0) newVal = 0;
         input.value = newVal;
         input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // === Режим подготовки к скриншоту ===
+    function toggleSnapshot() {
+        const body = document.body;
+        const btn = document.getElementById('snapshotBtn');
+        const hint = document.getElementById('snapshotHint');
+
+        if (body.classList.contains('snapshot-mode')) {
+            body.classList.remove('snapshot-mode');
+            if (btn) btn.innerHTML = '📸 Подготовить скрин';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            body.classList.add('snapshot-mode');
+            if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (hint) {
+                hint.style.animation = 'none';
+                setTimeout(() => { hint.style.animation = ''; }, 10);
+            }
+        }
     }
 
     const SORT_ZONES = [
@@ -794,38 +846,6 @@
         link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', `Отчет_склад_${document.getElementById('reportDate').value}.csv`);
         link.click();
-    }
-
-    // === НОВЫЙ downloadImage — просто скрываем кнопки через CSS-класс ===
-    function downloadImage() {
-        const date = document.getElementById('reportDate').value;
-        const time = document.getElementById('reportTime').value.replace(':', '-');
-        const captureArea = document.getElementById('captureArea');
-
-        // 1. Добавляем класс snapshot-mode — CSS сам скроет все кнопки
-        document.body.classList.add('snapshot-mode');
-
-        // 2. Небольшая пауза, чтобы браузер успел перерисовать
-        setTimeout(() => {
-            html2canvas(captureArea, { 
-                scale: 2, 
-                backgroundColor: '#ffffff',
-                useCORS: true,
-                logging: false
-            }).then(canvas => {
-                // 3. Убираем класс — кнопки возвращаются
-                document.body.classList.remove('snapshot-mode');
-
-                // 4. Скачиваем
-                const link = document.createElement('a');
-                link.download = `Отчет_${date}_${time}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }).catch(err => {
-                document.body.classList.remove('snapshot-mode');
-                alert('Ошибка при создании картинки: ' + err);
-            });
-        }, 100);
     }
 </script>
 
