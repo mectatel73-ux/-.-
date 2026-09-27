@@ -42,27 +42,12 @@
             margin-bottom: 12px;
             flex-wrap: wrap;
         }
-        .date-time-row label {
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .date-time-row input {
-            padding: 6px;
-            font-size: 13px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+        .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 4px; }
+        .date-time-row input { padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
 
-        /* Таблица в скролле на телефоне */
-        .table-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
 
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; font-weight: 600; font-size: 12px; padding: 8px 4px; white-space: nowrap; }
         .station-name { text-align: left; font-weight: 600; background-color: #f8f9fa; font-size: 13px; white-space: nowrap; padding: 6px 8px; }
@@ -70,7 +55,6 @@
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
 
-        /* СТЕППЕРЫ — кнопки + / - */
         .stepper {
             display: inline-flex;
             align-items: center;
@@ -93,13 +77,15 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: 0.1s;
+            transition: 0.15s;
             line-height: 1;
             font-family: Arial, sans-serif;
+            opacity: 0.75;
         }
-        .stepper button:active { transform: scale(0.9); }
-        .stepper button.minus { background: #dc3545; }
-        .stepper button.plus { background: #198754; }
+        .stepper button:hover { opacity: 1; }
+        .stepper button:active { transform: scale(0.9); opacity: 1; }
+        .stepper button.minus { background: rgba(220, 53, 69, 0.75); }
+        .stepper button.plus { background: rgba(25, 135, 84, 0.75); }
         .stepper input {
             width: 40px;
             height: 34px;
@@ -124,6 +110,8 @@
         .brig-cell.load { background-color: #ffd8a8; }
         .brig-cell .stepper input { width: 60px; height: 44px; font-size: 22px; border: 2px solid #555; }
         .brig-cell .stepper button { width: 44px; height: 44px; font-size: 24px; }
+
+        .clean-view table { min-width: auto; }
 
         .grand-total-box { 
             background: #d1e7dd; 
@@ -177,7 +165,6 @@
         .status-neutral { color: #664d03; background: #fff3cd; }
         .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
 
-        /* Аналитика */
         .analytics-box { background: #e7f1ff; border: 2px solid #0d6efd; border-radius: 8px; padding: 12px; margin-top: 20px; }
         .analytics-box h3 { margin: 0; color: #084298; font-size: 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
         .analytics-box h3 .arrow { transition: transform 0.3s; display: inline-block; }
@@ -226,40 +213,32 @@
             display: none; z-index: 9999; 
         }
 
-        /* Мобильная адаптация */
+        /* Мобильная портретная */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .container { padding: 8px; border-radius: 6px; }
             h2 { font-size: 16px; margin-bottom: 8px; }
-            
             .date-time-row { gap: 8px; }
             .date-time-row label { font-size: 12px; }
             .date-time-row input { padding: 5px; font-size: 12px; }
-            
             th { font-size: 11px; padding: 6px 3px; }
             .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
-            
             .stepper { gap: 2px; }
             .stepper button { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
             .stepper input { width: 36px; height: 30px; font-size: 14px; border-radius: 5px; }
-            
             .brig-cell { padding: 6px 3px; }
             .brig-cell .stepper button { width: 36px; height: 36px; font-size: 20px; }
             .brig-cell .stepper input { width: 50px; height: 36px; font-size: 18px; }
-
             .grand-total-box { padding: 8px; font-size: 13px; }
             .grand-total-box span { font-size: 20px; }
-
             .reconciliation-box { padding: 10px; }
             .reconciliation-box h3 { font-size: 14px; }
             .rec-grid { grid-template-columns: 1fr; gap: 6px; }
             .rec-item { font-size: 13px; padding: 5px 8px; }
             .rec-status { font-size: 12px; padding: 8px; }
-
             .buttons { gap: 6px; }
             .buttons button { padding: 10px 6px; font-size: 13px; }
-
-            table { min-width: 600px; }
+            table { min-width: 650px; }
         }
 
         @media (max-width: 480px) {
@@ -269,6 +248,56 @@
             .brig-cell .stepper input { width: 45px; height: 32px; font-size: 16px; }
             .station-name { max-width: 80px; font-size: 10px; }
             th { font-size: 10px; }
+        }
+
+        /* === ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ (телефон боком) === */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body { padding: 4px; font-size: 11px; }
+            .container { padding: 6px; max-width: 100%; }
+            h2 { font-size: 14px; margin-bottom: 6px; }
+            
+            .date-time-row { margin-bottom: 6px; gap: 8px; }
+            .date-time-row label { font-size: 11px; }
+            .date-time-row input { padding: 3px; font-size: 11px; }
+            
+            .grand-total-box { padding: 6px; font-size: 12px; margin-bottom: 6px; }
+            .grand-total-box span { font-size: 16px; }
+            .grand-total-box div { font-size: 10px !important; }
+            
+            .reconciliation-box { padding: 6px; margin-bottom: 6px; }
+            .reconciliation-box h3 { font-size: 12px; margin-bottom: 6px; }
+            .rec-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+            .rec-item { font-size: 11px; padding: 3px 5px; gap: 3px; }
+            .rec-status { font-size: 11px; padding: 6px; margin-top: 6px; }
+            
+            /* Таблица сжимается так, чтобы влезла в ширину экрана */
+            .table-wrap { overflow: visible; margin-bottom: 6px; }
+            table { min-width: auto; width: 100%; table-layout: fixed; }
+            th { font-size: 9px; padding: 3px 1px; }
+            td { padding: 2px 1px; }
+            .station-name { font-size: 9px; padding: 2px 3px; white-space: normal; word-break: break-word; }
+            
+            /* Мини-степперы */
+            .stepper { gap: 1px; }
+            .stepper button { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
+            .stepper input { width: 24px; height: 20px; font-size: 11px; border-radius: 3px; }
+            .brig-cell { padding: 2px 1px; }
+            .brig-cell .stepper button { width: 22px; height: 24px; font-size: 14px; }
+            .brig-cell .stepper input { width: 30px; height: 24px; font-size: 13px; border: 1px solid #555; }
+            
+            .total-row td { padding: 4px 1px; font-size: 11px; }
+            
+            .buttons { gap: 4px; margin-top: 8px; }
+            .buttons button { padding: 8px 4px; font-size: 11px; }
+            .autosave-indicator { font-size: 10px; margin-top: 3px; }
+            
+            .input-ak { padding: 3px !important; font-size: 10px !important; }
+            
+            /* Аналитику в ландшафте делаем компактнее */
+            .analytics-box { padding: 8px; margin-top: 10px; }
+            .analytics-box h3 { font-size: 13px; }
+            .analytics-section { padding: 8px; margin-bottom: 6px; }
+            .analytics-section h4 { font-size: 12px; }
         }
     </style>
 </head>
@@ -356,7 +385,6 @@
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
-    // === PWA ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -375,7 +403,6 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // === Степперы ===
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -796,9 +823,9 @@
     }
 
     function downloadImage() {
-        const element = document.querySelector('.container');
         const date = document.getElementById('reportDate').value;
         const time = document.getElementById('reportTime').value.replace(':', '-');
+
         const buttons = document.querySelector('.buttons');
         const indicator = document.getElementById('autosaveIndicator');
         const analytics = document.querySelector('.analytics-box');
@@ -809,42 +836,74 @@
 
         const table = document.getElementById('reportTable');
         const originalHTML = table.innerHTML;
+        const wrap = document.querySelector('.table-wrap');
+        const originalWrapClass = wrap.className;
+
         const rowsData = [];
         const sortBst = document.getElementById('bstSort')?.value || '0';
         const loadBst = document.getElementById('bstLoad')?.value || '0';
+        
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
             const out = tr.querySelector('.input-out')?.value || '0';
             const bak = tr.querySelector('.input-bak')?.value || '0';
             const ak = tr.querySelector('.input-ak')?.value || '';
             const sht = tr.querySelector('.input-sht')?.value || '0';
+            
             let bst = '';
             if (idx === 0) bst = sortBst;
             else if (idx === SORT_ZONES.length) bst = loadBst;
+            
             rowsData.push({ station, out, bak, ak, sht, bst, idx });
         });
-        const tbody = document.querySelector('#reportTable tbody');
-        tbody.innerHTML = '';
+
+        let cleanHTML = `<table><thead><tr>
+            <th>Рабочая станция</th><th>Аутстафф</th><th>Бриг. АК</th><th>АК Компания</th><th>Штат</th><th>Бриг. Стаф</th>
+        </tr></thead><tbody>`;
+        
         rowsData.forEach(row => {
-            const tr = document.createElement('tr');
             const isLoad = row.idx >= SORT_ZONES.length && row.idx < SORT_ZONES.length + LOAD_ZONES.length;
             const isBreak = row.idx >= SORT_ZONES.length + LOAD_ZONES.length;
-            tr.className = isLoad ? 'zone-load' : (isBreak ? 'zone-break' : 'zone-sort');
-            tr.innerHTML = `<td class="station-name">${row.station}</td><td>${row.out}</td><td>${row.bak}</td><td>${row.ak}</td><td>${row.sht}</td><td>${row.bst}</td>`;
-            tbody.appendChild(tr);
+            let rowStyle = '';
+            if (isLoad) rowStyle = 'style="background-color: #fff7e6;"';
+            else if (isBreak) rowStyle = 'style="background-color: #f5f5f5;"';
+            else rowStyle = 'style="background-color: #f0f7ff;"';
+            
+            cleanHTML += `<tr ${rowStyle}>
+                <td class="station-name">${row.station}</td>
+                <td>${row.out}</td>
+                <td>${row.bak}</td>
+                <td>${row.ak}</td>
+                <td>${row.sht}</td>
+                <td>${row.bst}</td>
+            </tr>`;
         });
-        const totalTr = document.createElement('tr');
-        totalTr.className = 'total-row';
-        totalTr.innerHTML = `<td style="text-align: right; padding-right: 10px;">ИТОГ:</td><td>${document.getElementById('total-out').textContent}</td><td>${document.getElementById('total-bak').textContent}</td><td></td><td>${document.getElementById('total-sht').textContent}</td><td>${document.getElementById('total-bst').textContent}</td>`;
-        tbody.appendChild(totalTr);
 
-        html2canvas(element, { scale: 2 }).then(canvas => {
+        cleanHTML += `<tr class="total-row">
+            <td style="text-align: right; font-weight: bold;">ИТОГ:</td>
+            <td>${document.getElementById('total-out').textContent}</td>
+            <td>${document.getElementById('total-bak').textContent}</td>
+            <td></td>
+            <td>${document.getElementById('total-sht').textContent}</td>
+            <td>${document.getElementById('total-bst').textContent}</td>
+        </tr>`;
+        
+        cleanHTML += '</tbody></table>';
+
+        table.innerHTML = cleanHTML;
+        wrap.className = 'table-wrap clean-view';
+
+        const container = document.querySelector('.container');
+        html2canvas(container, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
             table.innerHTML = originalHTML;
+            wrap.className = originalWrapClass;
             buttons.style.display = 'grid';
             indicator.style.display = 'block';
             analytics.style.display = 'block';
             if (installBtn && deferredPrompt) installBtn.style.display = 'block';
+            
             window.dispatchEvent(new Event('load'));
+
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
