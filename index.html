@@ -19,6 +19,7 @@
         
         input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         input[type="text"] { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        select { padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white; }
         
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
@@ -76,8 +77,8 @@
             <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
             <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
             <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
-            <div class="rec-item">Бриг. Стаф (Сортировка): <input type="number" id="brigSort" min="0" max="1" placeholder="0"></div>
-            <div class="rec-item">Бриг. Стаф (Отгрузка): <input type="number" id="brigLoad" min="0" max="1" placeholder="0"></div>
+            <div class="rec-item">Бриг. Стаф (Сортировка): <input type="number" id="brigSort" min="0" max="1" placeholder="1"></div>
+            <div class="rec-item">Бриг. Стаф (Отгрузка): <input type="number" id="brigLoad" min="0" max="1" placeholder="1"></div>
         </div>
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
         <div id="brigadeWarning"></div>
@@ -108,7 +109,6 @@
 </div>
 
 <script>
-    // Зоны отгрузки (всё остальное — сортировка)
     const LOAD_ZONES = ["Раскатка буфера", "Отгрузка ЛХ", "Отгрузка АХ ВП"];
     
     const stations = [
@@ -126,6 +126,9 @@
         if (!saved) {
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+            // По умолчанию 1 бригадир сортировки и 1 отгрузки
+            document.getElementById('brigSort').value = 1;
+            document.getElementById('brigLoad').value = 1;
         }
 
         const tbody = document.querySelector('#reportTable tbody');
@@ -135,14 +138,20 @@
             const tr = document.createElement('tr');
             const zoneClass = LOAD_ZONES.includes(station) ? 'zone-load' : 'zone-sort';
             tr.className = zoneClass;
-            // Новый порядок: Рабочая станция | Аутстафф | Бриг. АК | АК Компания | Штат | Бриг. Стаф
+            // Вместо числового поля для Бриг. Стаф — выпадающий список
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
                 <td><input type="number" class="input-out" min="0" placeholder="0"></td>
                 <td><input type="number" class="input-bak" min="0" placeholder="0"></td>
                 <td><input type="text" class="input-ak" placeholder=""></td>
                 <td><input type="number" class="input-sht" min="0" placeholder="0"></td>
-                <td><input type="number" class="input-bst" min="0" placeholder="0"></td>
+                <td>
+                    <select class="input-bst">
+                        <option value="">—</option>
+                        <option value="sort">Сортировка</option>
+                        <option value="load">Отгрузка</option>
+                    </select>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -155,12 +164,16 @@
             <td id="total-bak">0</td>
             <td></td>
             <td id="total-sht">0</td>
-            <td id="total-bst">0</td>
+            <td></td>
         `;
         tbody.appendChild(totalTr);
 
-        document.querySelectorAll('input').forEach(input => {
+        document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', () => {
+                calculateTotals();
+                saveData(false);
+            });
+            input.addEventListener('change', () => {
                 calculateTotals();
                 saveData(false);
             });
@@ -170,33 +183,22 @@
     };
 
     function calculateTotals() {
-        let out = 0, bak = 0, sht = 0, bst = 0;
-        let brigSortOnSort = 0, brigLoadOnLoad = 0;
+        let out = 0, bak = 0, sht = 0;
+        let sortZonesMarked = 0, loadZonesMarked = 0;
         
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            const outVal = Number(tr.querySelector('.input-out').value) || 0;
-            const bakVal = Number(tr.querySelector('.input-bak').value) || 0;
-            const shtVal = Number(tr.querySelector('.input-sht').value) || 0;
-            const bstVal = Number(tr.querySelector('.input-bst').value) || 0;
-            
-            out += outVal;
-            bak += bakVal;
-            sht += shtVal;
-            bst += bstVal;
+            out += Number(tr.querySelector('.input-out').value) || 0;
+            bak += Number(tr.querySelector('.input-bak').value) || 0;
+            sht += Number(tr.querySelector('.input-sht').value) || 0;
 
-            const station = tr.querySelector('.station-name').textContent;
-            const isLoadZone = LOAD_ZONES.includes(station);
-            
-            if (bstVal > 0) {
-                if (isLoadZone) brigLoadOnLoad += bstVal;
-                else brigSortOnSort += bstVal;
-            }
+            const bstVal = tr.querySelector('.input-bst').value;
+            if (bstVal === 'sort') sortZonesMarked++;
+            if (bstVal === 'load') loadZonesMarked++;
         });
 
         document.getElementById('total-out').textContent = out;
         document.getElementById('total-bak').textContent = bak;
         document.getElementById('total-sht').textContent = sht;
-        document.getElementById('total-bst').textContent = bst;
 
         const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
         const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
@@ -205,12 +207,8 @@
         const brigSort = Number(document.getElementById('brigSort').value) || 0;
         const brigLoad = Number(document.getElementById('brigLoad').value) || 0;
         
-        // На смене = Штатные + Аутстафф + Бригадиры АК (без Админки и Бриг. Стаф)
         const declaredTotal = totalStaff + totalOut + totalBrig;
-        
-        // Распределено = Аутстафф + Штат + Бриг. АК
         const actualTotal = out + sht + bak;
-        
         const diff = declaredTotal - actualTotal;
         const statusDiv = document.getElementById('recStatus');
 
@@ -237,11 +235,17 @@
         const brigadeWarning = document.getElementById('brigadeWarning');
         let warnings = [];
         
-        if (brigSort > 0 && brigSortOnSort === 0) {
-            warnings.push(`⚠️ Бригадир сортировки (${brigSort}) НЕ поставлен ни на одну зону сортировки.`);
+        if (brigSort > 0 && sortZonesMarked === 0) {
+            warnings.push(`⚠️ Бригадир сортировки указан (${brigSort}), но ни одна зона не отмечена как "Сортировка".`);
         }
-        if (brigLoad > 0 && brigLoadOnLoad === 0) {
-            warnings.push(`⚠️ Бригадир отгрузки (${brigLoad}) НЕ поставлен ни на одну зону отгрузки.`);
+        if (brigLoad > 0 && loadZonesMarked === 0) {
+            warnings.push(`⚠️ Бригадир отгрузки указан (${brigLoad}), но ни одна зона не отмечена как "Отгрузка".`);
+        }
+        if (brigSort > 0 && sortZonesMarked > brigSort) {
+            warnings.push(`⚠️ Зон "Сортировка" больше, чем бригадиров (${sortZonesMarked} > ${brigSort}).`);
+        }
+        if (brigLoad > 0 && loadZonesMarked > brigLoad) {
+            warnings.push(`⚠️ Зон "Отгрузка" больше, чем бригадиров (${loadZonesMarked} > ${brigLoad}).`);
         }
 
         if (warnings.length > 0) {
@@ -324,6 +328,7 @@
             document.querySelectorAll('input').forEach(input => {
                 if(input.type === 'number' || input.type === 'text') input.value = '';
             });
+            document.querySelectorAll('select').forEach(sel => sel.value = '');
             localStorage.removeItem('warehouseReport');
             calculateTotals();
             document.getElementById('autosaveIndicator').textContent = '';
@@ -338,7 +343,15 @@
             const rowData = [];
             cells.forEach((cell) => {
                 const input = cell.querySelector('input');
-                rowData.push(input ? input.value : cell.textContent);
+                const select = cell.querySelector('select');
+                if (input) {
+                    rowData.push(input.value);
+                } else if (select) {
+                    const val = select.value;
+                    rowData.push(val === 'sort' ? 'Сортировка' : val === 'load' ? 'Отгрузка' : '—');
+                } else {
+                    rowData.push(cell.textContent);
+                }
             });
             csv += rowData.join(';') + '\n';
         });
