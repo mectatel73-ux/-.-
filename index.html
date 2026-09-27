@@ -61,7 +61,12 @@
         .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 4px; }
         .date-time-row input { padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
 
-        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
+        .table-wrap { 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            margin-bottom: 15px;
+            width: 100%;
+        }
 
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
@@ -233,6 +238,48 @@
 
         .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 6px; height: 15px; font-weight: 600; }
 
+        /* === ПАНЕЛЬ МАСШТАБА === */
+        .zoom-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px;
+            background: #f1f3f5;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            flex-wrap: wrap;
+        }
+        .zoom-label { margin-right: 4px; }
+        .zoom-btn {
+            width: 38px; height: 38px;
+            border: none; border-radius: 6px;
+            background: #6f42c1; color: white;
+            font-size: 22px; font-weight: 700;
+            cursor: pointer; line-height: 1;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .zoom-btn:active { transform: scale(0.9); }
+        .zoom-value {
+            min-width: 55px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #6f42c1;
+        }
+        .zoom-reset {
+            padding: 8px 12px;
+            border: 1px solid #6f42c1;
+            background: white; color: #6f42c1;
+            border-radius: 6px; font-size: 12px;
+            font-weight: 700; cursor: pointer;
+            margin-left: 6px;
+        }
+        .zoom-reset:active { background: #f3e8ff; }
+
         .install-btn { 
             position: fixed; bottom: 15px; right: 15px; 
             background: #4CAF50; color: white; border: none; 
@@ -256,20 +303,11 @@
         body.snapshot-mode .autosave-indicator,
         body.snapshot-mode .analytics-box,
         body.snapshot-mode .date-time-row,
-        body.snapshot-mode .sync-status { 
+        body.snapshot-mode .sync-status,
+        body.snapshot-mode .zoom-panel { 
             display: none !important; 
         }
         body.snapshot-mode .snapshot-hint { display: block !important; }
-
-        .snapshot-hint {
-            display: none;
-            background: #fff3cd; border: 2px solid #ffc107; color: #664d03;
-            padding: 14px; border-radius: 8px; text-align: center;
-            font-weight: 700; font-size: 14px; margin-bottom: 12px;
-            cursor: pointer; user-select: none;
-        }
-        .snapshot-hint:hover { background: #ffe69c; }
-        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
 
         /* === РЕЖИМ СКРИНШОТА: таблица влезает целиком === */
         body.snapshot-mode .table-wrap {
@@ -279,6 +317,7 @@
             min-width: auto !important;
             width: 100% !important;
             table-layout: fixed !important;
+            transform: none !important;
         }
         body.snapshot-mode th {
             font-size: 9px !important;
@@ -349,6 +388,16 @@
             font-size: 14px !important;
             margin-bottom: 6px !important;
         }
+
+        .snapshot-hint {
+            display: none;
+            background: #fff3cd; border: 2px solid #ffc107; color: #664d03;
+            padding: 14px; border-radius: 8px; text-align: center;
+            font-weight: 700; font-size: 14px; margin-bottom: 12px;
+            cursor: pointer; user-select: none;
+        }
+        .snapshot-hint:hover { background: #ffe69c; }
+        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
 
         @media (max-width: 768px) {
             body { padding: 5px; }
@@ -465,7 +514,7 @@
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap" id="tableWrap">
         <table id="reportTable">
             <thead>
                 <tr>
@@ -488,6 +537,14 @@
         <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
         <button class="btn-img" id="snapshotBtn" onclick="toggleSnapshot()">📸 Подготовить скрин</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
+    </div>
+
+    <div class="zoom-panel">
+        <span class="zoom-label">🔍 Масштаб:</span>
+        <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
+        <span class="zoom-value" id="zoomValue">100%</span>
+        <button class="zoom-btn" onclick="changeZoom(1)">+</button>
+        <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
     </div>
 
     <div class="analytics-box">
@@ -687,28 +744,66 @@
         saveDataToFirebase();
     }
 
-    // === ИСПРАВЛЕНО: режим скриншота ===
+    // === РЕЖИМ СКРИНШОТА ===
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
-        const tableWrap = document.querySelector('.table-wrap');
 
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
             if (btn) btn.innerHTML = '📸 Подготовить скрин';
-            if (tableWrap) tableWrap.style.overflowX = 'auto';
+            // Возвращаем масштаб, который был до скриншота
+            applyZoom();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             body.classList.add('snapshot-mode');
             if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
-            if (tableWrap) tableWrap.style.overflowX = 'visible';
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => {
-                document.querySelectorAll('.stepper input').forEach(inp => {
-                    inp.style.width = '';
-                });
-            }, 50);
         }
+    }
+
+    // === МАСШТАБ ===
+    let currentZoom = 100;
+    const ZOOM_STEP = 10;
+    const ZOOM_MIN = 50;
+    const ZOOM_MAX = 130;
+
+    function applyZoom() {
+        const table = document.querySelector('#reportTable');
+        const wrap = document.getElementById('tableWrap');
+        if (!table || !wrap) return;
+
+        // В режиме скриншота масштаб не применяем (там своя логика сжатия)
+        if (document.body.classList.contains('snapshot-mode')) {
+            table.style.transform = '';
+            table.style.transformOrigin = '';
+            wrap.style.height = '';
+            return;
+        }
+
+        const scale = currentZoom / 100;
+        table.style.transform = `scale(${scale})`;
+        table.style.transformOrigin = 'top left';
+        table.style.width = (100 / scale) + '%';
+
+        // Компенсируем высоту обёртки, чтобы не было пустого места
+        const tableHeight = table.offsetHeight;
+        wrap.style.height = (tableHeight * scale) + 'px';
+
+        document.getElementById('zoomValue').textContent = currentZoom + '%';
+        localStorage.setItem('warehouseZoom', currentZoom);
+    }
+
+    function changeZoom(delta) {
+        currentZoom += delta * ZOOM_STEP;
+        if (currentZoom < ZOOM_MIN) currentZoom = ZOOM_MIN;
+        if (currentZoom > ZOOM_MAX) currentZoom = ZOOM_MAX;
+        applyZoom();
+    }
+
+    function resetZoom() {
+        currentZoom = 100;
+        applyZoom();
     }
 
     const SORT_ZONES = [
@@ -723,7 +818,6 @@
 
     let firebaseReady = false;
     let initialLoadDone = false;
-    let unsubscribeSnapshot = null;
 
     window.addEventListener('load', function() {
         const now = new Date();
@@ -742,13 +836,26 @@
         document.getElementById('reportDate').addEventListener('change', saveDataToFirebase);
         document.getElementById('reportTime').addEventListener('change', saveDataToFirebase);
 
+        // Восстановление масштаба
+        const savedZoom = parseInt(localStorage.getItem('warehouseZoom'));
+        if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) {
+            currentZoom = savedZoom;
+        }
+
         loadFromLocalStorage();
         calculateTotals();
         renderAnalytics();
         updateOnlineStatus();
+        setTimeout(applyZoom, 100);
 
         if (window.FB) initFirebase();
         else window.addEventListener('firebaseReady', initFirebase);
+    });
+
+    window.addEventListener('resize', () => {
+        if (!document.body.classList.contains('snapshot-mode')) {
+            applyZoom();
+        }
     });
 
     function initFirebase() {
