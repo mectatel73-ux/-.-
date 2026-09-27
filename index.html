@@ -15,151 +15,260 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 950px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: #333; font-size: 20px; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #e9ecef; 
+            margin: 0; 
+            padding: 8px; 
+            font-size: 14px; 
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+        }
+        .container { 
+            max-width: 1100px; 
+            margin: auto; 
+            background: white; 
+            padding: 12px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        h2 { text-align: center; margin: 0 0 12px 0; color: #333; font-size: 18px; }
         
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .date-time-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .date-time-row label {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .date-time-row input {
+            padding: 6px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Таблица в скролле на телефоне */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
         th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
-        th { background-color: #4CAF50; color: white; font-weight: normal; font-size: 12px; padding: 8px 4px; }
-        .station-name { text-align: left; font-weight: bold; background-color: #f8f9fa; font-size: 13px; }
+        th { background-color: #4CAF50; color: white; font-weight: 600; font-size: 12px; padding: 8px 4px; white-space: nowrap; }
+        .station-name { text-align: left; font-weight: 600; background-color: #f8f9fa; font-size: 13px; white-space: nowrap; padding: 6px 8px; }
         .zone-sort { background-color: #f0f7ff; }
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
-        
-        /* Степпер (кнопки +/-) */
+
+        /* СТЕППЕРЫ — кнопки + / - */
         .stepper {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 3px;
             user-select: none;
         }
         .stepper button {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border: none;
             border-radius: 6px;
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             color: white;
             padding: 0;
-            display: flex;
+            margin: 0;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             transition: 0.1s;
-            min-width: unset;
+            line-height: 1;
+            font-family: Arial, sans-serif;
         }
         .stepper button:active { transform: scale(0.9); }
         .stepper button.minus { background: #dc3545; }
         .stepper button.plus { background: #198754; }
         .stepper input {
-            width: 42px;
-            height: 32px;
+            width: 40px;
+            height: 34px;
             text-align: center;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             padding: 0;
-            -moz-appearance: textfield;
             background: white;
-        }
-        .stepper input::-webkit-outer-spin-button,
-        .stepper input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
             margin: 0;
         }
+        .stepper input::-webkit-outer-spin-button,
+        .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .stepper input[type=number] { -moz-appearance: textfield; }
 
-        .total-row { font-weight: bold; background-color: #d1e7dd; }
-        .total-row td { border-top: 2px solid #000; }
+        .total-row { font-weight: 700; background-color: #d1e7dd; }
+        .total-row td { border-top: 2px solid #000; padding: 8px 4px; }
 
-        /* Стиль для бригадиров */
-        .brig-cell { vertical-align: middle; padding: 10px; text-align: center; }
+        .brig-cell { vertical-align: middle; padding: 10px 6px; text-align: center; }
         .brig-cell.sort { background-color: #cfe2ff; }
         .brig-cell.load { background-color: #ffd8a8; }
-        .brig-cell .stepper input {
-            width: 55px;
-            height: 40px;
-            font-size: 22px;
-            border: 2px solid #555;
-        }
-        .brig-cell .stepper button { width: 40px; height: 40px; font-size: 24px; }
+        .brig-cell .stepper input { width: 60px; height: 44px; font-size: 22px; border: 2px solid #555; }
+        .brig-cell .stepper button { width: 44px; height: 44px; font-size: 24px; }
 
-        .grand-total-box { background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; padding: 12px; margin-bottom: 15px; text-align: center; font-size: 15px; font-weight: bold; color: #0f5132; }
+        .grand-total-box { 
+            background: #d1e7dd; 
+            border: 2px solid #198754; 
+            border-radius: 6px; 
+            padding: 10px; 
+            margin-bottom: 12px; 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: #0f5132; 
+        }
         .grand-total-box span { font-size: 22px; color: #0a3622; }
 
-        .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
-        .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 15px; }
-        .rec-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
-        .rec-item { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 14px; }
-        .rec-item.admin { opacity: 0.7; }
-        .rec-status { margin-top: 12px; font-size: 13px; font-weight: bold; padding: 10px; border-radius: 4px; line-height: 1.5; }
+        .reconciliation-box { 
+            background: #fff3cd; 
+            border: 1px solid #ffe69c; 
+            border-radius: 6px; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+        }
+        .reconciliation-box h3 { margin: 0 0 10px 0; color: #664d03; font-size: 15px; }
+        .rec-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 8px; 
+            margin-bottom: 8px; 
+        }
+        .rec-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 6px; 
+            font-weight: 600; 
+            font-size: 14px;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 8px;
+            border-radius: 5px;
+        }
+        .rec-item.admin { opacity: 0.75; }
+        .rec-status { 
+            margin-top: 10px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            padding: 10px; 
+            border-radius: 4px; 
+            line-height: 1.5; 
+        }
         .status-ok { color: #0f5132; background: #d1e7dd; }
         .status-error { color: #842029; background: #f8d7da; }
         .status-neutral { color: #664d03; background: #fff3cd; }
-        .details { font-weight: normal; font-size: 12px; opacity: 0.85; }
+        .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
 
-        .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .buttons button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            cursor: pointer;
-            color: white;
-            transition: 0.2s;
-            min-width: 150px;
-            font-weight: bold;
-        }
+        /* Аналитика */
+        .analytics-box { background: #e7f1ff; border: 2px solid #0d6efd; border-radius: 8px; padding: 12px; margin-top: 20px; }
+        .analytics-box h3 { margin: 0; color: #084298; font-size: 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .analytics-box h3 .arrow { transition: transform 0.3s; display: inline-block; }
+        .analytics-box h3.collapsed .arrow { transform: rotate(-90deg); }
+        .analytics-content { margin-top: 12px; }
+        .analytics-content.hidden { display: none; }
+        
+        .analytics-section { background: white; border-radius: 6px; padding: 10px; margin-bottom: 10px; border-left: 4px solid #0d6efd; }
+        .analytics-section h4 { margin: 0 0 8px 0; font-size: 13px; color: #084298; }
+        
+        .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+        .history-table th { background: #0d6efd; color: white; padding: 5px; font-size: 11px; }
+        .history-table td { padding: 5px; border-bottom: 1px solid #eee; }
+        .diff-positive { color: #198754; font-weight: bold; }
+        .diff-negative { color: #dc3545; font-weight: bold; }
+        .diff-zero { color: #666; }
+
+        .top-zones-list { list-style: none; padding: 0; margin: 0; }
+        .top-zones-list li { padding: 6px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 12px; }
+        .top-zones-list li:last-child { border-bottom: none; }
+        .top-zones-list .zone-bar { display: inline-block; height: 8px; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+        .top-zones-list .zone-name { font-weight: 600; }
+
+        .compare-item { padding: 5px 0; font-size: 12px; border-bottom: 1px dashed #ddd; display: flex; justify-content: space-between; }
+        .compare-item:last-child { border-bottom: none; }
+
+        .archive-item { padding: 6px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 6px; }
+        .archive-item:last-child { border-bottom: none; }
+        .archive-item button { padding: 5px 10px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; color: white; background: #0d6efd; flex: none; }
+
+        .buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
+        .buttons button { padding: 12px 8px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; color: white; font-weight: 700; }
         .btn-save { background-color: #0d6efd; }
         .btn-export { background-color: #198754; }
         .btn-img { background-color: #6f42c1; }
         .btn-clear { background-color: #dc3545; }
 
-        .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 5px; height: 15px; }
+        .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 6px; height: 15px; font-weight: 600; }
 
-        .install-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 9999;
+        .install-btn { 
+            position: fixed; bottom: 15px; right: 15px; 
+            background: #4CAF50; color: white; border: none; 
+            border-radius: 50px; padding: 12px 20px; font-size: 14px; 
+            font-weight: 700; cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            display: none; z-index: 9999; 
         }
 
-        /* Адаптив для телефонов */
-        @media (max-width: 700px) {
-            body { padding: 5px; font-size: 13px; }
-            .container { padding: 8px; }
-            h2 { font-size: 17px; }
-            th, td { padding: 3px 2px; font-size: 11px; }
-            .station-name { font-size: 11px; }
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .container { padding: 8px; border-radius: 6px; }
+            h2 { font-size: 16px; margin-bottom: 8px; }
             
-            .stepper { gap: 1px; }
-            .stepper button { width: 26px; height: 26px; font-size: 16px; border-radius: 5px; }
-            .stepper input { width: 34px; height: 26px; font-size: 14px; border-radius: 5px; }
+            .date-time-row { gap: 8px; }
+            .date-time-row label { font-size: 12px; }
+            .date-time-row input { padding: 5px; font-size: 12px; }
             
-            .brig-cell .stepper button { width: 32px; height: 32px; font-size: 20px; }
-            .brig-cell .stepper input { width: 45px; height: 32px; font-size: 18px; }
+            th { font-size: 11px; padding: 6px 3px; }
+            .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
+            
+            .stepper { gap: 2px; }
+            .stepper button { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
+            .stepper input { width: 36px; height: 30px; font-size: 14px; border-radius: 5px; }
+            
+            .brig-cell { padding: 6px 3px; }
+            .brig-cell .stepper button { width: 36px; height: 36px; font-size: 20px; }
+            .brig-cell .stepper input { width: 50px; height: 36px; font-size: 18px; }
 
-            .rec-grid { flex-direction: column; gap: 8px; }
-            .rec-item { justify-content: space-between; }
-            .rec-item .stepper input { width: 45px; }
-            .rec-item .stepper button { width: 32px; height: 32px; }
-            
-            .buttons button { padding: 12px; font-size: 14px; min-width: 130px; }
+            .grand-total-box { padding: 8px; font-size: 13px; }
+            .grand-total-box span { font-size: 20px; }
+
+            .reconciliation-box { padding: 10px; }
+            .reconciliation-box h3 { font-size: 14px; }
+            .rec-grid { grid-template-columns: 1fr; gap: 6px; }
+            .rec-item { font-size: 13px; padding: 5px 8px; }
+            .rec-status { font-size: 12px; padding: 8px; }
+
+            .buttons { gap: 6px; }
+            .buttons button { padding: 10px 6px; font-size: 13px; }
+
+            table { min-width: 600px; }
+        }
+
+        @media (max-width: 480px) {
+            .stepper button { width: 28px; height: 28px; font-size: 16px; }
+            .stepper input { width: 32px; height: 28px; font-size: 13px; }
+            .brig-cell .stepper button { width: 32px; height: 32px; font-size: 18px; }
+            .brig-cell .stepper input { width: 45px; height: 32px; font-size: 16px; }
+            .station-name { max-width: 80px; font-size: 10px; }
+            th { font-size: 10px; }
         }
     </style>
 </head>
@@ -168,14 +277,14 @@
 <div class="container">
     <h2>📦 Отчет по складу</h2>
     
-    <div style="text-align: center; margin-bottom: 15px;">
-        <label style="font-size: 12px;">Дата: <input type="date" id="reportDate" style="padding: 4px; font-size: 13px;"></label>
-        <label style="font-size: 12px; margin-left: 8px;">Время: <input type="time" id="reportTime" style="padding: 4px; font-size: 13px;"></label>
+    <div class="date-time-row">
+        <label>Дата: <input type="date" id="reportDate"></label>
+        <label>Время: <input type="time" id="reportTime"></label>
     </div>
 
     <div class="grand-total-box">
         Итого человек на смене: <span id="grandTotal">0</span> чел.
-        <div style="font-size: 11px; font-weight: normal; margin-top: 4px;">(включая админку — для справки, в сверке не участвует)</div>
+        <div style="font-size: 11px; font-weight: 400; margin-top: 3px;">(включая админку — для справки, в сверке не участвует)</div>
     </div>
 
     <div class="reconciliation-box">
@@ -186,7 +295,6 @@
             <div class="rec-item">Аутстафф: <span class="stepper" data-target="totalOut"></span></div>
             <div class="rec-item">Бригадиры АК: <span class="stepper" data-target="totalBrig"></span></div>
         </div>
-        <!-- Скрытые input для совместимости с логикой -->
         <input type="hidden" id="totalAdmin" value="0">
         <input type="hidden" id="totalStaff" value="0">
         <input type="hidden" id="totalOut" value="0">
@@ -194,27 +302,54 @@
         <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
     </div>
 
-    <table id="reportTable">
-        <thead>
-            <tr>
-                <th style="width: 26%;">Рабочая станция</th>
-                <th style="width: 15%;">Аутстафф</th>
-                <th style="width: 13%;">Бриг. АК</th>
-                <th style="width: 16%;">АК Компания</th>
-                <th style="width: 15%;">Штат</th>
-                <th style="width: 15%;">Бриг. Стаф</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="table-wrap">
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Рабочая станция</th>
+                    <th>Аутстафф</th>
+                    <th>Бриг. АК</th>
+                    <th>АК Компания</th>
+                    <th>Штат</th>
+                    <th>Бриг. Стаф</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
     <div class="autosave-indicator" id="autosaveIndicator"></div>
 
     <div class="buttons">
-        <button class="btn-save" onclick="saveData(true)">💾 Сохранить</button>
+        <button class="btn-save" onclick="archiveCurrentReport()">💾 В архив</button>
         <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
         <button class="btn-img" onclick="downloadImage()">📸 Картинка</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
+    </div>
+
+    <div class="analytics-box">
+        <h3 onclick="toggleAnalytics()" id="analyticsTitle">
+            <span class="arrow">▼</span> 📊 Аналитика
+        </h3>
+        <div class="analytics-content" id="analyticsContent">
+            <div class="analytics-section">
+                <h4>📈 История за последние 7 дней</h4>
+                <div id="historyTableContainer">Нет сохраненных отчетов</div>
+            </div>
+            <div class="analytics-section">
+                <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
+                <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
+            </div>
+            <div class="analytics-section">
+                <h4>📉 Сравнение с прошлым отчетом</h4>
+                <div id="compareContainer">Нет данных</div>
+            </div>
+            <div class="analytics-section">
+                <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
+                <div id="archiveContainer">Архив пуст</div>
+                <button onclick="clearArchive()" style="margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Очистить архив</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -224,18 +359,13 @@
     // === PWA ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('SW OK:', reg.scope))
-                .catch(err => console.log('SW err:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
         });
     }
-
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = 'block';
+        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
     });
     function installPWA() {
         if (deferredPrompt) {
@@ -245,19 +375,15 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // === Утилита: создание степпера ===
-    // Возвращает HTML-разметку степпера с кнопками и полем
+    // === Степперы ===
     function createStepperHTML(id, className, defaultValue = '') {
-        return `
-            <div class="stepper">
-                <button type="button" class="minus" onclick="stepperChange('${id}', -1)">−</button>
-                <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
-                <button type="button" class="plus" onclick="stepperChange('${id}', 1)">+</button>
-            </div>
-        `;
+        return `<div class="stepper">
+            <button type="button" class="minus" onclick="stepperChange('${id}', -1)">−</button>
+            <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
+            <button type="button" class="plus" onclick="stepperChange('${id}', 1)">+</button>
+        </div>`;
     }
 
-    // Изменение значения степпера
     function stepperChange(id, delta) {
         const input = document.getElementById(id);
         if (!input) return;
@@ -265,11 +391,9 @@
         let newVal = current + delta;
         if (newVal < 0) newVal = 0;
         input.value = newVal;
-        // Триггерим событие input для пересчета и автосохранения
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // === Основная логика ===
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
@@ -277,45 +401,34 @@
         "Перебор оборотной тары", "Прием мерчей"
     ];
     const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
-    const BREAK_ZONES = ["Обед (30 минут)", "Перекур (15 минут)"];
+    const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
     window.addEventListener('load', function() {
         const now = new Date();
         const saved = localStorage.getItem('warehouseReport');
-        
         if (!saved) {
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
         }
-
-        // Вставляем степперы в блок сверки
         document.querySelectorAll('.rec-item .stepper').forEach(container => {
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
-
         renderTable();
-        
-        // Навешиваем обработчики на все числовые поля
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => {
-                calculateTotals();
-                saveData(false);
-            });
+            input.addEventListener('input', () => { calculateTotals(); saveData(false); });
         });
-        // Текстовые поля (АК Компания)
         document.querySelectorAll('input[type="text"]').forEach(input => {
             input.addEventListener('input', () => saveData(false));
         });
-        
         loadData();
+        renderAnalytics();
     });
 
     function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
-
         const loadStart = SORT_ZONES.length;
         const loadEnd = loadStart + LOAD_ZONES.length - 1;
         const breakStart = loadEnd + 1;
@@ -327,21 +440,14 @@
             if (idx >= breakStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
 
-            // Генерируем уникальные ID для полей на основе индекса строки
-            const outId = `out_${idx}`;
-            const bakId = `bak_${idx}`;
-            const akId = `ak_${idx}`;
-            const shtId = `sht_${idx}`;
-
+            const outId = `out_${idx}`, bakId = `bak_${idx}`, akId = `ak_${idx}`, shtId = `sht_${idx}`;
             tr.innerHTML = `
                 <td class="station-name">${station}</td>
                 <td>${createStepperHTML(outId, 'input-out')}</td>
                 <td>${createStepperHTML(bakId, 'input-bak')}</td>
-                <td><input type="text" id="${akId}" class="input-ak" placeholder=""></td>
+                <td><input type="text" id="${akId}" class="input-ak" placeholder="" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px;"></td>
                 <td>${createStepperHTML(shtId, 'input-sht')}</td>
             `;
-
-            // Ячейка с бригадиром сортировки
             if (idx === 0) {
                 const td = document.createElement('td');
                 td.rowSpan = SORT_ZONES.length;
@@ -349,7 +455,6 @@
                 td.innerHTML = createStepperHTML('bstSort', 'input-bst-sort');
                 tr.appendChild(td);
             }
-            // Ячейка с бригадиром отгрузки
             if (idx === loadStart) {
                 const td = document.createElement('td');
                 td.rowSpan = LOAD_ZONES.length;
@@ -357,14 +462,13 @@
                 td.innerHTML = createStepperHTML('bstLoad', 'input-bst-load');
                 tr.appendChild(td);
             }
-            // Обед/перекур
             if (idx >= breakStart) {
                 const td = document.createElement('td');
-                td.textContent = '';
+                td.textContent = '—';
                 td.style.background = '#f5f5f5';
+                td.style.color = '#999';
                 tr.appendChild(td);
             }
-
             tbody.appendChild(tr);
         });
 
@@ -383,20 +487,12 @@
 
     function calculateTotals() {
         let out = 0, bak = 0, sht = 0;
-        
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            const outInput = tr.querySelector('.input-out');
-            const bakInput = tr.querySelector('.input-bak');
-            const shtInput = tr.querySelector('.input-sht');
-            if (outInput) out += Number(outInput.value) || 0;
-            if (bakInput) bak += Number(bakInput.value) || 0;
-            if (shtInput) sht += Number(shtInput.value) || 0;
+            out += Number(tr.querySelector('.input-out')?.value) || 0;
+            bak += Number(tr.querySelector('.input-bak')?.value) || 0;
+            sht += Number(tr.querySelector('.input-sht')?.value) || 0;
         });
-
-        const sortBst = document.getElementById('bstSort');
-        const loadBst = document.getElementById('bstLoad');
-        const bst = (Number(sortBst?.value) || 0) + (Number(loadBst?.value) || 0);
-
+        const bst = (Number(document.getElementById('bstSort')?.value) || 0) + (Number(document.getElementById('bstLoad')?.value) || 0);
         document.getElementById('total-out').textContent = out;
         document.getElementById('total-bak').textContent = bak;
         document.getElementById('total-sht').textContent = sht;
@@ -406,9 +502,7 @@
         const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
         const totalOut = Number(document.getElementById('totalOut').value) || 0;
         const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
-        
-        const grandTotal = totalAdmin + totalStaff + totalOut + totalBrig + bst;
-        document.getElementById('grandTotal').textContent = grandTotal;
+        document.getElementById('grandTotal').textContent = totalAdmin + totalStaff + totalOut + totalBrig + bst;
 
         const declaredTotal = totalStaff + totalOut + totalBrig;
         const actualTotal = out + sht + bak;
@@ -419,25 +513,18 @@
             statusDiv.innerHTML = "Введите данные для сверки...";
             statusDiv.className = "rec-status status-neutral";
         } else if (diff === 0) {
-            statusDiv.innerHTML = `
-                ✅ <b>Всё сходится!</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
-            `;
+            statusDiv.innerHTML = `✅ <b>Всё сходится!</b><br><span class="details">На смене: <b>${declaredTotal}</b> | Распределено: <b>${actualTotal}</b></span>`;
             statusDiv.className = "rec-status status-ok";
         } else {
-            statusDiv.innerHTML = `
-                ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff}</b><br>
-                <span class="details">На смене: <b>${declaredTotal}</b> (Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бриг. АК: ${totalBrig})<br>
-                Распределено: <b>${actualTotal}</b> (Аутстафф: ${out}, Штат: ${sht}, Бриг. АК: ${bak})</span>
-            `;
+            statusDiv.innerHTML = `⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff}</b><br><span class="details">На смене: <b>${declaredTotal}</b> | Распределено: <b>${actualTotal}</b></span>`;
             statusDiv.className = "rec-status status-error";
         }
+        renderAnalytics();
     }
 
     function saveData(showAlert) {
         const rows = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
             rows.push({
                 station: tr.querySelector('.station-name').textContent,
                 out: tr.querySelector('.input-out')?.value || '',
@@ -446,7 +533,6 @@
                 sht: tr.querySelector('.input-sht')?.value || ''
             });
         });
-
         const data = {
             date: document.getElementById('reportDate').value,
             time: document.getElementById('reportTime').value,
@@ -460,12 +546,9 @@
             bstLoad: document.getElementById('bstLoad')?.value || '',
             rows: rows
         };
-
         localStorage.setItem('warehouseReport', JSON.stringify(data));
-        
-        if (showAlert) {
-            alert('✅ Отчет сохранен!');
-        } else {
+        if (showAlert) alert('✅ Отчет сохранен!');
+        else {
             const indicator = document.getElementById('autosaveIndicator');
             const now = new Date();
             indicator.textContent = `💾 Автосохранено в ${now.toTimeString().slice(0,5)}`;
@@ -473,26 +556,189 @@
         }
     }
 
+    function archiveCurrentReport() {
+        const rows = [];
+        let totalOut = 0, totalBak = 0, totalSht = 0;
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
+            const station = tr.querySelector('.station-name').textContent;
+            const out = Number(tr.querySelector('.input-out')?.value) || 0;
+            const bak = Number(tr.querySelector('.input-bak')?.value) || 0;
+            const ak = tr.querySelector('.input-ak')?.value || '';
+            const sht = Number(tr.querySelector('.input-sht')?.value) || 0;
+            rows.push({ station, out, bak, ak, sht });
+            totalOut += out; totalBak += bak; totalSht += sht;
+        });
+        const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
+        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
+        const declaredOut = Number(document.getElementById('totalOut').value) || 0;
+        const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
+        const bst = (Number(document.getElementById('bstSort')?.value) || 0) + (Number(document.getElementById('bstLoad')?.value) || 0);
+        const actualTotal = totalOut + totalSht + totalBak;
+        const declaredTotal = totalStaff + declaredOut + totalBrig;
+        const report = {
+            id: Date.now(),
+            date: document.getElementById('reportDate').value,
+            time: document.getElementById('reportTime').value,
+            admin: totalAdmin, staff: totalStaff, out: declaredOut, brig: totalBrig, bst: bst,
+            grandTotal: totalAdmin + totalStaff + declaredOut + totalBrig + bst,
+            actualTotal: actualTotal, declaredTotal: declaredTotal,
+            diff: declaredTotal - actualTotal,
+            rows: rows
+        };
+        let archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
+        const existingIndex = archive.findIndex(r => r.date === report.date && r.time === report.time);
+        if (existingIndex !== -1) archive[existingIndex] = report;
+        else archive.unshift(report);
+        if (archive.length > 50) archive = archive.slice(0, 50);
+        localStorage.setItem('warehouseArchive', JSON.stringify(archive));
+        alert('✅ Отчет добавлен в архив!');
+        renderAnalytics();
+    }
+
+    function toggleAnalytics() {
+        document.getElementById('analyticsContent').classList.toggle('hidden');
+        document.getElementById('analyticsTitle').classList.toggle('collapsed');
+    }
+
+    function renderAnalytics() {
+        const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
+        renderHistory(archive);
+        renderTopZones();
+        renderCompare(archive);
+        renderArchive(archive);
+    }
+
+    function renderHistory(archive) {
+        const container = document.getElementById('historyTableContainer');
+        if (archive.length === 0) {
+            container.innerHTML = '<p style="color: #999; font-size: 12px;">Нет сохраненных отчетов.</p>';
+            return;
+        }
+        const last7 = archive.slice(0, 7);
+        let html = '<table class="history-table"><thead><tr><th>Дата</th><th>Время</th><th>На смене</th><th>Распр.</th><th>Расх.</th></tr></thead><tbody>';
+        last7.forEach(r => {
+            const diffClass = r.diff === 0 ? 'diff-zero' : (r.diff > 0 ? 'diff-positive' : 'diff-negative');
+            const diffText = r.diff === 0 ? '0' : (r.diff > 0 ? '+' + r.diff : r.diff);
+            html += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.declaredTotal}</td><td>${r.actualTotal}</td><td class="${diffClass}">${diffText}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function renderTopZones() {
+        const container = document.getElementById('topZonesList');
+        const zones = [];
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
+            const station = tr.querySelector('.station-name').textContent;
+            const out = Number(tr.querySelector('.input-out')?.value) || 0;
+            const bak = Number(tr.querySelector('.input-bak')?.value) || 0;
+            const sht = Number(tr.querySelector('.input-sht')?.value) || 0;
+            const total = out + bak + sht;
+            if (total > 0) zones.push({ station, total });
+        });
+        if (zones.length === 0) {
+            container.innerHTML = '<li style="color: #999; font-size: 12px;">Нет данных.</li>';
+            return;
+        }
+        zones.sort((a, b) => b.total - a.total);
+        const top5 = zones.slice(0, 5);
+        const maxLoad = top5[0].total;
+        let html = '';
+        top5.forEach((z, i) => {
+            const barWidth = Math.round((z.total / maxLoad) * 100);
+            html += `<li><span class="zone-name">${i + 1}. ${z.station}</span><span><span class="zone-bar" style="width: ${barWidth}px; max-width: 80px;"></span> <b>${z.total}</b></span></li>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderCompare(archive) {
+        const container = document.getElementById('compareContainer');
+        if (archive.length < 2) {
+            container.innerHTML = '<p style="color: #999; font-size: 12px;">Нужно минимум 2 отчета.</p>';
+            return;
+        }
+        const current = archive[0], previous = archive[1];
+        const formatDiff = (d) => d === 0 ? '<span class="diff-zero">0</span>' : (d > 0 ? `<span class="diff-positive">+${d}</span>` : `<span class="diff-negative">${d}</span>`);
+        container.innerHTML = `
+            <div style="font-size: 11px; color: #666; margin-bottom: 6px;">Сравнение с <b>${previous.date} ${previous.time}</b></div>
+            <div class="compare-item"><span>На смене:</span> <span>${previous.declaredTotal} → ${current.declaredTotal} ${formatDiff(current.declaredTotal - previous.declaredTotal)}</span></div>
+            <div class="compare-item"><span>Распределено:</span> <span>${previous.actualTotal} → ${current.actualTotal} ${formatDiff(current.actualTotal - previous.actualTotal)}</span></div>
+            <div class="compare-item"><span>Бриг. Стаф:</span> <span>${previous.bst} → ${current.bst} ${formatDiff(current.bst - previous.bst)}</span></div>
+        `;
+    }
+
+    function renderArchive(archive) {
+        const container = document.getElementById('archiveContainer');
+        document.getElementById('archiveCount').textContent = archive.length;
+        if (archive.length === 0) {
+            container.innerHTML = '<p style="color: #999; font-size: 12px;">Архив пуст.</p>';
+            return;
+        }
+        let html = '';
+        archive.slice(0, 10).forEach(r => {
+            const diffText = r.diff === 0 ? '✅' : (r.diff > 0 ? '⚠️ +' + r.diff : '⚠️ ' + r.diff);
+            html += `<div class="archive-item">
+                <span><b>${r.date} ${r.time}</b> — ${r.declaredTotal} чел. ${diffText}</span>
+                <button onclick="loadFromArchive(${r.id})">Загрузить</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function loadFromArchive(id) {
+        const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
+        const report = archive.find(r => r.id === id);
+        if (!report) return;
+        if (!confirm(`Загрузить отчет от ${report.date} ${report.time}?`)) return;
+        document.getElementById('reportDate').value = report.date;
+        document.getElementById('reportTime').value = report.time;
+        document.getElementById('totalAdmin').value = report.admin;
+        document.getElementById('totalStaff').value = report.staff;
+        document.getElementById('totalOut').value = report.out;
+        document.getElementById('totalBrig').value = report.brig;
+        if (document.getElementById('bstSort')) document.getElementById('bstSort').value = report.bst;
+        if (document.getElementById('bstLoad')) document.getElementById('bstLoad').value = 0;
+        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
+        report.rows.forEach((row, index) => {
+            if (rows[index]) {
+                const outInput = rows[index].querySelector('.input-out');
+                const bakInput = rows[index].querySelector('.input-bak');
+                const akInput = rows[index].querySelector('.input-ak');
+                const shtInput = rows[index].querySelector('.input-sht');
+                if (outInput) outInput.value = row.out || 0;
+                if (bakInput) bakInput.value = row.bak || 0;
+                if (akInput) akInput.value = row.ak || '';
+                if (shtInput) shtInput.value = row.sht || 0;
+            }
+        });
+        calculateTotals();
+        saveData(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        alert('✅ Отчет загружен!');
+    }
+
+    function clearArchive() {
+        if (!confirm('Удалить весь архив?')) return;
+        localStorage.removeItem('warehouseArchive');
+        renderAnalytics();
+    }
+
     function loadData() {
         const saved = localStorage.getItem('warehouseReport');
         if (!saved) return;
-
         const data = JSON.parse(saved);
         document.getElementById('reportDate').value = data.date;
         document.getElementById('reportTime').value = data.time;
-        
         if (data.totals) {
             document.getElementById('totalAdmin').value = data.totals.admin || '0';
             document.getElementById('totalStaff').value = data.totals.staff || '0';
             document.getElementById('totalOut').value = data.totals.out || '0';
             document.getElementById('totalBrig').value = data.totals.brig || '0';
         }
-
         const sortBst = document.getElementById('bstSort');
         const loadBst = document.getElementById('bstLoad');
         if (sortBst && data.bstSort) sortBst.value = data.bstSort;
         if (loadBst && data.bstLoad) loadBst.value = data.bstLoad;
-
         const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
         data.rows.forEach((row, index) => {
             if (rows[index]) {
@@ -522,32 +768,26 @@
 
     function exportCSV() {
         let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
-        
         const sortBst = document.getElementById('bstSort')?.value || '';
         const loadBst = document.getElementById('bstLoad')?.value || '';
-
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
             const out = tr.querySelector('.input-out')?.value || '';
             const bak = tr.querySelector('.input-bak')?.value || '';
             const ak = tr.querySelector('.input-ak')?.value || '';
             const sht = tr.querySelector('.input-sht')?.value || '';
-            
             let bst = '';
             if (idx === 0) bst = sortBst;
             if (idx === SORT_ZONES.length) bst = loadBst;
-            
             csv += `${station};${out};${bak};${ak};${sht};${bst}\n`;
         });
-
         csv += '\n--- СВЕРКА ---\n';
-        csv += `Админка (справочно);${document.getElementById('totalAdmin').value}\n`;
+        csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
         csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
         csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
-        csv += `Бриг. Стаф (Сортировка);${sortBst}\n`;
-        csv += `Бриг. Стаф (Отгрузка);${loadBst}\n`;
-
+        csv += `Бриг. Стаф Сорт;${sortBst}\n`;
+        csv += `Бриг. Стаф Отгр;${loadBst}\n`;
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.setAttribute('href', URL.createObjectURL(blob));
@@ -559,74 +799,52 @@
         const element = document.querySelector('.container');
         const date = document.getElementById('reportDate').value;
         const time = document.getElementById('reportTime').value.replace(':', '-');
-
         const buttons = document.querySelector('.buttons');
         const indicator = document.getElementById('autosaveIndicator');
+        const analytics = document.querySelector('.analytics-box');
         if (installBtn) installBtn.style.display = 'none';
         buttons.style.display = 'none';
         indicator.style.display = 'none';
+        analytics.style.display = 'none';
 
         const table = document.getElementById('reportTable');
         const originalHTML = table.innerHTML;
-        
-        // Собираем данные и делаем плоскую таблицу для картинки
         const rowsData = [];
         const sortBst = document.getElementById('bstSort')?.value || '0';
         const loadBst = document.getElementById('bstLoad')?.value || '0';
-        
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
             const station = tr.querySelector('.station-name').textContent;
             const out = tr.querySelector('.input-out')?.value || '0';
             const bak = tr.querySelector('.input-bak')?.value || '0';
             const ak = tr.querySelector('.input-ak')?.value || '';
             const sht = tr.querySelector('.input-sht')?.value || '0';
-            
             let bst = '';
             if (idx === 0) bst = sortBst;
             else if (idx === SORT_ZONES.length) bst = loadBst;
-            
             rowsData.push({ station, out, bak, ak, sht, bst, idx });
         });
-
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
-        
         rowsData.forEach(row => {
             const tr = document.createElement('tr');
             const isLoad = row.idx >= SORT_ZONES.length && row.idx < SORT_ZONES.length + LOAD_ZONES.length;
             const isBreak = row.idx >= SORT_ZONES.length + LOAD_ZONES.length;
             tr.className = isLoad ? 'zone-load' : (isBreak ? 'zone-break' : 'zone-sort');
-            tr.innerHTML = `
-                <td class="station-name">${row.station}</td>
-                <td>${row.out}</td>
-                <td>${row.bak}</td>
-                <td>${row.ak}</td>
-                <td>${row.sht}</td>
-                <td>${row.bst}</td>
-            `;
+            tr.innerHTML = `<td class="station-name">${row.station}</td><td>${row.out}</td><td>${row.bak}</td><td>${row.ak}</td><td>${row.sht}</td><td>${row.bst}</td>`;
             tbody.appendChild(tr);
         });
-        
         const totalTr = document.createElement('tr');
         totalTr.className = 'total-row';
-        totalTr.innerHTML = `
-            <td style="text-align: right; padding-right: 10px;">ИТОГ:</td>
-            <td>${document.getElementById('total-out').textContent}</td>
-            <td>${document.getElementById('total-bak').textContent}</td>
-            <td></td>
-            <td>${document.getElementById('total-sht').textContent}</td>
-            <td>${document.getElementById('total-bst').textContent}</td>
-        `;
+        totalTr.innerHTML = `<td style="text-align: right; padding-right: 10px;">ИТОГ:</td><td>${document.getElementById('total-out').textContent}</td><td>${document.getElementById('total-bak').textContent}</td><td></td><td>${document.getElementById('total-sht').textContent}</td><td>${document.getElementById('total-bst').textContent}</td>`;
         tbody.appendChild(totalTr);
 
         html2canvas(element, { scale: 2 }).then(canvas => {
             table.innerHTML = originalHTML;
-            buttons.style.display = 'flex';
+            buttons.style.display = 'grid';
             indicator.style.display = 'block';
+            analytics.style.display = 'block';
             if (installBtn && deferredPrompt) installBtn.style.display = 'block';
-            
             window.dispatchEvent(new Event('load'));
-            
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
