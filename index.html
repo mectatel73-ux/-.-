@@ -55,6 +55,7 @@
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
 
+        /* СТЕППЕР: [ − ] [ число ] [ + ] */
         .stepper {
             display: inline-flex;
             align-items: center;
@@ -62,7 +63,7 @@
             gap: 3px;
             user-select: none;
         }
-        .stepper button {
+        .stepper .btn-minus {
             width: 34px;
             height: 34px;
             border: none;
@@ -77,15 +78,34 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: 0.15s;
+            background: rgba(220, 53, 69, 0.75);
             line-height: 1;
             font-family: Arial, sans-serif;
-            opacity: 0.75;
+            opacity: 0.85;
         }
-        .stepper button:hover { opacity: 1; }
-        .stepper button:active { transform: scale(0.9); opacity: 1; }
-        .stepper button.minus { background: rgba(220, 53, 69, 0.75); }
-        .stepper button.plus { background: rgba(25, 135, 84, 0.75); }
+        .stepper .btn-plus {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(25, 135, 84, 0.75);
+            line-height: 1;
+            font-family: Arial, sans-serif;
+            opacity: 0.85;
+        }
+        .stepper .btn-minus:active,
+        .stepper .btn-plus:active { transform: scale(0.9); opacity: 1; }
+
         .stepper input {
             width: 40px;
             height: 34px;
@@ -109,7 +129,8 @@
         .brig-cell.sort { background-color: #cfe2ff; }
         .brig-cell.load { background-color: #ffd8a8; }
         .brig-cell .stepper input { width: 60px; height: 44px; font-size: 22px; border: 2px solid #555; }
-        .brig-cell .stepper button { width: 44px; height: 44px; font-size: 24px; }
+        .brig-cell .stepper .btn-minus,
+        .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
 
         .clean-view table { min-width: auto; }
 
@@ -224,10 +245,12 @@
             th { font-size: 11px; padding: 6px 3px; }
             .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
             .stepper { gap: 2px; }
-            .stepper button { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
+            .stepper .btn-minus,
+            .stepper .btn-plus { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
             .stepper input { width: 36px; height: 30px; font-size: 14px; border-radius: 5px; }
             .brig-cell { padding: 6px 3px; }
-            .brig-cell .stepper button { width: 36px; height: 36px; font-size: 20px; }
+            .brig-cell .stepper .btn-minus,
+            .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 20px; }
             .brig-cell .stepper input { width: 50px; height: 36px; font-size: 18px; }
             .grand-total-box { padding: 8px; font-size: 13px; }
             .grand-total-box span { font-size: 20px; }
@@ -242,15 +265,17 @@
         }
 
         @media (max-width: 480px) {
-            .stepper button { width: 28px; height: 28px; font-size: 16px; }
+            .stepper .btn-minus,
+            .stepper .btn-plus { width: 28px; height: 28px; font-size: 16px; }
             .stepper input { width: 32px; height: 28px; font-size: 13px; }
-            .brig-cell .stepper button { width: 32px; height: 32px; font-size: 18px; }
+            .brig-cell .stepper .btn-minus,
+            .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; }
             .brig-cell .stepper input { width: 45px; height: 32px; font-size: 16px; }
             .station-name { max-width: 80px; font-size: 10px; }
             th { font-size: 10px; }
         }
 
-        /* === ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ (телефон боком) === */
+        /* === ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ === */
         @media (orientation: landscape) and (max-height: 500px) {
             body { padding: 4px; font-size: 11px; }
             .container { padding: 6px; max-width: 100%; }
@@ -270,19 +295,19 @@
             .rec-item { font-size: 11px; padding: 3px 5px; gap: 3px; }
             .rec-status { font-size: 11px; padding: 6px; margin-top: 6px; }
             
-            /* Таблица сжимается так, чтобы влезла в ширину экрана */
             .table-wrap { overflow: visible; margin-bottom: 6px; }
             table { min-width: auto; width: 100%; table-layout: fixed; }
             th { font-size: 9px; padding: 3px 1px; }
             td { padding: 2px 1px; }
             .station-name { font-size: 9px; padding: 2px 3px; white-space: normal; word-break: break-word; }
             
-            /* Мини-степперы */
             .stepper { gap: 1px; }
-            .stepper button { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
+            .stepper .btn-minus,
+            .stepper .btn-plus { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
             .stepper input { width: 24px; height: 20px; font-size: 11px; border-radius: 3px; }
             .brig-cell { padding: 2px 1px; }
-            .brig-cell .stepper button { width: 22px; height: 24px; font-size: 14px; }
+            .brig-cell .stepper .btn-minus,
+            .brig-cell .stepper .btn-plus { width: 22px; height: 24px; font-size: 14px; }
             .brig-cell .stepper input { width: 30px; height: 24px; font-size: 13px; border: 1px solid #555; }
             
             .total-row td { padding: 4px 1px; font-size: 11px; }
@@ -293,7 +318,6 @@
             
             .input-ak { padding: 3px !important; font-size: 10px !important; }
             
-            /* Аналитику в ландшафте делаем компактнее */
             .analytics-box { padding: 8px; margin-top: 10px; }
             .analytics-box h3 { font-size: 13px; }
             .analytics-section { padding: 8px; margin-bottom: 6px; }
@@ -319,10 +343,10 @@
     <div class="reconciliation-box">
         <h3>👥 Всего людей на смене (для сверки)</h3>
         <div class="rec-grid">
-            <div class="rec-item admin">Админка: <span class="stepper" data-target="totalAdmin"></span></div>
-            <div class="rec-item">Штатные: <span class="stepper" data-target="totalStaff"></span></div>
-            <div class="rec-item">Аутстафф: <span class="stepper" data-target="totalOut"></span></div>
-            <div class="rec-item">Бригадиры АК: <span class="stepper" data-target="totalBrig"></span></div>
+            <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
+            <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
+            <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
+            <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
         </div>
         <input type="hidden" id="totalAdmin" value="0">
         <input type="hidden" id="totalStaff" value="0">
@@ -385,6 +409,7 @@
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
+    // === PWA ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
@@ -403,11 +428,12 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
+    // === Степпер: [ − ] [ input ] [ + ] ===
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
-            <button type="button" class="minus" onclick="stepperChange('${id}', -1)">−</button>
+            <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
             <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
-            <button type="button" class="plus" onclick="stepperChange('${id}', 1)">+</button>
+            <button type="button" class="btn-plus" onclick="stepperChange('${id}', 1)">+</button>
         </div>`;
     }
 
@@ -421,6 +447,7 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    // === Станции ===
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
@@ -438,11 +465,15 @@
             document.getElementById('reportDate').value = now.toISOString().split('T')[0];
             document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
         }
-        document.querySelectorAll('.rec-item .stepper').forEach(container => {
+        
+        // Вставляем степперы в блок сверки
+        document.querySelectorAll('.rec-item .stepper-container').forEach(container => {
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
+        
         renderTable();
+        
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => { calculateTotals(); saveData(false); });
         });
@@ -849,11 +880,9 @@
             const bak = tr.querySelector('.input-bak')?.value || '0';
             const ak = tr.querySelector('.input-ak')?.value || '';
             const sht = tr.querySelector('.input-sht')?.value || '0';
-            
             let bst = '';
             if (idx === 0) bst = sortBst;
             else if (idx === SORT_ZONES.length) bst = loadBst;
-            
             rowsData.push({ station, out, bak, ak, sht, bst, idx });
         });
 
@@ -868,7 +897,6 @@
             if (isLoad) rowStyle = 'style="background-color: #fff7e6;"';
             else if (isBreak) rowStyle = 'style="background-color: #f5f5f5;"';
             else rowStyle = 'style="background-color: #f0f7ff;"';
-            
             cleanHTML += `<tr ${rowStyle}>
                 <td class="station-name">${row.station}</td>
                 <td>${row.out}</td>
@@ -887,7 +915,6 @@
             <td>${document.getElementById('total-sht').textContent}</td>
             <td>${document.getElementById('total-bst').textContent}</td>
         </tr>`;
-        
         cleanHTML += '</tbody></table>';
 
         table.innerHTML = cleanHTML;
@@ -901,9 +928,7 @@
             indicator.style.display = 'block';
             analytics.style.display = 'block';
             if (installBtn && deferredPrompt) installBtn.style.display = 'block';
-            
             window.dispatchEvent(new Event('load'));
-
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
