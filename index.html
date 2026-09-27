@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отчет по складу</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 10px; font-size: 14px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 900px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { text-align: center; margin-top: 0; color: #333; }
         
         /* Стили для таблицы */
@@ -22,7 +23,17 @@
         /* Итоговая строка */
         .total-row { font-weight: bold; background-color: #d1e7dd; }
         .total-row td { border-top: 2px solid #000; }
-        
+
+        /* Блок сверки */
+        .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .reconciliation-box h3 { margin-top: 0; color: #664d03; }
+        .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .rec-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .rec-item input { width: 60px; }
+        .rec-status { margin-top: 10px; font-size: 16px; font-weight: bold; }
+        .status-ok { color: #198754; }
+        .status-error { color: #dc3545; }
+
         /* Кнопки */
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; color: white; transition: 0.2s; }
@@ -30,15 +41,18 @@
         .btn-save:hover { background-color: #0b5ed7; }
         .btn-export { background-color: #198754; }
         .btn-export:hover { background-color: #157347; }
+        .btn-img { background-color: #6f42c1; }
+        .btn-img:hover { background-color: #5a32a3; }
         .btn-clear { background-color: #dc3545; flex: 0 0 100px; }
         .btn-clear:hover { background-color: #bb2d3b; }
 
         /* Адаптив для телефонов */
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             th, td { padding: 4px; font-size: 12px; }
             input[type="number"] { width: 40px; padding: 2px; }
             input[type="text"] { width: 100%; }
             .container { padding: 10px; }
+            .rec-grid { flex-direction: column; gap: 8px; }
         }
     </style>
 </head>
@@ -50,6 +64,18 @@
     <div style="text-align: center; margin-bottom: 10px;">
         <label>Дата: <input type="date" id="reportDate" style="padding: 4px;"></label>
         <label>Время: <input type="time" id="reportTime" style="padding: 4px;"></label>
+    </div>
+
+    <!-- Блок контроля расхождений -->
+    <div class="reconciliation-box">
+        <h3>👥 Всего людей на смене (для сверки)</h3>
+        <div class="rec-grid">
+            <div class="rec-item">Админка: <input type="number" id="totalAdmin" min="0" placeholder="0"></div>
+            <div class="rec-item">Штатные: <input type="number" id="totalStaff" min="0" placeholder="0"></div>
+            <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
+            <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
+        </div>
+        <div class="rec-status" id="recStatus">Введите данные для сверки...</div>
     </div>
 
     <table id="reportTable">
@@ -71,6 +97,7 @@
     <div class="buttons">
         <button class="btn-save" onclick="saveData()">💾 Сохранить</button>
         <button class="btn-export" onclick="exportCSV()">📥 Скачать Excel (CSV)</button>
+        <button class="btn-img" onclick="downloadImage()">📸 Скачать картинку</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
     </div>
 </div>
@@ -92,7 +119,8 @@
         "Наведение порядка",
         "Перебор оборотной тары",
         "Прием мерчей",
-        "Обед"
+        "Обед (30 минут)",
+        "Перекур (15 минут)"
     ];
 
     // Инициализация таблицы при загрузке
@@ -132,7 +160,7 @@
         tbody.appendChild(totalTr);
 
         // Добавляем слушателей для автоматического пересчета
-        document.querySelectorAll('input[type="number"]').forEach(input => {
+        document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateTotals);
         });
 
@@ -140,7 +168,7 @@
         loadData();
     };
 
-    // Функция подсчета итогов
+    // Функция подсчета итогов и сверки
     function calculateTotals() {
         let qty = 0, bak = 0, bst = 0, sht = 0;
         
@@ -155,6 +183,31 @@
         document.getElementById('total-bak').textContent = bak;
         document.getElementById('total-bst').textContent = bst;
         document.getElementById('total-sht').textContent = sht;
+
+        // Логика сверки
+        const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
+        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
+        const totalOut = Number(document.getElementById('totalOut').value) || 0;
+        const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
+        
+        const declaredTotal = totalAdmin + totalStaff + totalOut + totalBrig;
+        
+        // Сумма всех людей, распределенных по зонам (сумма всех бригадиров и штата)
+        const actualTotal = bak + bst + sht;
+        
+        const diff = declaredTotal - actualTotal;
+        const statusDiv = document.getElementById('recStatus');
+
+        if (declaredTotal === 0 && actualTotal === 0) {
+            statusDiv.innerHTML = "Введите данные для сверки...";
+            statusDiv.className = "rec-status";
+        } else if (diff === 0) {
+            statusDiv.innerHTML = `✅ Всё сходится! На смене: ${declaredTotal} чел. Распределено: ${actualTotal} чел.`;
+            statusDiv.className = "rec-status status-ok";
+        } else {
+            statusDiv.innerHTML = `⚠️ РАСХОЖДЕНИЕ! На смене: ${declaredTotal} чел. Распределено: ${actualTotal} чел. Разница: ${diff > 0 ? '+' : ''}${diff} чел.`;
+            statusDiv.className = "rec-status status-error";
+        }
     }
 
     // Сохранение в LocalStorage
@@ -162,6 +215,12 @@
         const data = {
             date: document.getElementById('reportDate').value,
             time: document.getElementById('reportTime').value,
+            totals: {
+                admin: document.getElementById('totalAdmin').value,
+                staff: document.getElementById('totalStaff').value,
+                out: document.getElementById('totalOut').value,
+                brig: document.getElementById('totalBrig').value
+            },
             rows: []
         };
 
@@ -188,6 +247,13 @@
         const data = JSON.parse(saved);
         document.getElementById('reportDate').value = data.date;
         document.getElementById('reportTime').value = data.time;
+        
+        if (data.totals) {
+            document.getElementById('totalAdmin').value = data.totals.admin;
+            document.getElementById('totalStaff').value = data.totals.staff;
+            document.getElementById('totalOut').value = data.totals.out;
+            document.getElementById('totalBrig').value = data.totals.brig;
+        }
 
         const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
         data.rows.forEach((row, index) => {
@@ -223,21 +289,25 @@
             
             cells.forEach((cell, index) => {
                 if (index === 0 || index === 2) {
-                    // Для текстовых полей
                     const input = cell.querySelector('input');
                     rowData.push(input ? input.value : cell.textContent);
                 } else {
-                    // Для числовых полей и итогов
                     const input = cell.querySelector('input');
                     rowData.push(input ? input.value : cell.textContent);
                 }
             });
             
-            // Заменяем точки с запятой, чтобы не ломать CSV
             csv += rowData.join(';').replace(/;/g, ',') + '\n';
         });
 
-        // Добавляем BOM для корректного отображения кириллицы в Excel
+        // Добавляем данные сверки в конец CSV
+        csv += '\n--- СВЕРКА ---\n';
+        csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
+        csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
+        csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
+        csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
+        csv += `Итого на смене;${(Number(document.getElementById('totalAdmin').value)||0)+(Number(document.getElementById('totalStaff').value)||0)+(Number(document.getElementById('totalOut').value)||0)+(Number(document.getElementById('totalBrig').value)||0)}\n`;
+
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -248,6 +318,25 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    // Функция скачивания картинки
+    function downloadImage() {
+        const element = document.querySelector('.container');
+        const date = document.getElementById('reportDate').value;
+        const time = document.getElementById('reportTime').value.replace(':', '-');
+
+        const buttons = document.querySelector('.buttons');
+        buttons.style.display = 'none';
+
+        html2canvas(element, { scale: 2 }).then(canvas => {
+            buttons.style.display = 'flex';
+
+            const link = document.createElement('a');
+            link.download = `Отчет_${date}_${time}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
     }
 </script>
 
