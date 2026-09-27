@@ -23,12 +23,14 @@
 
         .reconciliation-box { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .reconciliation-box h3 { margin-top: 0; color: #664d03; font-size: 16px; }
-        .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .rec-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
         .rec-item { display: flex; align-items: center; gap: 5px; font-weight: bold; }
         .rec-item input { width: 65px; }
-        .rec-status { margin-top: 12px; font-size: 15px; font-weight: bold; padding: 8px; border-radius: 4px; text-align: center; }
+        .rec-status { margin-top: 12px; font-size: 14px; font-weight: bold; padding: 10px; border-radius: 4px; line-height: 1.6; }
         .status-ok { color: #0f5132; background: #d1e7dd; }
         .status-error { color: #842029; background: #f8d7da; }
+        .status-neutral { color: #664d03; background: #fff3cd; }
+        .details { font-weight: normal; font-size: 13px; opacity: 0.85; }
 
         .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; color: white; transition: 0.2s; min-width: 150px; }
@@ -40,6 +42,8 @@
         .btn-img:hover { background-color: #5a32a3; }
         .btn-clear { background-color: #dc3545; }
         .btn-clear:hover { background-color: #bb2d3b; }
+
+        .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 5px; height: 15px; }
 
         @media (max-width: 700px) {
             th, td { padding: 3px; font-size: 11px; }
@@ -69,7 +73,7 @@
             <div class="rec-item">Аутстафф: <input type="number" id="totalOut" min="0" placeholder="0"></div>
             <div class="rec-item">Бригадиры АК: <input type="number" id="totalBrig" min="0" placeholder="0"></div>
         </div>
-        <div class="rec-status" id="recStatus">Введите данные для сверки...</div>
+        <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
     </div>
 
     <table id="reportTable">
@@ -86,8 +90,10 @@
         <tbody></tbody>
     </table>
 
+    <div class="autosave-indicator" id="autosaveIndicator"></div>
+
     <div class="buttons">
-        <button class="btn-save" onclick="saveData()">💾 Сохранить</button>
+        <button class="btn-save" onclick="saveData(true)">💾 Сохранить</button>
         <button class="btn-export" onclick="exportCSV()">📥 Скачать Excel</button>
         <button class="btn-img" onclick="downloadImage()">📸 Скачать картинку</button>
         <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
@@ -105,9 +111,14 @@
 
     window.onload = function() {
         const now = new Date();
-        document.getElementById('reportDate').value = now.toISOString().split('T')[0];
-        document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+        // Устанавливаем текущие дату/время только если они ещё не сохранены
+        const saved = localStorage.getItem('warehouseReport');
         
+        if (!saved) {
+            document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+            document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+        }
+
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
 
@@ -136,10 +147,15 @@
         `;
         tbody.appendChild(totalTr);
 
+        // Слушатели для автосохранения и пересчета
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculateTotals);
+            input.addEventListener('input', () => {
+                calculateTotals();
+                saveData(false); // Автосохранение без алерта
+            });
         });
 
+        // Загружаем сохраненные данные
         loadData();
     };
 
@@ -170,17 +186,25 @@
 
         if (declaredTotal === 0 && actualTotal === 0) {
             statusDiv.innerHTML = "Введите данные для сверки...";
-            statusDiv.className = "rec-status";
+            statusDiv.className = "rec-status status-neutral";
         } else if (diff === 0) {
-            statusDiv.innerHTML = `✅ Всё сходится! На смене: ${declaredTotal} чел. Распределено: ${actualTotal} чел.`;
+            statusDiv.innerHTML = `
+                ✅ <b>Всё сходится!</b><br>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Админка: ${totalAdmin}, Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бригадиры: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> чел. (Бриг. АК: ${bak}, Бриг. Стаф: ${bst}, Штат: ${sht})</span>
+            `;
             statusDiv.className = "rec-status status-ok";
         } else {
-            statusDiv.innerHTML = `⚠️ РАСХОЖДЕНИЕ! На смене: ${declaredTotal} чел. Распределено: ${actualTotal} чел. Разница: ${diff > 0 ? '+' : ''}${diff} чел.`;
+            statusDiv.innerHTML = `
+                ⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff} чел.</b><br>
+                <span class="details">На смене: <b>${declaredTotal}</b> чел. (Админка: ${totalAdmin}, Штат: ${totalStaff}, Аутстафф: ${totalOut}, Бригадиры: ${totalBrig})<br>
+                Распределено: <b>${actualTotal}</b> чел. (Бриг. АК: ${bak}, Бриг. Стаф: ${bst}, Штат: ${sht})</span>
+            `;
             statusDiv.className = "rec-status status-error";
         }
     }
 
-    function saveData() {
+    function saveData(showAlert) {
         const data = {
             date: document.getElementById('reportDate').value,
             time: document.getElementById('reportTime').value,
@@ -205,7 +229,16 @@
         });
 
         localStorage.setItem('warehouseReport', JSON.stringify(data));
-        alert('✅ Отчет сохранен!');
+        
+        if (showAlert) {
+            alert('✅ Отчет сохранен!');
+        } else {
+            // Показываем индикатор автосохранения
+            const indicator = document.getElementById('autosaveIndicator');
+            const now = new Date();
+            indicator.textContent = `💾 Автосохранено в ${now.toTimeString().slice(0,5)}`;
+            setTimeout(() => { indicator.textContent = ''; }, 3000);
+        }
     }
 
     function loadData() {
@@ -241,8 +274,9 @@
             document.querySelectorAll('input').forEach(input => {
                 if(input.type === 'number' || input.type === 'text') input.value = '';
             });
-            calculateTotals();
             localStorage.removeItem('warehouseReport');
+            calculateTotals();
+            document.getElementById('autosaveIndicator').textContent = '';
         }
     }
 
@@ -252,7 +286,7 @@
         document.querySelectorAll('#reportTable tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
             const rowData = [];
-            cells.forEach((cell, index) => {
+            cells.forEach((cell) => {
                 const input = cell.querySelector('input');
                 rowData.push(input ? input.value : cell.textContent);
             });
@@ -278,10 +312,13 @@
         const time = document.getElementById('reportTime').value.replace(':', '-');
 
         const buttons = document.querySelector('.buttons');
+        const indicator = document.getElementById('autosaveIndicator');
         buttons.style.display = 'none';
+        indicator.style.display = 'none';
 
         html2canvas(element, { scale: 2 }).then(canvas => {
             buttons.style.display = 'flex';
+            indicator.style.display = 'block';
             const link = document.createElement('a');
             link.download = `Отчет_${date}_${time}.png`;
             link.href = canvas.toDataURL('image/png');
