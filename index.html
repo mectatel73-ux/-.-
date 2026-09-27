@@ -37,7 +37,6 @@
         }
         h2 { text-align: center; margin: 0 0 12px 0; color: #333; font-size: 18px; }
 
-        /* Индикатор синхронизации */
         .sync-status {
             text-align: center;
             font-size: 12px;
@@ -118,7 +117,6 @@
         .brig-cell .stepper .btn-minus,
         .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
 
-        /* === КОМПАНИИ (чипсы) === */
         .companies-cell { text-align: left; padding: 4px 6px; vertical-align: top; min-width: 180px; }
         .companies-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .company-chip {
@@ -141,7 +139,6 @@
         }
         .add-company-btn:active { background: #388e3c; }
 
-        /* === МОДАЛЬНОЕ ОКНО === */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 10000;
@@ -238,7 +235,6 @@
 
         .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 6px; height: 15px; font-weight: 600; }
 
-        /* === ПАНЕЛЬ МАСШТАБА === */
         .zoom-panel {
             display: flex;
             align-items: center;
@@ -289,7 +285,6 @@
             display: none; z-index: 9999; 
         }
 
-        /* Режим скриншота */
         body.snapshot-mode .stepper .btn-minus,
         body.snapshot-mode .stepper .btn-plus { 
             visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
@@ -308,84 +303,24 @@
         }
         body.snapshot-mode .snapshot-hint { display: block !important; }
 
-        /* === РЕЖИМ СКРИНШОТА: таблица влезает целиком === */
-        body.snapshot-mode .table-wrap {
-            overflow: visible !important;
-        }
-        body.snapshot-mode table {
-            min-width: auto !important;
-            width: 100% !important;
-            table-layout: fixed !important;
-        }
-        body.snapshot-mode th {
-            font-size: 9px !important;
-            padding: 4px 2px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-        }
-        body.snapshot-mode td {
-            padding: 2px 1px !important;
-        }
-        body.snapshot-mode .station-name {
-            font-size: 10px !important;
-            padding: 3px 3px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            max-width: 70px !important;
-        }
-        body.snapshot-mode .stepper input {
-            width: 28px !important;
-            height: 26px !important;
-            font-size: 12px !important;
-            border: 1px solid #999 !important;
-        }
-        body.snapshot-mode .companies-cell {
-            min-width: 0 !important;
-            padding: 2px 2px !important;
-        }
-        body.snapshot-mode .company-chip {
-            font-size: 9px !important;
-            padding: 2px 4px !important;
-            border-radius: 8px !important;
-        }
-        body.snapshot-mode .brig-cell .stepper input {
-            width: 32px !important;
-            height: 28px !important;
-            font-size: 14px !important;
-        }
-        body.snapshot-mode .total-row td {
-            font-size: 11px !important;
-            padding: 4px 1px !important;
-        }
-        body.snapshot-mode .grand-total-box {
-            padding: 6px !important;
-            font-size: 12px !important;
-        }
-        body.snapshot-mode .grand-total-box span {
-            font-size: 18px !important;
-        }
-        body.snapshot-mode .reconciliation-box {
-            padding: 8px !important;
-        }
-        body.snapshot-mode .rec-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 4px !important;
-        }
-        body.snapshot-mode .rec-item {
-            font-size: 11px !important;
-            padding: 4px 6px !important;
-        }
-        body.snapshot-mode .rec-status {
-            font-size: 11px !important;
-            padding: 6px !important;
-        }
-        body.snapshot-mode .container {
-            padding: 6px !important;
-        }
-        body.snapshot-mode h2 {
-            font-size: 14px !important;
-            margin-bottom: 6px !important;
-        }
+        body.snapshot-mode .table-wrap { overflow: visible !important; }
+        body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
+        body.snapshot-mode th { font-size: 9px !important; padding: 4px 2px !important; white-space: normal !important; word-break: break-word !important; }
+        body.snapshot-mode td { padding: 2px 1px !important; }
+        body.snapshot-mode .station-name { font-size: 10px !important; padding: 3px 3px !important; white-space: normal !important; word-break: break-word !important; max-width: 70px !important; }
+        body.snapshot-mode .stepper input { width: 28px !important; height: 26px !important; font-size: 12px !important; border: 1px solid #999 !important; }
+        body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 2px 2px !important; }
+        body.snapshot-mode .company-chip { font-size: 9px !important; padding: 2px 4px !important; border-radius: 8px !important; }
+        body.snapshot-mode .brig-cell .stepper input { width: 32px !important; height: 28px !important; font-size: 14px !important; }
+        body.snapshot-mode .total-row td { font-size: 11px !important; padding: 4px 1px !important; }
+        body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 12px !important; }
+        body.snapshot-mode .grand-total-box span { font-size: 18px !important; }
+        body.snapshot-mode .reconciliation-box { padding: 8px !important; }
+        body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 4px !important; }
+        body.snapshot-mode .rec-item { font-size: 11px !important; padding: 4px 6px !important; }
+        body.snapshot-mode .rec-status { font-size: 11px !important; padding: 6px !important; }
+        body.snapshot-mode .container { padding: 6px !important; }
+        body.snapshot-mode h2 { font-size: 14px !important; margin-bottom: 6px !important; }
 
         .snapshot-hint {
             display: none;
@@ -742,7 +677,6 @@
         saveDataToFirebase();
     }
 
-    // === РЕЖИМ СКРИНШОТА ===
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
@@ -760,7 +694,6 @@
         }
     }
 
-    // === МАСШТАБ ===
     let currentZoom = 100;
     const ZOOM_STEP = 10;
     const ZOOM_MIN = 50;
@@ -776,7 +709,6 @@
         table.style.transformOrigin = 'top left';
         table.style.width = (100 / scale) + '%';
 
-        // Компенсируем высоту обёртки, чтобы не было пустого места
         const tableHeight = table.offsetHeight;
         wrap.style.height = (tableHeight * scale) + 'px';
 
@@ -821,12 +753,17 @@
         });
         renderTable();
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => { calculateTotals(); saveDataToFirebase(); });
+            input.addEventListener('input', () => {
+                if (input.id === 'totalStaff') {
+                    distributeStaffFromTop();
+                }
+                calculateTotals();
+                saveDataToFirebase();
+            });
         });
         document.getElementById('reportDate').addEventListener('change', saveDataToFirebase);
         document.getElementById('reportTime').addEventListener('change', saveDataToFirebase);
 
-        // Восстановление масштаба
         const savedZoom = parseInt(localStorage.getItem('warehouseZoom'));
         if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) {
             currentZoom = savedZoom;
@@ -1044,6 +981,17 @@
             <td id="total-bst">0</td>
         `;
         tbody.appendChild(totalTr);
+    }
+
+    // === ВАРИАНТ А: раскидываем «Штатные» сверху по колонке «Штат» в таблице ===
+    function distributeStaffFromTop() {
+        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
+        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
+        if (rows.length === 0) return;
+        const firstRowSht = rows[0].querySelector('.input-sht');
+        if (firstRowSht) {
+            firstRowSht.value = totalStaff;
+        }
     }
 
     function calculateTotals() {
