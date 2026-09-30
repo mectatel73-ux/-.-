@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
+
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
+
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -598,6 +600,7 @@
 
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
+<!-- ============ FIREBASE SDK (модуль) ============ -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -623,13 +626,19 @@
         console.log('ℹ️ Офлайн-режим:', err.code);
     }
 
+    // Публикуем API Firebase в window
     window.FB = { db, doc, setDoc, onSnapshot, getDoc };
+    console.log('✅ Firebase готов');
     window.dispatchEvent(new Event('firebaseReady'));
 </script>
 
 <script>
+    // ============ ОСНОВНАЯ ЛОГИКА ============
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
+
+    let firebaseReady = false;
+    let initialLoadDone = false;
 
     const syncStatusEl = () => document.getElementById('syncStatus');
     function setSyncStatus(status, text) {
@@ -649,11 +658,7 @@
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW err:', err));
-        });
-    }
+    // PWA install prompt
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -667,6 +672,7 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
+    // ============ СТЕППЕРЫ ============
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -685,6 +691,7 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    // ============ КОМПАНИИ ============
     let currentEditingCompanyRow = null;
 
     function openCompanyModal(rowIdx) {
@@ -780,6 +787,7 @@
         saveDataToFirebase();
     }
 
+    // ============ РЕЖИМ СКРИНА ============
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
@@ -797,6 +805,7 @@
         }
     }
 
+    // ============ МАСШТАБ ============
     let currentZoom = 100;
     const ZOOM_STEP = 10;
     const ZOOM_MIN = 50;
@@ -831,6 +840,7 @@
         applyZoom();
     }
 
+    // ============ СТАНЦИИ ============
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
         "Перебор хранения", "МК", "Отгрузка МК", 
@@ -841,9 +851,71 @@
     const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
-    let firebaseReady = false;
-    let initialLoadDone = false;
+    function recalcStationsArray() {
+        stations.length = 0;
+        stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
+    }
 
+    function saveStationsToStorage() {
+        localStorage.setItem('warehouseStations', JSON.stringify({
+            sort: SORT_ZONES,
+            load: LOAD_ZONES,
+            break: BREAK_ZONES
+        }));
+    }
+
+    function loadStationsFromStorage() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('warehouseStations'));
+            if (saved) {
+                if (saved.sort && saved.sort.length === SORT_ZONES.length) {
+                    for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = saved.sort[i];
+                }
+                if (saved.load && saved.load.length === LOAD_ZONES.length) {
+                    for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = saved.load[i];
+                }
+                if (saved.break && saved.break.length === BREAK_ZONES.length) {
+                    for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = saved.break[i];
+                }
+                recalcStationsArray();
+            }
+        } catch (e) { console.error('Ошибка загрузки станций:', e); }
+    }
+
+    function editStationName(idx) {
+        const td = document.querySelector(`.station-name[data-station-idx="${idx}"]`);
+        if (!td || td.classList.contains('editing')) return;
+        const oldName = stations[idx];
+        td.classList.add('editing');
+        td.innerHTML = `<input type="text" value="${oldName}" maxlength="40">`;
+        const input = td.querySelector('input');
+        input.focus();
+        input.select();
+
+        const finish = (save) => {
+            const newName = input.value.trim();
+            td.classList.remove('editing');
+            if (save && newName && newName !== oldName) {
+                stations[idx] = newName;
+                if (idx < SORT_ZONES.length) SORT_ZONES[idx] = newName;
+                else if (idx < SORT_ZONES.length + LOAD_ZONES.length) LOAD_ZONES[idx - SORT_ZONES.length] = newName;
+                else BREAK_ZONES[idx - SORT_ZONES.length - LOAD_ZONES.length] = newName;
+                saveStationsToStorage();
+                recalcStationsArray();
+                saveDataToFirebase();
+            }
+            renderTable();
+            loadFromLocalStorage();
+        };
+
+        input.addEventListener('blur', () => finish(true));
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+        });
+    }
+
+    // ============ ИНИЦИАЛИЗАЦИЯ ============
     window.addEventListener('load', function() {
         const now = new Date();
         if (!localStorage.getItem('warehouseReport')) {
@@ -884,6 +956,7 @@
         applyZoom();
     });
 
+    // ============ FIREBASE ============
     function initFirebase() {
         firebaseReady = true;
         const { db, doc, onSnapshot } = window.FB;
@@ -1078,6 +1151,7 @@
         } catch (e) { console.error('Ошибка загрузки:', e); }
     }
 
+    // ============ РЕНДЕР ТАБЛИЦЫ ============
     function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
@@ -1141,70 +1215,7 @@
         tbody.appendChild(totalTr);
     }
 
-    function editStationName(idx) {
-        const td = document.querySelector(`.station-name[data-station-idx="${idx}"]`);
-        if (!td || td.classList.contains('editing')) return;
-        const oldName = stations[idx];
-        td.classList.add('editing');
-        td.innerHTML = `<input type="text" value="${oldName}" maxlength="40">`;
-        const input = td.querySelector('input');
-        input.focus();
-        input.select();
-
-        const finish = (save) => {
-            const newName = input.value.trim();
-            td.classList.remove('editing');
-            if (save && newName && newName !== oldName) {
-                stations[idx] = newName;
-                if (idx < SORT_ZONES.length) SORT_ZONES[idx] = newName;
-                else if (idx < SORT_ZONES.length + LOAD_ZONES.length) LOAD_ZONES[idx - SORT_ZONES.length] = newName;
-                else BREAK_ZONES[idx - SORT_ZONES.length - LOAD_ZONES.length] = newName;
-                saveStationsToStorage();
-                recalcStationsArray();
-                saveDataToFirebase();
-            }
-            renderTable();
-            loadFromLocalStorage();
-        };
-
-        input.addEventListener('blur', () => finish(true));
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-            if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-        });
-    }
-
-    function recalcStationsArray() {
-        stations.length = 0;
-        stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
-    }
-
-    function saveStationsToStorage() {
-        localStorage.setItem('warehouseStations', JSON.stringify({
-            sort: SORT_ZONES,
-            load: LOAD_ZONES,
-            break: BREAK_ZONES
-        }));
-    }
-
-    function loadStationsFromStorage() {
-        try {
-            const saved = JSON.parse(localStorage.getItem('warehouseStations'));
-            if (saved) {
-                if (saved.sort && saved.sort.length === SORT_ZONES.length) {
-                    for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = saved.sort[i];
-                }
-                if (saved.load && saved.load.length === LOAD_ZONES.length) {
-                    for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = saved.load[i];
-                }
-                if (saved.break && saved.break.length === BREAK_ZONES.length) {
-                    for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = saved.break[i];
-                }
-                recalcStationsArray();
-            }
-        } catch (e) { console.error('Ошибка загрузки станций:', e); }
-    }
-
+    // ============ ПОДСЧЁТ ============
     function calculateTotals() {
         let out = 0, bak = 0, sht = 0;
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
@@ -1242,6 +1253,7 @@
         renderAnalytics();
     }
 
+    // ============ АРХИВ ============
     function archiveCurrentReport() {
         const data = collectDataFromUI();
         let totalOut = 0, totalBak = 0, totalSht = 0;
