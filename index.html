@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
-
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
-
     <meta name="theme-color" content="#1a1d21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,33 +17,19 @@
     <style>
         * { box-sizing: border-box; }
         :root {
-            --bg-dark: #1a1d21;
-            --bg-card: #252a31;
-            --bg-elevated: #2d333b;
-            --bg-input: #1e2227;
-            --accent: #4fc3f7;
-            --accent-hover: #29b6f6;
-            --accent-dark: #0288d1;
-            --text: #e4e6eb;
-            --text-dim: #9aa0a6;
-            --text-muted: #6c757d;
-            --border: #353b44;
-            --success: #4caf50;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --purple: #6f42c1;
+            --bg-dark: #1a1d21; --bg-card: #252a31; --bg-elevated: #2d333b;
+            --bg-input: #1e2227; --accent: #4fc3f7; --accent-dark: #0288d1;
+            --text: #e4e6eb; --text-dim: #9aa0a6; --text-muted: #6c757d;
+            --border: #353b44; --success: #4caf50; --warning: #ffc107;
+            --danger: #dc3545; --purple: #6f42c1;
         }
-
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--bg-dark); 
-            color: var(--text);
+            background: var(--bg-dark); color: var(--text);
             margin: 0; padding: 0; font-size: 14px; 
-            -webkit-tap-highlight-color: transparent;
-            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
             min-height: 100vh;
         }
-
         .app-layout { display: flex; min-height: 100vh; }
 
         /* === БОКОВАЯ ПАНЕЛЬ === */
@@ -87,7 +71,9 @@
         .sync-status {
             text-align: center; font-size: 12px; font-weight: 600;
             padding: 8px; border-radius: 8px; margin-bottom: 12px; transition: 0.3s;
+            cursor: pointer;
         }
+        .sync-status:hover { opacity: 0.85; }
         .sync-online { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
         .sync-offline { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
         .sync-connecting { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
@@ -109,15 +95,14 @@
         .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-weight: 600; }
         .date-time-row input { 
             padding: 8px 10px; font-size: 13px; background: var(--bg-input); color: var(--text);
-            border: 1px solid var(--border); border-radius: 8px; 
+            border: 1px solid var(--border); border-radius: 8px;
         }
         .date-time-row input:focus { outline: none; border-color: var(--accent); }
 
         .table-wrap { 
-            overflow-x: auto; -webkit-overflow-scrolling: touch; 
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
             margin-bottom: 16px; width: 100%; border-radius: 12px; background: var(--bg-card);
         }
-
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { border: 1px solid var(--border); padding: 6px; text-align: center; vertical-align: middle; }
         th { 
@@ -249,12 +234,9 @@
         .shipment-table tr.rank-1 { background: rgba(220, 53, 69, 0.1); }
         .shipment-table tr.rank-2 { background: rgba(255, 193, 7, 0.08); }
         .shipment-table tr.rank-3 { background: rgba(255, 193, 7, 0.04); }
-
-        /* Компактные степперы для отгрузки */
         .ship-stepper .btn-minus,
         .ship-stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; border-radius: 6px; }
         .ship-stepper input { width: 44px; height: 32px; font-size: 14px; border-radius: 6px; }
-
         .ship-btn-reset {
             background: linear-gradient(135deg, #dc3545, #b02a37);
             color: white; border: none; border-radius: 8px; padding: 8px 14px;
@@ -286,23 +268,19 @@
         .history-item .h-time { color: var(--accent); font-weight: 700; }
         .history-item .h-text { flex: 1; text-align: right; color: var(--text); }
 
-        /* === МОДАЛЬНЫЕ ОКНА === */
-        .modal-overlay, .shipment-modal {
+        /* === МОДАЛЬНЫЕ === */
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
             z-index: 10000; align-items: center; justify-content: center; padding: 20px;
         }
-        .modal-overlay.active, .shipment-modal.active { display: flex; }
-
-        .modal, .shipment-modal-content {
+        .modal-overlay.active { display: flex; }
+        .modal {
             background: var(--bg-elevated); border-radius: 16px; padding: 24px;
             max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid var(--border);
         }
-        .modal h3, .shipment-modal-content h3 { 
-            margin: 0 0 16px 0; color: var(--text); font-size: 18px; 
-            text-align: center; font-weight: 700;
-        }
+        .modal h3 { margin: 0 0 16px 0; color: var(--text); font-size: 18px; text-align: center; font-weight: 700; }
 
         .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .modal-company-item {
@@ -399,10 +377,7 @@
         .analytics-section h4 { margin: 0 0 10px 0; font-size: 13px; color: var(--accent); }
 
         .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-        .history-table th { 
-            background: var(--bg-elevated); color: var(--accent);
-            padding: 8px; font-size: 11px; border-radius: 6px;
-        }
+        .history-table th { background: var(--bg-elevated); color: var(--accent); padding: 8px; font-size: 11px; border-radius: 6px; }
         .history-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
         .diff-positive { color: #4caf50; font-weight: bold; }
         .diff-negative { color: #ff6b6b; font-weight: bold; }
@@ -451,10 +426,7 @@
         .btn-img { background: linear-gradient(135deg, var(--purple), #553098); box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3); }
         .btn-clear { background: linear-gradient(135deg, #dc3545, #b02a37); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
 
-        .autosave-indicator { 
-            font-size: 12px; color: var(--accent); text-align: center;
-            margin-top: 8px; height: 15px; font-weight: 600;
-        }
+        .autosave-indicator { font-size: 12px; color: var(--accent); text-align: center; margin-top: 8px; height: 15px; font-weight: 600; }
 
         .zoom-panel {
             display: flex; align-items: center; justify-content: center;
@@ -544,7 +516,7 @@
         .snapshot-hint:hover { background: rgba(255, 193, 7, 0.25); }
         .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: var(--text-dim); }
 
-        /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+        /* === МОБИЛЬНАЯ === */
         @media (max-width: 768px) {
             .sidebar { width: 60px; padding: 8px 0; }
             .sidebar-logo { width: 40px; height: 40px; font-size: 20px; margin-bottom: 14px; }
@@ -575,7 +547,7 @@
             table { min-width: 720px; }
             .company-chip { font-size: 11px; padding: 4px 8px; }
             .add-company-btn { font-size: 11px; padding: 6px 10px; }
-            .modal, .shipment-modal-content { padding: 20px; }
+            .modal { padding: 20px; }
             .modal-company-list { gap: 8px; }
             .modal-company-item { padding: 12px 6px; font-size: 13px; min-height: 48px; }
             .modal-add-company { flex-direction: column; }
@@ -619,6 +591,7 @@
             <button class="sidebar-btn" onclick="exportCSV()" title="Excel">📥</button>
         </nav>
         <div class="sidebar-bottom">
+            <button class="sidebar-btn" onclick="forceRefreshFromServer()" title="Обновить с сервера">🔄</button>
             <button class="sidebar-btn" onclick="toggleSnapshot()" title="Скриншот">📸</button>
             <button class="sidebar-btn" onclick="clearData()" title="Очистить" style="color: #ff6b6b;">🗑️</button>
         </div>
@@ -628,7 +601,7 @@
         <div class="container" id="captureArea">
             <h2>📦 Отчет по складу</h2>
 
-            <div class="sync-status sync-connecting" id="syncStatus">🔄 Подключение к серверу...</div>
+            <div class="sync-status sync-connecting" id="syncStatus" onclick="forceRefreshFromServer()" title="Нажми, чтобы обновить с сервера">🔄 Подключение к серверу...</div>
 
             <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
                 📸 <b>Готово к скриншоту!</b>
@@ -806,6 +779,7 @@
     let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
     let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
     let saveTimer = null, syncTimer = null, isSaving = false;
+    let serverLoaded = false;  // Флаг: сервер загружен
 
     // ============ ВКЛАДКИ ============
     function switchTab(tab) {
@@ -848,6 +822,14 @@
         el.textContent = text;
     }
 
+    // ============ ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ============
+    async function forceRefreshFromServer() {
+        if (confirm('Обновить данные с сервера? Все несохранённые изменения будут потеряны.')) {
+            serverLoaded = false;
+            await loadFromServer();
+        }
+    }
+
     // ============ СЕРВЕР ============
     async function loadFromServer() {
         try {
@@ -870,15 +852,21 @@
                 localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
             }
             renderShipment();
+            serverLoaded = true;
             setSyncStatus('online', '✅ Синхронизировано');
         } catch (err) {
             console.error('Ошибка загрузки:', err);
             setSyncStatus('offline', '📴 Нет связи, работаем локально');
+            serverLoaded = true;
         }
     }
 
     async function saveToServer() {
         if (isSaving) return;
+        if (!serverLoaded) {
+            console.log('⏸ Ждём загрузки сервера, откладываем сохранение');
+            return;
+        }
         isSaving = true;
         try {
             const payload = {
@@ -913,6 +901,7 @@
         if (syncTimer) clearInterval(syncTimer);
         syncTimer = setInterval(async () => {
             if (isSaving) return;
+            if (!serverLoaded) return;
             try {
                 const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!response.ok) return;
@@ -1639,14 +1628,24 @@
     }
 
     function clearData() {
-        if(confirm('Очистить все поля?')) {
-            document.querySelectorAll('input').forEach(input => { if(input.type === 'number') input.value = ''; });
+        if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
+            // Обнуляем все видимые инпуты
+            document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
+            // Обнуляем скрытые поля сверки
+            document.getElementById('totalAdmin').value = '0';
+            document.getElementById('totalStaff').value = '0';
+            document.getElementById('totalOut').value = '0';
+            document.getElementById('totalBrig').value = '0';
+            // Удаляем чипсы компаний
             document.querySelectorAll('.companies-list').forEach(list => {
                 list.querySelectorAll('.company-chip').forEach(c => c.remove());
             });
+            // Удаляем сохранённые данные
             localStorage.removeItem('warehouseReport');
+            // Пересчитываем
             calculateTotals();
-            document.getElementById('autosaveIndicator').textContent = '';
+            document.getElementById('autosaveIndicator').textContent = '🧹 Очищено';
+            setTimeout(() => { document.getElementById('autosaveIndicator').textContent = ''; }, 2000);
             saveDebounced();
         }
     }
