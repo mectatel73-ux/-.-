@@ -600,46 +600,31 @@
 
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
-<!-- ============ FIREBASE SDK (модуль) ============ -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCzOIfr5R7Y2U4ijB--hBPMX-SK25J6ews",
-        authDomain: "check-6564d.firebaseapp.com",
-        projectId: "check-6564d",
-        storageBucket: "check-6564d.firebasestorage.app",
-        messagingSenderId: "510286120071",
-        appId: "1:510286120071:web:9b90235ff2ba721b46a422",
-        measurementId: "G-TMR2BB11R0"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    try {
-        await enableIndexedDbPersistence(db);
-        console.log('✅ Офлайн-режим Firestore включён');
-    } catch (err) {
-        console.log('ℹ️ Офлайн-режим:', err.code);
-    }
-
-    // Публикуем API Firebase в window
-    window.FB = { db, doc, setDoc, onSnapshot, getDoc };
-    console.log('✅ Firebase готов');
-    window.dispatchEvent(new Event('firebaseReady'));
-</script>
-
 <script>
-    // ============ ОСНОВНАЯ ЛОГИКА ============
+    // ============ НАСТРОЙКИ СИНХРОНИЗАЦИИ ============
+    const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
+    const SYNC_INTERVAL = 30000; // 30 секунд — проверка обновлений
+
+    // ============ ДАННЫЕ ============
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
 
-    let firebaseReady = false;
-    let initialLoadDone = false;
+    const SORT_ZONES = [
+        "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
+        "Перебор хранения", "МК", "Отгрузка МК", 
+        "Саппорт СКК", "Наведение порядка", 
+        "Перебор оборотной тары", "Прием мерчей"
+    ];
+    const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
+    const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
+    const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
+    let lastServerData = null;
+    let saveTimer = null;
+    let syncTimer = null;
+    let isSaving = false;
+
+    // ============ СТАТУС ============
     const syncStatusEl = () => document.getElementById('syncStatus');
     function setSyncStatus(status, text) {
         const el = syncStatusEl();
@@ -648,29 +633,205 @@
         el.textContent = text;
     }
 
-    function updateOnlineStatus() {
-        if (navigator.onLine) {
+    // ============ РАБОТА С СЕРВЕРОМ ============
+    async function loadFromServer() {
+        try {
+            setSyncStatus('connecting', '🔄 Загрузка с сервера...');
+            const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const data = await response.json();
+            console.log('📥 Загружено с сервера:', data);
+            lastServerData = data;
+            if (data && data.current) {
+                applyDataToUI(data.current);
+                if (data.companies && data.companies.list) {
+                    COMPANIES = data.companies.list;
+                    localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
+                }
+                if (data.archive && data.archive.archive) {
+                    localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
+                }
+            }
             setSyncStatus('online', '✅ Синхронизировано');
-        } else {
-            setSyncStatus('offline', '📴 Нет интернета — данные сохранятся при подключении');
+        } catch (err) {
+            console.error('Ошибка загрузки:', err);
+            setSyncStatus('offline', '📴 Нет связи, работаем локально');
         }
     }
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
 
-    // PWA install prompt
-    let deferredPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
-    });
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
+    async function saveToServer() {
+        if (isSaving) return;
+        isSaving = true;
+        try {
+            const payload = {
+                current: collectDataFromUI(),
+                companies: { list: COMPANIES },
+                archive: { archive: JSON.parse(localStorage.getItem('warehouseArchive')) || [] }
+            };
+            payload.current.lastModified = Date.now();
+
+            const response = await fetch(BIN_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            lastServerData = payload;
+            setSyncStatus('online', '✅ Синхронизировано');
+            console.log('📤 Сохранено на сервер');
+        } catch (err) {
+            console.error('Ошибка сохранения:', err);
+            setSyncStatus('offline', '📴 Нет связи — сохраним позже');
+        } finally {
+            isSaving = false;
         }
     }
-    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+
+    function saveDebounced() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            saveDataToLocal();
+            saveToServer();
+        }, 800);
+    }
+
+    function startSyncLoop() {
+        if (syncTimer) clearInterval(syncTimer);
+        syncTimer = setInterval(async () => {
+            if (isSaving) return;
+            try {
+                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (!response.ok) return;
+                const data = await response.json();
+                const local = collectDataFromUI();
+                const serverTime = data.current?.lastModified || 0;
+                const localTime = local.lastModified || 0;
+                if (serverTime > localTime && serverTime > 0) {
+                    console.log('🔄 Обновление с сервера');
+                    lastServerData = data;
+                    if (data.current) applyDataToUI(data.current);
+                    if (data.companies?.list) {
+                        COMPANIES = data.companies.list;
+                        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
+                    }
+                    if (data.archive?.archive) {
+                        localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
+                        renderAnalytics();
+                    }
+                    setSyncStatus('online', '✅ Синхронизировано');
+                }
+            } catch (err) {
+                // тихо игнорируем
+            }
+        }, SYNC_INTERVAL);
+    }
+
+    // ============ ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ============
+    function saveDataToLocal() {
+        const data = collectDataFromUI();
+        data.lastModified = Date.now();
+        localStorage.setItem('warehouseReport', JSON.stringify(data));
+        const indicator = document.getElementById('autosaveIndicator');
+        if (indicator) {
+            const now = new Date();
+            indicator.textContent = `💾 Сохранено в ${now.toTimeString().slice(0,5)}`;
+            setTimeout(() => { indicator.textContent = ''; }, 2000);
+        }
+    }
+
+    function loadFromLocal() {
+        const saved = localStorage.getItem('warehouseReport');
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            applyDataToUI(data);
+        } catch (e) { console.error('Ошибка локальной загрузки:', e); }
+    }
+
+    // ============ СБОР ДАННЫХ ============
+    function collectDataFromUI() {
+        const rows = [];
+        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
+            const companies = getRowCompanies(idx);
+            rows.push({
+                station: tr.querySelector('.station-name').textContent,
+                out: tr.querySelector('.input-out')?.value || '',
+                bak: tr.querySelector('.input-bak')?.value || '',
+                companies: companies,
+                sht: tr.querySelector('.input-sht')?.value || ''
+            });
+        });
+        return {
+            date: document.getElementById('reportDate').value,
+            time: document.getElementById('reportTime').value,
+            totals: {
+                admin: document.getElementById('totalAdmin').value,
+                staff: document.getElementById('totalStaff').value,
+                out: document.getElementById('totalOut').value,
+                brig: document.getElementById('totalBrig').value
+            },
+            bstSort: document.getElementById('bstSort')?.value || '',
+            bstLoad: document.getElementById('bstLoad')?.value || '',
+            rows: rows,
+            stations: {
+                sort: SORT_ZONES,
+                load: LOAD_ZONES,
+                break: BREAK_ZONES
+            }
+        };
+    }
+
+    // ============ ПРИМЕНЕНИЕ ДАННЫХ ============
+    function applyDataToUI(data) {
+        if (!data) return;
+        if (data.date) document.getElementById('reportDate').value = data.date;
+        if (data.time) document.getElementById('reportTime').value = data.time;
+        if (data.totals) {
+            document.getElementById('totalAdmin').value = data.totals.admin || '0';
+            document.getElementById('totalStaff').value = data.totals.staff || '0';
+            document.getElementById('totalOut').value = data.totals.out || '0';
+            document.getElementById('totalBrig').value = data.totals.brig || '0';
+        }
+
+        if (data.stations) {
+            if (data.stations.sort && data.stations.sort.length === SORT_ZONES.length) {
+                for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = data.stations.sort[i];
+            }
+            if (data.stations.load && data.stations.load.length === LOAD_ZONES.length) {
+                for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = data.stations.load[i];
+            }
+            if (data.stations.break && data.stations.break.length === BREAK_ZONES.length) {
+                for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = data.stations.break[i];
+            }
+            recalcStationsArray();
+            saveStationsToStorage();
+            renderTable();
+        }
+
+        const sortBst = document.getElementById('bstSort');
+        const loadBst = document.getElementById('bstLoad');
+        if (sortBst && data.bstSort !== undefined) sortBst.value = data.bstSort || '';
+        if (loadBst && data.bstLoad !== undefined) loadBst.value = data.bstLoad || '';
+
+        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
+        if (data.rows) {
+            data.rows.forEach((row, index) => {
+                if (rows[index]) {
+                    const outInput = rows[index].querySelector('.input-out');
+                    const bakInput = rows[index].querySelector('.input-bak');
+                    const shtInput = rows[index].querySelector('.input-sht');
+                    if (outInput) outInput.value = row.out || '';
+                    if (bakInput) bakInput.value = row.bak || '';
+                    if (shtInput) shtInput.value = row.sht || '';
+                    if (row.companies && Array.isArray(row.companies)) {
+                        setRowCompanies(index, row.companies);
+                    }
+                }
+            });
+        }
+
+        calculateTotals();
+    }
 
     // ============ СТЕППЕРЫ ============
     function createStepperHTML(id, className, defaultValue = '') {
@@ -718,7 +879,7 @@
         if (COMPANIES.includes(name)) { alert('Такая компания уже есть'); return; }
         COMPANIES.push(name);
         localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-        saveCompaniesToFirebase();
+        saveDebounced();
         input.value = '';
         openCompanyModal(currentEditingCompanyRow);
     }
@@ -727,7 +888,7 @@
         if (!confirm('Сбросить список компаний к стандартному?')) return;
         COMPANIES = [...DEFAULT_COMPANIES];
         localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-        saveCompaniesToFirebase();
+        saveDebounced();
         openCompanyModal(currentEditingCompanyRow);
     }
 
@@ -749,7 +910,7 @@
     function closeCompanyModal() {
         document.getElementById('companyModal').classList.remove('active');
         currentEditingCompanyRow = null;
-        saveDataToFirebase();
+        saveDebounced();
     }
 
     function getRowCompanies(rowIdx) {
@@ -784,7 +945,7 @@
         const current = getRowCompanies(rowIdx);
         const updated = current.filter(c => c !== comp);
         setRowCompanies(rowIdx, updated);
-        saveDataToFirebase();
+        saveDebounced();
     }
 
     // ============ РЕЖИМ СКРИНА ============
@@ -841,16 +1002,6 @@
     }
 
     // ============ СТАНЦИИ ============
-    const SORT_ZONES = [
-        "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
-        "Перебор хранения", "МК", "Отгрузка МК", 
-        "Саппорт СКК", "Наведение порядка", 
-        "Перебор оборотной тары", "Прием мерчей"
-    ];
-    const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
-    const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
-    const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
-
     function recalcStationsArray() {
         stations.length = 0;
         stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
@@ -902,10 +1053,10 @@
                 else BREAK_ZONES[idx - SORT_ZONES.length - LOAD_ZONES.length] = newName;
                 saveStationsToStorage();
                 recalcStationsArray();
-                saveDataToFirebase();
+                saveDebounced();
             }
             renderTable();
-            loadFromLocalStorage();
+            loadFromLocal();
         };
 
         input.addEventListener('blur', () => finish(true));
@@ -915,241 +1066,63 @@
         });
     }
 
-    // ============ ИНИЦИАЛИЗАЦИЯ ============
-    window.addEventListener('load', function() {
-        const now = new Date();
-        if (!localStorage.getItem('warehouseReport')) {
-            document.getElementById('reportDate').value = now.toISOString().split('T')[0];
-            document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+    // ============ PWA INSTALL ============
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
+    });
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
         }
+    }
+    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+
+    // ============ ИНИЦИАЛИЗАЦИЯ ============
+    window.addEventListener('load', async function() {
+        const now = new Date();
+        document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+        document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+
         document.querySelectorAll('.rec-item .stepper-container').forEach(container => {
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
         loadStationsFromStorage();
         renderTable();
+
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => {
                 calculateTotals();
-                saveDataToFirebase();
+                saveDebounced();
             });
         });
-        document.getElementById('reportDate').addEventListener('change', saveDataToFirebase);
-        document.getElementById('reportTime').addEventListener('change', saveDataToFirebase);
+        document.getElementById('reportDate').addEventListener('change', saveDebounced);
+        document.getElementById('reportTime').addEventListener('change', saveDebounced);
 
         const savedZoom = parseInt(localStorage.getItem('warehouseZoom'));
         if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) {
             currentZoom = savedZoom;
         }
 
-        loadFromLocalStorage();
+        // 1. Сначала грузим локальные данные (мгновенно)
+        loadFromLocal();
         calculateTotals();
         renderAnalytics();
-        updateOnlineStatus();
         setTimeout(applyZoom, 100);
 
-        if (window.FB) initFirebase();
-        else window.addEventListener('firebaseReady', initFirebase);
+        // 2. Потом грузим с сервера
+        await loadFromServer();
+
+        // 3. Запускаем цикл синхронизации
+        startSyncLoop();
     });
 
     window.addEventListener('resize', () => {
         applyZoom();
     });
-
-    // ============ FIREBASE ============
-    function initFirebase() {
-        firebaseReady = true;
-        const { db, doc, onSnapshot } = window.FB;
-        const reportDoc = doc(db, 'reports', 'current');
-        const archiveDoc = doc(db, 'reports', 'archive');
-        const companiesDoc = doc(db, 'reports', 'companies');
-
-        onSnapshot(reportDoc, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (!initialLoadDone) {
-                    const localData = JSON.parse(localStorage.getItem('warehouseReport') || 'null');
-                    const localTime = localData && localData.lastModified ? localData.lastModified : 0;
-                    if (data.lastModified && data.lastModified >= localTime) {
-                        applyDataToUI(data);
-                        saveToLocalStorage(data);
-                    }
-                    initialLoadDone = true;
-                } else {
-                    applyDataToUI(docSnap.data());
-                    saveToLocalStorage(docSnap.data());
-                }
-                setSyncStatus('online', '✅ Синхронизировано');
-            } else {
-                saveDataToFirebase();
-            }
-        }, (err) => {
-            console.error('Ошибка подписки:', err);
-            setSyncStatus('offline', '⚠️ Ошибка связи, работаем локально');
-        });
-
-        onSnapshot(archiveDoc, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.archive && Array.isArray(data.archive)) {
-                    localStorage.setItem('warehouseArchive', JSON.stringify(data.archive));
-                    renderAnalytics();
-                }
-            }
-        });
-
-        onSnapshot(companiesDoc, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.list && Array.isArray(data.list) && data.list.length > 0) {
-                    COMPANIES = data.list;
-                    localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-                }
-            }
-        });
-    }
-
-    function saveCompaniesToFirebase() {
-        if (!firebaseReady) return;
-        const { db, doc, setDoc } = window.FB;
-        setDoc(doc(db, 'reports', 'companies'), { list: COMPANIES }).catch(err => console.error(err));
-    }
-
-    function applyDataToUI(data) {
-        if (!data) return;
-        if (data.date) document.getElementById('reportDate').value = data.date;
-        if (data.time) document.getElementById('reportTime').value = data.time;
-        if (data.totals) {
-            document.getElementById('totalAdmin').value = data.totals.admin || '0';
-            document.getElementById('totalStaff').value = data.totals.staff || '0';
-            document.getElementById('totalOut').value = data.totals.out || '0';
-            document.getElementById('totalBrig').value = data.totals.brig || '0';
-        }
-        const sortBst = document.getElementById('bstSort');
-        const loadBst = document.getElementById('bstLoad');
-        if (sortBst && data.bstSort !== undefined) sortBst.value = data.bstSort || '';
-        if (loadBst && data.bstLoad !== undefined) loadBst.value = data.bstLoad || '';
-
-        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-        if (data.rows) {
-            data.rows.forEach((row, index) => {
-                if (rows[index]) {
-                    const outInput = rows[index].querySelector('.input-out');
-                    const bakInput = rows[index].querySelector('.input-bak');
-                    const shtInput = rows[index].querySelector('.input-sht');
-                    if (outInput) outInput.value = row.out || '';
-                    if (bakInput) bakInput.value = row.bak || '';
-                    if (shtInput) shtInput.value = row.sht || '';
-                    if (row.companies && Array.isArray(row.companies)) {
-                        setRowCompanies(index, row.companies);
-                    }
-                }
-            });
-        }
-
-        if (data.stations) {
-            if (data.stations.sort && data.stations.sort.length === SORT_ZONES.length) {
-                for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = data.stations.sort[i];
-            }
-            if (data.stations.load && data.stations.load.length === LOAD_ZONES.length) {
-                for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = data.stations.load[i];
-            }
-            if (data.stations.break && data.stations.break.length === BREAK_ZONES.length) {
-                for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = data.stations.break[i];
-            }
-            recalcStationsArray();
-            saveStationsToStorage();
-            renderTable();
-            setTimeout(() => {
-                if (data.rows) {
-                    const rows2 = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-                    data.rows.forEach((row, index) => {
-                        if (rows2[index]) {
-                            const outInput = rows2[index].querySelector('.input-out');
-                            const bakInput = rows2[index].querySelector('.input-bak');
-                            const shtInput = rows2[index].querySelector('.input-sht');
-                            if (outInput) outInput.value = row.out || '';
-                            if (bakInput) bakInput.value = row.bak || '';
-                            if (shtInput) shtInput.value = row.sht || '';
-                            if (row.companies && Array.isArray(row.companies)) {
-                                setRowCompanies(index, row.companies);
-                            }
-                        }
-                    });
-                    calculateTotals();
-                }
-            }, 50);
-        }
-
-        calculateTotals();
-    }
-
-    function saveDataToFirebase() {
-        const data = collectDataFromUI();
-        data.lastModified = Date.now();
-        saveToLocalStorage(data);
-
-        if (!firebaseReady) return;
-        const { db, doc, setDoc } = window.FB;
-        const reportDoc = doc(db, 'reports', 'current');
-        setDoc(reportDoc, data).then(() => {
-            setSyncStatus('online', '✅ Синхронизировано');
-        }).catch(err => {
-            console.error('Ошибка сохранения:', err);
-            setSyncStatus('offline', '📴 Нет интернета — сохраним позже');
-        });
-    }
-
-    function collectDataFromUI() {
-        const rows = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            const companies = getRowCompanies(idx);
-            rows.push({
-                station: tr.querySelector('.station-name').textContent,
-                out: tr.querySelector('.input-out')?.value || '',
-                bak: tr.querySelector('.input-bak')?.value || '',
-                companies: companies,
-                sht: tr.querySelector('.input-sht')?.value || ''
-            });
-        });
-        return {
-            date: document.getElementById('reportDate').value,
-            time: document.getElementById('reportTime').value,
-            totals: {
-                admin: document.getElementById('totalAdmin').value,
-                staff: document.getElementById('totalStaff').value,
-                out: document.getElementById('totalOut').value,
-                brig: document.getElementById('totalBrig').value
-            },
-            bstSort: document.getElementById('bstSort')?.value || '',
-            bstLoad: document.getElementById('bstLoad')?.value || '',
-            rows: rows,
-            stations: {
-                sort: SORT_ZONES,
-                load: LOAD_ZONES,
-                break: BREAK_ZONES
-            }
-        };
-    }
-
-    function saveToLocalStorage(data) {
-        localStorage.setItem('warehouseReport', JSON.stringify(data));
-        const indicator = document.getElementById('autosaveIndicator');
-        if (indicator) {
-            const now = new Date();
-            indicator.textContent = `💾 Сохранено в ${now.toTimeString().slice(0,5)}`;
-            setTimeout(() => { indicator.textContent = ''; }, 3000);
-        }
-    }
-
-    function loadFromLocalStorage() {
-        const saved = localStorage.getItem('warehouseReport');
-        if (!saved) return;
-        try {
-            const data = JSON.parse(saved);
-            applyDataToUI(data);
-        } catch (e) { console.error('Ошибка загрузки:', e); }
-    }
 
     // ============ РЕНДЕР ТАБЛИЦЫ ============
     function renderTable() {
@@ -1286,18 +1259,8 @@
         if (archive.length > 50) archive = archive.slice(0, 50);
         localStorage.setItem('warehouseArchive', JSON.stringify(archive));
         renderAnalytics();
-
-        if (firebaseReady) {
-            const { db, doc, setDoc } = window.FB;
-            setDoc(doc(db, 'reports', 'archive'), { archive: archive }).then(() => {
-                alert('✅ Отчет добавлен в архив и синхронизирован!');
-            }).catch(err => {
-                console.error('Ошибка сохранения архива:', err);
-                alert('✅ Отчет добавлен в локальный архив (синхронизация позже)');
-            });
-        } else {
-            alert('✅ Отчет добавлен в локальный архив');
-        }
+        saveDebounced();
+        alert('✅ Отчет добавлен в архив!');
     }
 
     function toggleAnalytics() {
@@ -1418,7 +1381,7 @@
             }
         });
         calculateTotals();
-        saveDataToFirebase();
+        saveDebounced();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         alert('✅ Отчет загружен!');
     }
@@ -1426,11 +1389,8 @@
     function clearArchive() {
         if (!confirm('Удалить весь архив?')) return;
         localStorage.removeItem('warehouseArchive');
-        if (firebaseReady) {
-            const { db, doc, setDoc } = window.FB;
-            setDoc(doc(db, 'reports', 'archive'), { archive: [] }).catch(err => console.error(err));
-        }
         renderAnalytics();
+        saveDebounced();
     }
 
     function clearData() {
@@ -1442,12 +1402,9 @@
                 list.querySelectorAll('.company-chip').forEach(c => c.remove());
             });
             localStorage.removeItem('warehouseReport');
-            if (firebaseReady) {
-                const { db, doc, setDoc } = window.FB;
-                setDoc(doc(db, 'reports', 'current'), {}).catch(err => console.error(err));
-            }
             calculateTotals();
             document.getElementById('autosaveIndicator').textContent = '';
+            saveDebounced();
         }
     }
 
