@@ -61,6 +61,22 @@
             color: white; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
         }
         .sidebar-btn:active { transform: scale(0.92); }
+        .sidebar-btn.confirm-btn {
+            background: linear-gradient(135deg, #4caf50, #0f5132);
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            animation: pulse 2s infinite;
+        }
+        .sidebar-btn.confirm-btn.saved {
+            background: linear-gradient(135deg, #2d333b, #1e2227);
+            color: var(--text-muted);
+            box-shadow: none;
+            animation: none;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(76, 175, 80, 0.8); }
+        }
         .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
         /* === ОСНОВНОЙ КОНТЕНТ === */
@@ -77,6 +93,7 @@
         .sync-online { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
         .sync-offline { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
         .sync-connecting { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+        .sync-unsaved { background: rgba(255, 152, 0, 0.15); color: #ff9800; border: 1px solid rgba(255, 152, 0, 0.3); }
 
         .tabs { display: none; gap: 6px; margin-bottom: 12px; background: var(--bg-card); padding: 4px; border-radius: 10px; }
         .tab-btn {
@@ -591,6 +608,7 @@
             <button class="sidebar-btn" onclick="exportCSV()" title="Excel">📥</button>
         </nav>
         <div class="sidebar-bottom">
+            <button class="sidebar-btn confirm-btn saved" id="confirmBtn" onclick="confirmSave()" title="Подтвердить изменения">✅</button>
             <button class="sidebar-btn" onclick="forceRefreshFromServer()" title="Обновить с сервера">🔄</button>
             <button class="sidebar-btn" onclick="toggleSnapshot()" title="Скриншот">📸</button>
             <button class="sidebar-btn" onclick="clearData()" title="Очистить" style="color: #ff6b6b;">🗑️</button>
@@ -779,13 +797,14 @@
     let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
     let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
     let saveTimer = null, syncTimer = null, isSaving = false;
-    let serverLoaded = false;  // Флаг: сервер загружен
+    let serverLoaded = false;
+    let hasUnsavedChanges = false;
 
     // ============ ВКЛАДКИ ============
     function switchTab(tab) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.sidebar-nav .sidebar-btn').forEach(el => el.classList.remove('active'));
 
         if (tab === 'report') {
             document.getElementById('tabReport').classList.add('active');
@@ -822,12 +841,33 @@
         el.textContent = text;
     }
 
+    function markUnsaved() {
+        hasUnsavedChanges = true;
+        setSyncStatus('unsaved', '⚠️ Есть несохранённые — нажмите ✅');
+        const btn = document.getElementById('confirmBtn');
+        if (btn) {
+            btn.classList.remove('saved');
+            btn.title = 'Есть несохранённые изменения — нажмите, чтобы сохранить';
+        }
+    }
+
+    function markSaved() {
+        hasUnsavedChanges = false;
+        setSyncStatus('online', '✅ Все изменения сохранены');
+        const btn = document.getElementById('confirmBtn');
+        if (btn) {
+            btn.classList.add('saved');
+            btn.title = 'Все изменения сохранены';
+        }
+    }
+
     // ============ ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ============
     async function forceRefreshFromServer() {
-        if (confirm('Обновить данные с сервера? Все несохранённые изменения будут потеряны.')) {
-            serverLoaded = false;
-            await loadFromServer();
+        if (hasUnsavedChanges) {
+            if (!confirm('Есть несохранённые изменения. Они будут потеряны. Продолжить?')) return;
         }
+        serverLoaded = false;
+        await loadFromServer();
     }
 
     // ============ СЕРВЕР ============
@@ -853,21 +893,20 @@
             }
             renderShipment();
             serverLoaded = true;
-            setSyncStatus('online', '✅ Синхронизировано');
+            markSaved();
+            saveDataToLocal();
         } catch (err) {
             console.error('Ошибка загрузки:', err);
             setSyncStatus('offline', '📴 Нет связи, работаем локально');
             serverLoaded = true;
+            markSaved();
         }
     }
 
     async function saveToServer() {
         if (isSaving) return;
-        if (!serverLoaded) {
-            console.log('⏸ Ждём загрузки сервера, откладываем сохранение');
-            return;
-        }
         isSaving = true;
+        setSyncStatus('connecting', '📤 Сохранение на сервер...');
         try {
             const payload = {
                 current: collectDataFromUI(),
@@ -883,18 +922,31 @@
                 body: JSON.stringify(payload)
             });
             if (!response.ok) throw new Error('HTTP ' + response.status);
-            setSyncStatus('online', '✅ Синхронизировано');
+            markSaved();
+            console.log('📤 Сохранено на сервер');
         } catch (err) {
             console.error('Ошибка сохранения:', err);
-            setSyncStatus('offline', '📴 Нет связи — сохраним позже');
+            setSyncStatus('offline', '📴 Ошибка сохранения — попробуйте ещё раз');
         } finally {
             isSaving = false;
         }
     }
 
+    async function confirmSave() {
+        if (!serverLoaded) {
+            alert('Подождите, идёт подключение к серверу...');
+            return;
+        }
+        saveDataToLocal();
+        await saveToServer();
+    }
+
     function saveDebounced() {
         if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => { saveDataToLocal(); saveToServer(); }, 800);
+        saveTimer = setTimeout(() => {
+            saveDataToLocal();
+            markUnsaved();
+        }, 300);
     }
 
     function startSyncLoop() {
@@ -902,6 +954,7 @@
         syncTimer = setInterval(async () => {
             if (isSaving) return;
             if (!serverLoaded) return;
+            if (hasUnsavedChanges) return;
             try {
                 const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!response.ok) return;
@@ -930,7 +983,8 @@
                         localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
                     }
                     renderShipment();
-                    setSyncStatus('online', '✅ Синхронизировано');
+                    markSaved();
+                    saveDataToLocal();
                 }
             } catch (err) {}
         }, SYNC_INTERVAL);
@@ -945,7 +999,7 @@
         const indicator = document.getElementById('autosaveIndicator');
         if (indicator) {
             const now = new Date();
-            indicator.textContent = `💾 Сохранено в ${now.toTimeString().slice(0,5)}`;
+            indicator.textContent = `💾 Локально сохранено в ${now.toTimeString().slice(0,5)}`;
             setTimeout(() => { indicator.textContent = ''; }, 2000);
         }
     }
@@ -1510,7 +1564,7 @@
         if (archive.length > 50) archive = archive.slice(0, 50);
         localStorage.setItem('warehouseArchive', JSON.stringify(archive));
         renderAnalytics(); saveDebounced();
-        alert('✅ Отчет добавлен в архив!');
+        alert('✅ Отчет добавлен в архив! Не забудьте нажать ✅ для синхронизации.');
     }
 
     function toggleAnalytics() {
@@ -1629,20 +1683,15 @@
 
     function clearData() {
         if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
-            // Обнуляем все видимые инпуты
             document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
-            // Обнуляем скрытые поля сверки
             document.getElementById('totalAdmin').value = '0';
             document.getElementById('totalStaff').value = '0';
             document.getElementById('totalOut').value = '0';
             document.getElementById('totalBrig').value = '0';
-            // Удаляем чипсы компаний
             document.querySelectorAll('.companies-list').forEach(list => {
                 list.querySelectorAll('.company-chip').forEach(c => c.remove());
             });
-            // Удаляем сохранённые данные
             localStorage.removeItem('warehouseReport');
-            // Пересчитываем
             calculateTotals();
             document.getElementById('autosaveIndicator').textContent = '🧹 Очищено';
             setTimeout(() => { document.getElementById('autosaveIndicator').textContent = ''; }, 2000);
