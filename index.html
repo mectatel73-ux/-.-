@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
 
-    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" content="#1a1d21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Отчет склада">
@@ -18,69 +18,265 @@
 
     <style>
         * { box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #1a1d21;
+            --bg-card: #252a31;
+            --bg-elevated: #2d333b;
+            --bg-input: #1e2227;
+            --accent: #4fc3f7;
+            --accent-hover: #29b6f6;
+            --accent-dark: #0288d1;
+            --text: #e4e6eb;
+            --text-dim: #9aa0a6;
+            --text-muted: #6c757d;
+            --border: #353b44;
+            --success: #4caf50;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #2196f3;
+            --purple: #6f42c1;
+        }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #e9ecef; 
+            background: var(--bg-dark); 
+            color: var(--text);
             margin: 0; 
-            padding: 8px; 
+            padding: 0; 
             font-size: 14px; 
             -webkit-tap-highlight-color: transparent;
             -webkit-text-size-adjust: 100%;
+            min-height: 100vh;
         }
+
+        /* === КОНТЕЙНЕР С БОКОВОЙ ПАНЕЛЬЮ === */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* === БОКОВАЯ ПАНЕЛЬ === */
+        .sidebar {
+            width: 70px;
+            background: #16191d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        .sidebar-logo:active { transform: scale(0.95); }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            align-items: center;
+        }
+
+        .sidebar-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+            transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sidebar-btn:hover {
+            background: rgba(79, 195, 247, 0.1);
+            color: var(--accent);
+        }
+        .sidebar-btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+        }
+        .sidebar-btn:active { transform: scale(0.92); }
+
+        .sidebar-btn .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--danger);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* === ОСНОВНОЙ КОНТЕНТ === */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            max-width: calc(100% - 70px);
+            overflow-x: hidden;
+        }
+
         .container { 
             max-width: 1100px; 
             margin: auto; 
-            background: white; 
-            padding: 12px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
-        h2 { text-align: center; margin: 0 0 12px 0; color: #333; font-size: 18px; }
+
+        h2 { 
+            text-align: center; 
+            margin: 0 0 16px 0; 
+            color: var(--text); 
+            font-size: 20px;
+            font-weight: 600;
+        }
 
         .sync-status {
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            padding: 6px;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 12px;
             transition: 0.3s;
         }
-        .sync-online { background: #d1e7dd; color: #0f5132; }
-        .sync-offline { background: #f8d7da; color: #842029; }
-        .sync-connecting { background: #fff3cd; color: #664d03; }
+        .sync-online { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
+        .sync-offline { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
+        .sync-connecting { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+
+        /* === ВКЛАДКИ (мобильные) === */
+        .tabs {
+            display: none;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            min-height: 44px;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .date-time-row {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
-        .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 4px; }
-        .date-time-row input { padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+        .date-time-row label { 
+            font-size: 13px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        .date-time-row input { 
+            padding: 8px 10px; 
+            font-size: 13px; 
+            background: var(--bg-input); 
+            color: var(--text);
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+        }
+        .date-time-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
 
         .table-wrap { 
             overflow-x: auto; 
             -webkit-overflow-scrolling: touch; 
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             width: 100%;
+            border-radius: 12px;
+            background: var(--bg-card);
         }
 
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
-        th { background-color: #4CAF50; color: white; font-weight: 600; font-size: 12px; padding: 8px 4px; white-space: nowrap; }
+        th, td { 
+            border: 1px solid var(--border); 
+            padding: 6px; 
+            text-align: center; 
+            vertical-align: middle; 
+        }
+        th { 
+            background: linear-gradient(135deg, #2d333b, #252a31);
+            color: var(--accent); 
+            font-weight: 600; 
+            font-size: 12px; 
+            padding: 10px 4px; 
+            white-space: nowrap;
+            border-bottom: 2px solid var(--accent);
+        }
         .station-name { 
             text-align: left; 
             font-weight: 600; 
-            background-color: #f8f9fa; 
+            background: #1e2227; 
+            color: var(--text);
             font-size: 13px; 
             white-space: nowrap; 
-            padding: 6px 8px;
+            padding: 8px 10px;
             cursor: pointer;
             position: relative;
+            transition: 0.2s;
         }
-        .station-name:hover, .station-name:active { background-color: #e2e6ea; }
+        .station-name:hover, .station-name:active { 
+            background: #262b31;
+            color: var(--accent);
+        }
         .station-name.editing { padding: 0; background: #fff3cd; }
         .station-name input {
             width: 100%;
@@ -90,275 +286,703 @@
             font-size: 13px;
             font-weight: 600;
             font-family: inherit;
-            outline: 2px solid #ffc107;
+            outline: 2px solid var(--accent);
             border-radius: 3px;
+            color: #333;
         }
-        .zone-sort { background-color: #f0f7ff; }
-        .zone-load { background-color: #fff7e6; }
-        .zone-break { background-color: #f5f5f5; }
+        .zone-sort { background: #1e2227; }
+        .zone-load { background: #23272b; }
+        .zone-break { background: #1a1d21; }
 
         .stepper {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 3px;
+            gap: 4px;
             user-select: none;
         }
         .stepper .btn-minus {
-            width: 34px; height: 34px; border: none; border-radius: 6px;
+            width: 34px; height: 34px; border: none; border-radius: 8px;
             font-size: 20px; font-weight: 700; cursor: pointer; color: white;
             padding: 0; margin: 0; display: inline-flex; align-items: center;
             justify-content: center; flex-shrink: 0;
-            background: rgba(220, 53, 69, 0.75); line-height: 1; font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            line-height: 1; font-family: Arial, sans-serif;
+            transition: 0.15s;
         }
         .stepper .btn-plus {
-            width: 34px; height: 34px; border: none; border-radius: 6px;
+            width: 34px; height: 34px; border: none; border-radius: 8px;
             font-size: 20px; font-weight: 700; cursor: pointer; color: white;
             padding: 0; margin: 0; display: inline-flex; align-items: center;
             justify-content: center; flex-shrink: 0;
-            background: rgba(25, 135, 84, 0.75); line-height: 1; font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #198754, #0f5132);
+            line-height: 1; font-family: Arial, sans-serif;
+            transition: 0.15s;
         }
         .stepper .btn-minus:active, .stepper .btn-plus:active { transform: scale(0.9); }
 
         .stepper input {
-            width: 40px; height: 34px; text-align: center;
-            border: 1px solid #ccc; border-radius: 6px;
-            font-size: 16px; font-weight: 700; padding: 0; background: white; margin: 0;
+            width: 42px; height: 34px; text-align: center;
+            background: var(--bg-input); 
+            color: var(--text);
+            border: 1px solid var(--border); 
+            border-radius: 8px;
+            font-size: 15px; font-weight: 700; padding: 0; margin: 0;
         }
         .stepper input::-webkit-outer-spin-button,
         .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .stepper input[type=number] { -moz-appearance: textfield; }
 
-        .total-row { font-weight: 700; background-color: #d1e7dd; }
-        .total-row td { border-top: 2px solid #000; padding: 8px 4px; }
+        .total-row { font-weight: 700; background: linear-gradient(135deg, #2d333b, #252a31); }
+        .total-row td { 
+            border-top: 2px solid var(--accent); 
+            padding: 10px 4px; 
+            color: var(--accent);
+            font-size: 15px;
+        }
 
         .brig-cell { vertical-align: middle; padding: 10px 6px; text-align: center; }
-        .brig-cell.sort { background-color: #cfe2ff; }
-        .brig-cell.load { background-color: #ffd8a8; }
-        .brig-cell .stepper input { width: 60px; height: 44px; font-size: 22px; border: 2px solid #555; }
+        .brig-cell.sort { background: linear-gradient(135deg, #1a3a5c, #1e4976); }
+        .brig-cell.load { background: linear-gradient(135deg, #5c3a1a, #76491e); }
+        .brig-cell .stepper input { width: 64px; height: 46px; font-size: 22px; border: 2px solid var(--accent); }
         .brig-cell .stepper .btn-minus,
-        .brig-cell .stepper .btn-plus { width: 44px; height: 44px; font-size: 24px; }
+        .brig-cell .stepper .btn-plus { width: 46px; height: 46px; font-size: 24px; }
 
-        .companies-cell { text-align: left; padding: 4px 6px; vertical-align: top; min-width: 180px; }
+        .companies-cell { text-align: left; padding: 6px 8px; vertical-align: top; min-width: 180px; }
         .companies-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .company-chip {
             display: inline-flex; align-items: center; gap: 4px;
-            background: #e3f2fd; color: #0d47a1;
-            border: 1px solid #90caf9; border-radius: 14px;
-            padding: 4px 8px; font-size: 12px; font-weight: 600; white-space: nowrap;
+            background: rgba(79, 195, 247, 0.15); 
+            color: var(--accent);
+            border: 1px solid rgba(79, 195, 247, 0.4); 
+            border-radius: 14px;
+            padding: 4px 10px; font-size: 12px; font-weight: 600; white-space: nowrap;
         }
         .company-chip .remove-chip {
-            cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 16px;
+            cursor: pointer; color: #ff6b6b; font-weight: bold; font-size: 16px;
             line-height: 1; margin-left: 2px; padding: 0 4px;
-            border-radius: 50%; background: rgba(255,255,255,0.5);
+            border-radius: 50%; 
             min-width: 20px; text-align: center;
+            transition: 0.15s;
         }
-        .company-chip .remove-chip:active { background: #ffcdd2; }
+        .company-chip .remove-chip:active { background: rgba(255, 107, 107, 0.3); }
         .add-company-btn {
             display: inline-flex; align-items: center; justify-content: center;
-            background: #4CAF50; color: white; border: none;
-            border-radius: 14px; padding: 6px 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none;
+            border-radius: 14px; padding: 6px 14px;
             font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
             min-height: 32px;
+            transition: 0.15s;
+            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
         }
-        .add-company-btn:active { background: #388e3c; }
+        .add-company-btn:active { transform: scale(0.95); }
 
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 10000;
-            align-items: center; justify-content: center; padding: 20px;
+        /* === ОТГРУЗКА === */
+        .shipment-top {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
         }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: white; border-radius: 12px; padding: 20px;
-            max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        .shipment-top h3 {
+            margin: 0 0 12px 0;
+            color: var(--warning);
+            font-size: 15px;
         }
-        .modal h3 { margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center; }
-        .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .shipment-top-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .shipment-top-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .shipment-top-item.rank-1 { background: linear-gradient(135deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
+        .shipment-top-item.rank-2 { background: linear-gradient(135deg, #ffc107, #e0a800); color: #333; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
+        .shipment-top-item.rank-3 { background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2)); color: var(--warning); border: 1px solid var(--warning); }
+        .shipment-top-item .rank-dir { flex: 1; text-align: left; }
+        .shipment-top-item .rank-sum { font-size: 18px; font-weight: 800; }
+        .shipment-top-item .rank-details { font-size: 11px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
+
+        .shipment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .shipment-table th {
+            background: linear-gradient(135deg, #2d333b, #252a31);
+            color: var(--accent);
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+        }
+        .shipment-table td {
+            border: 1px solid var(--border);
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text);
+        }
+        .shipment-table td.dir-name {
+            text-align: left;
+            font-weight: 700;
+            background: #1e2227;
+            padding: 10px 12px;
+            color: var(--text);
+        }
+        .shipment-table td.sum-cell {
+            font-weight: 800;
+            background: rgba(79, 195, 247, 0.1);
+            color: var(--accent);
+            font-size: 16px;
+        }
+        .shipment-table tr.rank-1 { background: rgba(220, 53, 69, 0.1); }
+        .shipment-table tr.rank-2 { background: rgba(255, 193, 7, 0.08); }
+        .shipment-table tr.rank-3 { background: rgba(255, 193, 7, 0.04); }
+
+        .ship-btn-add {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 40px;
+            min-width: 90px;
+            transition: 0.15s;
+            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+        }
+        .ship-btn-add:active { transform: scale(0.95); }
+        .ship-btn-reset {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 40px;
+            margin-left: 6px;
+            transition: 0.15s;
+        }
+        .ship-btn-reset:active { transform: scale(0.95); }
+
+        .shipment-history {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 16px;
+        }
+        .shipment-history h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shipment-history h3 button {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--text-dim);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item .h-time { color: var(--accent); font-weight: 700; }
+        .history-item .h-text { flex: 1; text-align: right; color: var(--text); }
+
+        /* === МОДАЛЬНЫЕ ОКНА === */
+        .modal-overlay, .shipment-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active, .shipment-modal.active { display: flex; }
+
+        .modal, .shipment-modal-content {
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid var(--border);
+        }
+        .modal h3, .shipment-modal-content h3 { 
+            margin: 0 0 16px 0; 
+            color: var(--text); 
+            font-size: 18px; 
+            text-align: center; 
+            font-weight: 700;
+        }
+        .shipment-modal-content .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .modal-company-list { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+        }
         .modal-company-item {
-            padding: 14px 8px; background: #f5f5f5; border: 2px solid transparent;
-            border-radius: 8px; text-align: center; font-weight: 600;
-            font-size: 14px; cursor: pointer; user-select: none;
-            min-height: 48px;
-            display: flex; align-items: center; justify-content: center;
+            padding: 14px 10px; 
+            background: var(--bg-input); 
+            color: var(--text);
+            border: 2px solid transparent;
+            border-radius: 10px; 
+            text-align: center; 
+            font-weight: 600;
+            font-size: 14px; 
+            cursor: pointer; 
+            user-select: none;
+            min-height: 52px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            transition: 0.15s;
         }
-        .modal-company-item:hover { background: #e0e0e0; }
-        .modal-company-item.selected { background: #c8e6c9; border-color: #4CAF50; color: #1b5e20; }
+        .modal-company-item:hover { background: #353b44; }
+        .modal-company-item.selected { 
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+        }
 
         .modal-add-company {
             display: flex;
-            gap: 6px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid #eee;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
         }
         .modal-add-company input {
             flex: 1;
             padding: 12px 14px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             font-size: 14px;
-            min-height: 46px;
+            min-height: 48px;
         }
+        .modal-add-company input:focus { outline: none; border-color: var(--accent); }
         .modal-add-company button {
-            padding: 12px 16px;
-            background: #4CAF50;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            min-height: 46px;
+            min-height: 48px;
             white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
         }
         .modal-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 10px;
+            margin-top: 16px;
         }
         .modal-actions button {
             flex: 1;
-            padding: 12px 20px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             color: white;
-            min-height: 46px;
+            min-height: 50px;
+            transition: 0.15s;
         }
-        .modal-close-btn { background: #dc3545; }
-        .modal-reset-btn { background: #6c757d; }
+        .modal-close-btn { 
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+        }
+        .modal-reset-btn { 
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        .modal-actions button:active { transform: scale(0.97); }
 
-        .grand-total-box { 
-            background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; 
-            padding: 10px; margin-bottom: 12px; text-align: center; 
-            font-size: 14px; font-weight: 700; color: #0f5132; 
+        .shipment-modal-content label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dim);
+            margin-top: 14px;
+            margin-bottom: 6px;
         }
-        .grand-total-box span { font-size: 22px; color: #0a3622; }
+        .shipment-modal-content input {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-weight: 700;
+            text-align: center;
+            min-height: 52px;
+        }
+        .shipment-modal-content input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.15);
+        }
+        .shipment-modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .shipment-modal-buttons button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 50px;
+            transition: 0.15s;
+        }
+        .ship-modal-btn-save {
+            background: linear-gradient(135deg, var(--success), #0f5132);
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .ship-modal-btn-cancel {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        /* === БОЛЬШИЕ БЛОКИ === */
+        .grand-total-box { 
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(3, 169, 244, 0.08));
+            border: 2px solid var(--accent);
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 14px; 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: var(--accent);
+        }
+        .grand-total-box span { font-size: 26px; color: white; }
 
         .reconciliation-box { 
-            background: #fff3cd; border: 1px solid #ffe69c; 
-            border-radius: 6px; padding: 12px; margin-bottom: 12px; 
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px; 
+            margin-bottom: 14px; 
         }
-        .reconciliation-box h3 { margin: 0 0 10px 0; color: #664d03; font-size: 15px; }
+        .reconciliation-box h3 { 
+            margin: 0 0 12px 0; 
+            color: var(--accent);
+            font-size: 15px; 
+        }
         .rec-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 8px; margin-bottom: 8px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 10px; 
         }
         .rec-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            gap: 6px; font-weight: 600; font-size: 14px;
-            background: rgba(255,255,255,0.5); padding: 6px 8px; border-radius: 5px;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 8px; 
+            font-weight: 600; 
+            font-size: 14px;
+            background: var(--bg-input); 
+            color: var(--text);
+            padding: 8px 12px; 
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
-        .rec-item.admin { opacity: 0.75; }
+        .rec-item.admin { opacity: 0.7; }
         .rec-status { 
-            margin-top: 10px; font-size: 13px; font-weight: 700; 
-            padding: 10px; border-radius: 4px; line-height: 1.5; 
+            margin-top: 12px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            padding: 12px; 
+            border-radius: 8px; 
+            line-height: 1.5; 
         }
-        .status-ok { color: #0f5132; background: #d1e7dd; }
-        .status-error { color: #842029; background: #f8d7da; }
-        .status-neutral { color: #664d03; background: #fff3cd; }
+        .status-ok { 
+            color: #4caf50; 
+            background: rgba(76, 175, 80, 0.12);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        .status-error { 
+            color: #ff6b6b; 
+            background: rgba(220, 53, 69, 0.12);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        .status-neutral { 
+            color: #ffc107; 
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
         .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
 
-        .analytics-box { background: #e7f1ff; border: 2px solid #0d6efd; border-radius: 8px; padding: 12px; margin-top: 20px; }
-        .analytics-box h3 { margin: 0; color: #084298; font-size: 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .analytics-box { 
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-top: 20px; 
+        }
+        .analytics-box h3 { 
+            margin: 0; 
+            color: var(--accent); 
+            font-size: 16px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            cursor: pointer; 
+            user-select: none; 
+        }
         .analytics-box h3 .arrow { transition: transform 0.3s; display: inline-block; }
         .analytics-box h3.collapsed .arrow { transform: rotate(-90deg); }
-        .analytics-content { margin-top: 12px; }
+        .analytics-content { margin-top: 14px; }
         .analytics-content.hidden { display: none; }
 
-        .analytics-section { background: white; border-radius: 6px; padding: 10px; margin-bottom: 10px; border-left: 4px solid #0d6efd; }
-        .analytics-section h4 { margin: 0 0 8px 0; font-size: 13px; color: #084298; }
+        .analytics-section { 
+            background: var(--bg-input);
+            border-radius: 10px; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+            border-left: 4px solid var(--accent);
+        }
+        .analytics-section h4 { 
+            margin: 0 0 10px 0; 
+            font-size: 13px; 
+            color: var(--accent); 
+        }
 
         .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-        .history-table th { background: #0d6efd; color: white; padding: 5px; font-size: 11px; }
-        .history-table td { padding: 5px; border-bottom: 1px solid #eee; }
-        .diff-positive { color: #198754; font-weight: bold; }
-        .diff-negative { color: #dc3545; font-weight: bold; }
-        .diff-zero { color: #666; }
+        .history-table th { 
+            background: var(--bg-elevated);
+            color: var(--accent); 
+            padding: 8px; 
+            font-size: 11px; 
+            border-radius: 6px;
+        }
+        .history-table td { 
+            padding: 8px; 
+            border-bottom: 1px solid var(--border); 
+            color: var(--text);
+        }
+        .diff-positive { color: #4caf50; font-weight: bold; }
+        .diff-negative { color: #ff6b6b; font-weight: bold; }
+        .diff-zero { color: var(--text-muted); }
 
         .top-zones-list { list-style: none; padding: 0; margin: 0; }
-        .top-zones-list li { padding: 6px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 12px; }
+        .top-zones-list li { 
+            padding: 8px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 12px; 
+            color: var(--text);
+        }
         .top-zones-list li:last-child { border-bottom: none; }
-        .top-zones-list .zone-bar { display: inline-block; height: 8px; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+        .top-zones-list .zone-bar { 
+            display: inline-block; 
+            height: 8px; 
+            background: linear-gradient(90deg, var(--accent), #26c6da); 
+            border-radius: 4px; 
+            margin-right: 8px; 
+            vertical-align: middle; 
+        }
         .top-zones-list .zone-name { font-weight: 600; }
 
-        .compare-item { padding: 5px 0; font-size: 12px; border-bottom: 1px dashed #ddd; display: flex; justify-content: space-between; }
+        .compare-item { 
+            padding: 6px 0; 
+            font-size: 12px; 
+            border-bottom: 1px dashed var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            color: var(--text-dim);
+        }
         .compare-item:last-child { border-bottom: none; }
 
-        .archive-item { padding: 6px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 6px; }
+        .archive-item { 
+            padding: 8px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-size: 12px; 
+            gap: 8px;
+            color: var(--text);
+        }
         .archive-item:last-child { border-bottom: none; }
-        .archive-item button { padding: 6px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; color: white; background: #0d6efd; flex: none; min-height: 32px; }
+        .archive-item button { 
+            padding: 6px 12px; 
+            font-size: 12px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            color: white; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            flex: none; 
+            min-height: 32px;
+            font-weight: 600;
+        }
 
-        .buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
-        .buttons button { padding: 14px 8px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; color: white; font-weight: 700; min-height: 48px; }
-        .btn-save { background-color: #0d6efd; }
-        .btn-export { background-color: #198754; }
-        .btn-img { background-color: #6f42c1; }
-        .btn-clear { background-color: #dc3545; }
+        .buttons { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+            margin-top: 16px; 
+        }
+        .buttons button { 
+            padding: 14px 8px; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: 700; 
+            min-height: 50px;
+            transition: 0.15s;
+        }
+        .buttons button:active { transform: scale(0.97); }
+        .btn-save { 
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+        .btn-export { 
+            background: linear-gradient(135deg, var(--success), #0f5132);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .btn-img { 
+            background: linear-gradient(135deg, var(--purple), #553098);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+        }
+        .btn-clear { 
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
 
-        .autosave-indicator { font-size: 12px; color: #198754; text-align: center; margin-top: 6px; height: 15px; font-weight: 600; }
+        .autosave-indicator { 
+            font-size: 12px; 
+            color: var(--accent); 
+            text-align: center; 
+            margin-top: 8px; 
+            height: 15px; 
+            font-weight: 600; 
+        }
 
         .zoom-panel {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px;
-            background: #f1f3f5;
-            border-radius: 8px;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-dim);
             flex-wrap: wrap;
+            border: 1px solid var(--border);
         }
         .zoom-label { margin-right: 4px; }
         .zoom-btn {
-            width: 42px; height: 42px;
-            border: none; border-radius: 8px;
-            background: #6f42c1; color: white;
+            width: 44px; height: 44px;
+            border: none; border-radius: 10px;
+            background: linear-gradient(135deg, var(--purple), #553098);
+            color: white;
             font-size: 22px; font-weight: 700;
             cursor: pointer; line-height: 1;
             display: inline-flex; align-items: center; justify-content: center;
+            transition: 0.15s;
         }
         .zoom-btn:active { transform: scale(0.9); }
         .zoom-value {
-            min-width: 55px;
+            min-width: 60px;
             text-align: center;
             font-size: 15px;
             font-weight: 700;
-            color: #6f42c1;
+            color: var(--accent);
         }
         .zoom-reset {
-            padding: 10px 14px;
-            border: 1px solid #6f42c1;
-            background: white; color: #6f42c1;
-            border-radius: 8px; font-size: 13px;
-            font-weight: 700; cursor: pointer;
+            padding: 12px 16px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            border-radius: 10px; 
+            font-size: 13px;
+            font-weight: 700; 
+            cursor: pointer;
             margin-left: 6px;
-            min-height: 42px;
+            min-height: 44px;
+            transition: 0.15s;
         }
-        .zoom-reset:active { background: #f3e8ff; }
+        .zoom-reset:active { background: rgba(79, 195, 247, 0.15); }
 
         .install-btn { 
-            position: fixed; bottom: 15px; right: 15px; 
-            background: #4CAF50; color: white; border: none; 
-            border-radius: 50px; padding: 12px 20px; font-size: 14px; 
+            position: fixed; bottom: 20px; right: 20px; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none; 
+            border-radius: 50px; padding: 14px 24px; font-size: 14px; 
             font-weight: 700; cursor: pointer; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            box-shadow: 0 8px 24px rgba(79, 195, 247, 0.4); 
             display: none; z-index: 9999; 
         }
 
+        /* === РЕЖИМ СКРИНА === */
         body.snapshot-mode .stepper .btn-minus,
         body.snapshot-mode .stepper .btn-plus { 
             visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
         }
         body.snapshot-mode .stepper { gap: 0; }
-        body.snapshot-mode .stepper input { border: 1px solid #999; background: #ffffff; }
         body.snapshot-mode .add-company-btn { display: none !important; }
         body.snapshot-mode .company-chip .remove-chip { display: none !important; }
         body.snapshot-mode .buttons,
@@ -366,17 +990,25 @@
         body.snapshot-mode .autosave-indicator,
         body.snapshot-mode .analytics-box,
         body.snapshot-mode .date-time-row,
-        body.snapshot-mode .sync-status { 
+        body.snapshot-mode .sync-status,
+        body.snapshot-mode .sidebar,
+        body.snapshot-mode .zoom-panel,
+        body.snapshot-mode .tabs { 
             display: none !important; 
         }
         body.snapshot-mode .snapshot-hint { display: block !important; }
+        body.snapshot-mode .main-content { 
+            max-width: 100%; 
+            padding: 6px; 
+        }
+        body.snapshot-mode .app-layout { display: block; }
 
         body.snapshot-mode .table-wrap { overflow: visible !important; }
         body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
         body.snapshot-mode th { font-size: 9px !important; padding: 4px 2px !important; white-space: normal !important; word-break: break-word !important; }
         body.snapshot-mode td { padding: 2px 1px !important; }
         body.snapshot-mode .station-name { font-size: 10px !important; padding: 3px 3px !important; white-space: normal !important; word-break: break-word !important; max-width: 70px !important; cursor: default !important; }
-        body.snapshot-mode .stepper input { width: 28px !important; height: 26px !important; font-size: 12px !important; border: 1px solid #999 !important; }
+        body.snapshot-mode .stepper input { width: 28px !important; height: 26px !important; font-size: 12px !important; }
         body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 2px 2px !important; }
         body.snapshot-mode .company-chip { font-size: 9px !important; padding: 2px 4px !important; border-radius: 8px !important; }
         body.snapshot-mode .brig-cell .stepper input { width: 32px !important; height: 28px !important; font-size: 14px !important; }
@@ -387,202 +1019,270 @@
         body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 4px !important; }
         body.snapshot-mode .rec-item { font-size: 11px !important; padding: 4px 6px !important; }
         body.snapshot-mode .rec-status { font-size: 11px !important; padding: 6px !important; }
-        body.snapshot-mode .container { padding: 6px !important; }
         body.snapshot-mode h2 { font-size: 14px !important; margin-bottom: 6px !important; }
+        body.snapshot-mode .shipment-top { padding: 8px !important; margin-bottom: 8px !important; }
+        body.snapshot-mode .shipment-table th { font-size: 9px !important; padding: 4px 2px !important; }
+        body.snapshot-mode .shipment-table td { font-size: 11px !important; padding: 4px 2px !important; }
+        body.snapshot-mode .shipment-table td.dir-name { font-size: 10px !important; padding: 4px 5px !important; }
+        body.snapshot-mode .ship-btn-add, body.snapshot-mode .ship-btn-reset { display: none !important; }
 
         .snapshot-hint {
             display: none;
-            background: #fff3cd; border: 2px solid #ffc107; color: #664d03;
-            padding: 14px; border-radius: 8px; text-align: center;
-            font-weight: 700; font-size: 14px; margin-bottom: 12px;
-            cursor: pointer; user-select: none;
+            background: rgba(255, 193, 7, 0.15);
+            border: 2px solid var(--warning);
+            color: var(--warning);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            user-select: none;
         }
-        .snapshot-hint:hover { background: #ffe69c; }
-        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: #666; }
+        .snapshot-hint:hover { background: rgba(255, 193, 7, 0.25); }
+        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: var(--text-dim); }
 
+        /* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
         @media (max-width: 768px) {
-            body { padding: 5px; }
-            .container { padding: 8px; border-radius: 6px; }
-            h2 { font-size: 16px; margin-bottom: 8px; }
-            .date-time-row { gap: 8px; }
+            .sidebar {
+                width: 60px;
+                padding: 8px 0;
+            }
+            .sidebar-logo {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-bottom: 14px;
+            }
+            .sidebar-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 10px;
+                max-width: calc(100% - 60px);
+            }
+            .tabs {
+                display: flex;
+            }
+            h2 { font-size: 17px; margin-bottom: 12px; }
+            .date-time-row { gap: 8px; margin-bottom: 12px; }
             .date-time-row label { font-size: 12px; }
-            .date-time-row input { padding: 5px; font-size: 12px; }
+            .date-time-row input { padding: 6px 8px; font-size: 12px; }
             th { font-size: 11px; padding: 6px 3px; }
             .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
             .stepper { gap: 2px; }
-            .stepper .btn-minus, .stepper .btn-plus { width: 34px; height: 34px; font-size: 18px; border-radius: 6px; }
-            .stepper input { width: 40px; height: 34px; font-size: 15px; border-radius: 6px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
+            .stepper input { width: 38px; height: 32px; font-size: 14px; border-radius: 6px; }
             .brig-cell { padding: 6px 3px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 38px; height: 38px; font-size: 20px; }
-            .brig-cell .stepper input { width: 52px; height: 38px; font-size: 18px; }
-            .grand-total-box { padding: 8px; font-size: 13px; }
-            .grand-total-box span { font-size: 20px; }
-            .reconciliation-box { padding: 10px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 19px; }
+            .brig-cell .stepper input { width: 50px; height: 36px; font-size: 17px; }
+            .grand-total-box { padding: 12px; font-size: 13px; }
+            .grand-total-box span { font-size: 22px; }
+            .reconciliation-box { padding: 12px; }
             .reconciliation-box h3 { font-size: 14px; }
             .rec-grid { grid-template-columns: 1fr; gap: 6px; }
-            .rec-item { font-size: 13px; padding: 5px 8px; }
-            .rec-status { font-size: 12px; padding: 8px; }
-            .buttons { gap: 6px; }
-            .buttons button { padding: 12px 6px; font-size: 13px; min-height: 46px; }
-            table { min-width: 750px; }
+            .rec-item { font-size: 13px; padding: 6px 10px; }
+            .rec-status { font-size: 12px; padding: 10px; }
+            .buttons { gap: 8px; }
+            .buttons button { padding: 12px 6px; font-size: 13px; min-height: 48px; }
+            table { min-width: 720px; }
             .company-chip { font-size: 11px; padding: 4px 8px; }
             .add-company-btn { font-size: 11px; padding: 6px 10px; }
-            .modal { padding: 16px; }
-            .modal-company-list { gap: 6px; }
-            .modal-company-item { padding: 12px 6px; font-size: 13px; min-height: 46px; }
+            .modal, .shipment-modal-content { padding: 20px; }
+            .modal-company-list { gap: 8px; }
+            .modal-company-item { padding: 12px 6px; font-size: 13px; min-height: 48px; }
             .modal-add-company { flex-direction: column; }
-            .modal-add-company input,
-            .modal-add-company button { width: 100%; }
+            .modal-add-company input, .modal-add-company button { width: 100%; }
             .modal-actions { flex-direction: column; }
             .modal-actions button { width: 100%; }
+            .shipment-table th { font-size: 10px; padding: 6px 3px; }
+            .shipment-table td { font-size: 12px; padding: 6px 3px; }
+            .shipment-table td.dir-name { font-size: 12px; padding: 8px; }
+            .ship-btn-add { padding: 6px 10px; font-size: 12px; min-width: 70px; min-height: 36px; }
+            .ship-btn-reset { padding: 6px 8px; font-size: 11px; min-height: 36px; }
         }
 
         @media (max-width: 480px) {
-            .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
-            .stepper input { width: 36px; height: 32px; font-size: 14px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 34px; height: 34px; font-size: 18px; }
-            .brig-cell .stepper input { width: 48px; height: 34px; font-size: 16px; }
-            .station-name { max-width: 80px; font-size: 10px; }
+            .sidebar { width: 54px; }
+            .sidebar-btn { width: 40px; height: 40px; font-size: 18px; }
+            .sidebar-logo { width: 36px; height: 36px; font-size: 18px; }
+            .main-content { padding: 8px; max-width: calc(100% - 54px); }
+            .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
+            .stepper input { width: 34px; height: 30px; font-size: 13px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
+            .brig-cell .stepper input { width: 44px; height: 32px; font-size: 15px; }
+            .station-name { max-width: 75px; font-size: 10px; }
             th { font-size: 10px; }
             .modal-company-list { grid-template-columns: 1fr; }
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            body { padding: 4px; font-size: 11px; }
-            .container { padding: 6px; max-width: 100%; }
-            h2 { font-size: 14px; margin-bottom: 6px; }
-            .date-time-row { margin-bottom: 6px; gap: 8px; }
-            .date-time-row label { font-size: 11px; }
-            .date-time-row input { padding: 3px; font-size: 11px; }
-            .grand-total-box { padding: 6px; font-size: 12px; margin-bottom: 6px; }
-            .grand-total-box span { font-size: 16px; }
-            .grand-total-box div { font-size: 10px !important; }
-            .reconciliation-box { padding: 6px; margin-bottom: 6px; }
-            .reconciliation-box h3 { font-size: 12px; margin-bottom: 6px; }
-            .rec-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-            .rec-item { font-size: 11px; padding: 3px 5px; gap: 3px; }
-            .rec-status { font-size: 11px; padding: 6px; margin-top: 6px; }
-            .table-wrap { overflow: visible; margin-bottom: 6px; }
-            table { min-width: auto; width: 100%; table-layout: fixed; }
-            th { font-size: 9px; padding: 3px 1px; }
-            td { padding: 2px 1px; }
-            .station-name { font-size: 9px; padding: 2px 3px; white-space: normal; word-break: break-word; }
-            .stepper { gap: 1px; }
-            .stepper .btn-minus, .stepper .btn-plus { width: 18px; height: 20px; font-size: 12px; border-radius: 3px; }
-            .stepper input { width: 24px; height: 20px; font-size: 11px; border-radius: 3px; }
-            .brig-cell { padding: 2px 1px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 22px; height: 24px; font-size: 14px; }
-            .brig-cell .stepper input { width: 30px; height: 24px; font-size: 13px; border: 1px solid #555; }
-            .total-row td { padding: 4px 1px; font-size: 11px; }
-            .buttons { gap: 4px; margin-top: 8px; }
-            .buttons button { padding: 8px 4px; font-size: 11px; }
-            .autosave-indicator { font-size: 10px; margin-top: 3px; }
-            .analytics-box { padding: 8px; margin-top: 10px; }
-            .analytics-box h3 { font-size: 13px; }
-            .analytics-section { padding: 8px; margin-bottom: 6px; }
-            .analytics-section h4 { font-size: 12px; }
-            .companies-cell { min-width: 120px; padding: 2px 3px; }
-            .company-chip { font-size: 9px; padding: 2px 5px; }
-            .add-company-btn { font-size: 9px; padding: 3px 6px; }
+            .shipment-top-item { padding: 8px 10px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="captureArea">
-    <h2>📦 Отчет по складу</h2>
-
-    <div class="sync-status sync-connecting" id="syncStatus">🔄 Подключение к серверу...</div>
-
-    <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
-        📸 <b>Готово к скриншоту!</b>
-        <small>Сделайте скриншот телефона. Нажмите сюда, чтобы вернуть кнопки.</small>
-    </div>
-
-    <div class="date-time-row">
-        <label>Дата: <input type="date" id="reportDate"></label>
-        <label>Время: <input type="time" id="reportTime"></label>
-    </div>
-
-    <div class="grand-total-box">
-        Итого человек на смене: <span id="grandTotal">0</span> чел.
-        <div style="font-size: 11px; font-weight: 400; margin-top: 3px;">(включая админку — для справки, в сверке не участвует)</div>
-    </div>
-
-    <div class="reconciliation-box">
-        <h3>👥 Всего людей на смене (для сверки)</h3>
-        <div class="rec-grid">
-            <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
-            <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
-            <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
-            <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
+<div class="app-layout">
+    <!-- БОКОВАЯ ПАНЕЛЬ -->
+    <aside class="sidebar">
+        <div class="sidebar-logo" onclick="switchTab('report')" title="Отчет по складу">📦</div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-btn active" id="sideBtnReport" onclick="switchTab('report')" title="Отчёт">📋</button>
+            <button class="sidebar-btn" id="sideBtnShipment" onclick="switchTab('shipment')" title="Отгрузка">🚚</button>
+            <button class="sidebar-btn" onclick="scrollToAnalytics()" title="Аналитика">📊</button>
+            <button class="sidebar-btn" onclick="exportCSV()" title="Excel">📥</button>
+        </nav>
+        <div class="sidebar-bottom">
+            <button class="sidebar-btn" onclick="toggleSnapshot()" title="Скриншот">📸</button>
+            <button class="sidebar-btn" onclick="clearData()" title="Очистить" style="color: #ff6b6b;">🗑️</button>
         </div>
-        <input type="hidden" id="totalAdmin" value="0">
-        <input type="hidden" id="totalStaff" value="0">
-        <input type="hidden" id="totalOut" value="0">
-        <input type="hidden" id="totalBrig" value="0">
-        <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
-    </div>
+    </aside>
 
-    <div class="table-wrap" id="tableWrap">
-        <table id="reportTable">
-            <thead>
-                <tr>
-                    <th>Рабочая станция</th>
-                    <th>Аутстафф</th>
-                    <th>Бриг. АК</th>
-                    <th>АК Компания</th>
-                    <th>Штат</th>
-                    <th>Бриг. Стаф</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="main-content">
+        <div class="container" id="captureArea">
+            <h2>📦 Отчет по складу</h2>
 
-    <div class="autosave-indicator" id="autosaveIndicator"></div>
+            <div class="sync-status sync-connecting" id="syncStatus">🔄 Подключение к серверу...</div>
 
-    <div class="buttons">
-        <button class="btn-save" onclick="archiveCurrentReport()">💾 В архив</button>
-        <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
-        <button class="btn-img" id="snapshotBtn" onclick="toggleSnapshot()">📸 Подготовить скрин</button>
-        <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
-    </div>
-
-    <div class="zoom-panel" id="zoomPanel">
-        <span class="zoom-label">🔍 Масштаб:</span>
-        <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
-        <span class="zoom-value" id="zoomValue">100%</span>
-        <button class="zoom-btn" onclick="changeZoom(1)">+</button>
-        <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
-    </div>
-
-    <div class="analytics-box">
-        <h3 onclick="toggleAnalytics()" id="analyticsTitle">
-            <span class="arrow">▼</span> 📊 Аналитика
-        </h3>
-        <div class="analytics-content" id="analyticsContent">
-            <div class="analytics-section">
-                <h4>📈 История за последние 7 дней</h4>
-                <div id="historyTableContainer">Нет сохраненных отчетов</div>
+            <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
+                📸 <b>Готово к скриншоту!</b>
+                <small>Сделайте скриншот. Нажмите сюда, чтобы вернуть интерфейс.</small>
             </div>
-            <div class="analytics-section">
-                <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
-                <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
+
+            <!-- Мобильные вкладки -->
+            <div class="tabs">
+                <button class="tab-btn active" id="tabBtnReport" onclick="switchTab('report')">📋 Отчёт</button>
+                <button class="tab-btn" id="tabBtnShipment" onclick="switchTab('shipment')">🚚 Отгрузка</button>
             </div>
-            <div class="analytics-section">
-                <h4>📉 Сравнение с прошлым отчетом</h4>
-                <div id="compareContainer">Нет данных</div>
+
+            <!-- ВКЛАДКА ОТЧЁТ -->
+            <div class="tab-content active" id="tabReport">
+                <div class="date-time-row">
+                    <label>Дата: <input type="date" id="reportDate"></label>
+                    <label>Время: <input type="time" id="reportTime"></label>
+                </div>
+
+                <div class="grand-total-box">
+                    Итого человек на смене: <span id="grandTotal">0</span> чел.
+                    <div style="font-size: 11px; font-weight: 400; margin-top: 4px; color: var(--text-dim);">(включая админку — для справки)</div>
+                </div>
+
+                <div class="reconciliation-box">
+                    <h3>👥 Всего людей на смене (для сверки)</h3>
+                    <div class="rec-grid">
+                        <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
+                        <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
+                        <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
+                        <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
+                    </div>
+                    <input type="hidden" id="totalAdmin" value="0">
+                    <input type="hidden" id="totalStaff" value="0">
+                    <input type="hidden" id="totalOut" value="0">
+                    <input type="hidden" id="totalBrig" value="0">
+                    <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
+                </div>
+
+                <div class="table-wrap" id="tableWrap">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>Рабочая станция</th>
+                                <th>Аутстафф</th>
+                                <th>Бриг. АК</th>
+                                <th>АК Компания</th>
+                                <th>Штат</th>
+                                <th>Бриг. Стаф</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="autosave-indicator" id="autosaveIndicator"></div>
+
+                <div class="buttons">
+                    <button class="btn-save" onclick="archiveCurrentReport()">💾 В архив</button>
+                    <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
+                    <button class="btn-img" id="snapshotBtn" onclick="toggleSnapshot()">📸 Скрин</button>
+                    <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
+                </div>
+
+                <div class="zoom-panel" id="zoomPanel">
+                    <span class="zoom-label">🔍 Масштаб:</span>
+                    <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
+                    <span class="zoom-value" id="zoomValue">100%</span>
+                    <button class="zoom-btn" onclick="changeZoom(1)">+</button>
+                    <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
+                </div>
+
+                <div class="analytics-box" id="analyticsBox">
+                    <h3 onclick="toggleAnalytics()" id="analyticsTitle">
+                        <span class="arrow">▼</span> 📊 Аналитика
+                    </h3>
+                    <div class="analytics-content" id="analyticsContent">
+                        <div class="analytics-section">
+                            <h4>📈 История за последние 7 дней</h4>
+                            <div id="historyTableContainer">Нет сохраненных отчетов</div>
+                        </div>
+                        <div class="analytics-section">
+                            <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
+                            <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
+                        </div>
+                        <div class="analytics-section">
+                            <h4>📉 Сравнение с прошлым отчетом</h4>
+                            <div id="compareContainer">Нет данных</div>
+                        </div>
+                        <div class="analytics-section">
+                            <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
+                            <div id="archiveContainer">Архив пуст</div>
+                            <button onclick="clearArchive()" style="margin-top: 10px; padding: 8px 14px; font-size: 13px; background: linear-gradient(135deg,#dc3545,#b02a37); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">Очистить архив</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="analytics-section">
-                <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
-                <div id="archiveContainer">Архив пуст</div>
-                <button onclick="clearArchive()" style="margin-top: 8px; padding: 8px 14px; font-size: 13px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Очистить архив</button>
+
+            <!-- ВКЛАДКА ОТГРУЗКА -->
+            <div class="tab-content" id="tabShipment">
+                <div class="shipment-top" id="shipmentTop">
+                    <h3>🔥 Топ-3 направления (больше всего накопилось)</h3>
+                    <div class="shipment-top-list" id="shipmentTopList">
+                        <div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="shipment-table" id="shipmentTable">
+                        <thead>
+                            <tr>
+                                <th>Направление</th>
+                                <th>Габарит</th>
+                                <th>Негабарит</th>
+                                <th>Итого</th>
+                                <th>ТС</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="shipment-history">
+                    <h3>
+                        <span>📜 История за сутки</span>
+                        <button onclick="clearShipmentHistory()">Очистить</button>
+                    </h3>
+                    <div id="shipmentHistoryList">
+                        <div style="color: var(--text-dim); font-size: 12px;">История пуста</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
+<!-- Модалка компаний -->
 <div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
     <div class="modal">
         <h3>Выберите компанию</h3>
@@ -593,7 +1293,29 @@
         </div>
         <div class="modal-actions">
             <button class="modal-close-btn" onclick="closeCompanyModal()">Закрыть</button>
-            <button class="modal-reset-btn" onclick="resetCompanies()">Сбросить список</button>
+            <button class="modal-reset-btn" onclick="resetCompanies()">Сбросить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка отгрузки -->
+<div class="shipment-modal" id="shipmentModal" onclick="if(event.target===this) closeShipmentModal()">
+    <div class="shipment-modal-content">
+        <h3>Добавить к направлению</h3>
+        <div class="subtitle" id="shipmentModalSubtitle"></div>
+
+        <label>Габарит (шт):</label>
+        <input type="number" id="shipInputGab" value="0" min="0" inputmode="numeric">
+
+        <label>Негабарит (шт):</label>
+        <input type="number" id="shipInputNegab" value="0" min="0" inputmode="numeric">
+
+        <label>ТС (машин):</label>
+        <input type="number" id="shipInputTS" value="0" min="0" inputmode="numeric">
+
+        <div class="shipment-modal-buttons">
+            <button class="ship-modal-btn-cancel" onclick="closeShipmentModal()">Отмена</button>
+            <button class="ship-modal-btn-save" onclick="saveShipmentAdd()">Добавить</button>
         </div>
     </div>
 </div>
@@ -601,11 +1323,10 @@
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
-    // ============ НАСТРОЙКИ СИНХРОНИЗАЦИИ ============
+    // ============ НАСТРОЙКИ ============
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
-    const SYNC_INTERVAL = 30000; // 30 секунд — проверка обновлений
+    const SYNC_INTERVAL = 30000;
 
-    // ============ ДАННЫЕ ============
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
 
@@ -619,10 +1340,53 @@
     const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
+    const SHIPMENT_DIRECTIONS = [
+        "Ижевск", "Чебоксары", "Челы", "Киров", "ЕКБ",
+        "Самара", "Уфа", "Ростов", "Ульяновск", "Оренбург",
+        "Нижний Новгород", "Пенза", "Саратов", "Дзержинский"
+    ];
+
+    let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
+    let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
+    let currentShipmentDir = null;
+
     let lastServerData = null;
     let saveTimer = null;
     let syncTimer = null;
     let isSaving = false;
+
+    // ============ ВКЛАДКИ ============
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+
+        if (tab === 'report') {
+            document.getElementById('tabReport').classList.add('active');
+            const tb = document.getElementById('tabBtnReport');
+            if (tb) tb.classList.add('active');
+            document.getElementById('sideBtnReport').classList.add('active');
+        } else {
+            document.getElementById('tabShipment').classList.add('active');
+            const tb = document.getElementById('tabBtnShipment');
+            if (tb) tb.classList.add('active');
+            document.getElementById('sideBtnShipment').classList.add('active');
+            renderShipment();
+        }
+    }
+
+    function scrollToAnalytics() {
+        switchTab('report');
+        const box = document.getElementById('analyticsBox');
+        if (box) {
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const content = document.getElementById('analyticsContent');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                document.getElementById('analyticsTitle').classList.remove('collapsed');
+            }
+        }
+    }
 
     // ============ СТАТУС ============
     const syncStatusEl = () => document.getElementById('syncStatus');
@@ -633,7 +1397,7 @@
         el.textContent = text;
     }
 
-    // ============ РАБОТА С СЕРВЕРОМ ============
+    // ============ СЕРВЕР ============
     async function loadFromServer() {
         try {
             setSyncStatus('connecting', '🔄 Загрузка с сервера...');
@@ -642,16 +1406,23 @@
             const data = await response.json();
             console.log('📥 Загружено с сервера:', data);
             lastServerData = data;
-            if (data && data.current) {
-                applyDataToUI(data.current);
-                if (data.companies && data.companies.list) {
-                    COMPANIES = data.companies.list;
-                    localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-                }
-                if (data.archive && data.archive.archive) {
-                    localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
-                }
+            if (data && data.current) applyDataToUI(data.current);
+            if (data && data.companies && data.companies.list) {
+                COMPANIES = data.companies.list;
+                localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
             }
+            if (data && data.archive && data.archive.archive) {
+                localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
+            }
+            if (data && data.shipment && data.shipment.data) {
+                SHIPMENT_DATA = data.shipment.data;
+                localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+            }
+            if (data && data.shipment && data.shipment.history) {
+                SHIPMENT_HISTORY = data.shipment.history;
+                localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+            }
+            renderShipment();
             setSyncStatus('online', '✅ Синхронизировано');
         } catch (err) {
             console.error('Ошибка загрузки:', err);
@@ -666,9 +1437,11 @@
             const payload = {
                 current: collectDataFromUI(),
                 companies: { list: COMPANIES },
-                archive: { archive: JSON.parse(localStorage.getItem('warehouseArchive')) || [] }
+                archive: { archive: JSON.parse(localStorage.getItem('warehouseArchive')) || [] },
+                shipment: { data: SHIPMENT_DATA, history: SHIPMENT_HISTORY }
             };
             payload.current.lastModified = Date.now();
+            payload.shipment.lastModified = Date.now();
 
             const response = await fetch(BIN_URL, {
                 method: 'PUT',
@@ -703,9 +1476,11 @@
                 const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!response.ok) return;
                 const data = await response.json();
-                const local = collectDataFromUI();
-                const serverTime = data.current?.lastModified || 0;
-                const localTime = local.lastModified || 0;
+                const serverTime = Math.max(data.current?.lastModified || 0, data.shipment?.lastModified || 0);
+                const localTime = Math.max(
+                    JSON.parse(localStorage.getItem('warehouseReport') || '{}').lastModified || 0,
+                    JSON.parse(localStorage.getItem('warehouseShipment') || '{}').lastModified || 0
+                );
                 if (serverTime > localTime && serverTime > 0) {
                     console.log('🔄 Обновление с сервера');
                     lastServerData = data;
@@ -718,19 +1493,28 @@
                         localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
                         renderAnalytics();
                     }
+                    if (data.shipment?.data) {
+                        SHIPMENT_DATA = data.shipment.data;
+                        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+                    }
+                    if (data.shipment?.history) {
+                        SHIPMENT_HISTORY = data.shipment.history;
+                        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+                    }
+                    renderShipment();
                     setSyncStatus('online', '✅ Синхронизировано');
                 }
-            } catch (err) {
-                // тихо игнорируем
-            }
+            } catch (err) {}
         }, SYNC_INTERVAL);
     }
 
-    // ============ ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ============
+    // ============ ЛОКАЛЬНО ============
     function saveDataToLocal() {
         const data = collectDataFromUI();
         data.lastModified = Date.now();
         localStorage.setItem('warehouseReport', JSON.stringify(data));
+        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
         const indicator = document.getElementById('autosaveIndicator');
         if (indicator) {
             const now = new Date();
@@ -773,11 +1557,7 @@
             bstSort: document.getElementById('bstSort')?.value || '',
             bstLoad: document.getElementById('bstLoad')?.value || '',
             rows: rows,
-            stations: {
-                sort: SORT_ZONES,
-                load: LOAD_ZONES,
-                break: BREAK_ZONES
-            }
+            stations: { sort: SORT_ZONES, load: LOAD_ZONES, break: BREAK_ZONES }
         };
     }
 
@@ -829,7 +1609,6 @@
                 }
             });
         }
-
         calculateTotals();
     }
 
@@ -885,7 +1664,7 @@
     }
 
     function resetCompanies() {
-        if (!confirm('Сбросить список компаний к стандартному?')) return;
+        if (!confirm('Сбросить список компаний?')) return;
         COMPANIES = [...DEFAULT_COMPANIES];
         localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
         saveDebounced();
@@ -948,19 +1727,18 @@
         saveDebounced();
     }
 
-    // ============ РЕЖИМ СКРИНА ============
+    // ============ СКРИНШОТ ============
     function toggleSnapshot() {
         const body = document.body;
         const btn = document.getElementById('snapshotBtn');
-
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
-            if (btn) btn.innerHTML = '📸 Подготовить скрин';
+            if (btn) btn.innerHTML = '📸 Скрин';
             setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             body.classList.add('snapshot-mode');
-            if (btn) btn.innerHTML = '↩️ Вернуть кнопки';
+            if (btn) btn.innerHTML = '↩️ Вернуть';
             setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -968,23 +1746,18 @@
 
     // ============ МАСШТАБ ============
     let currentZoom = 100;
-    const ZOOM_STEP = 10;
-    const ZOOM_MIN = 50;
-    const ZOOM_MAX = 130;
+    const ZOOM_STEP = 10, ZOOM_MIN = 50, ZOOM_MAX = 130;
 
     function applyZoom() {
         const table = document.querySelector('#reportTable');
         const wrap = document.getElementById('tableWrap');
         if (!table || !wrap) return;
-
         const scale = currentZoom / 100;
         table.style.transform = `scale(${scale})`;
         table.style.transformOrigin = 'top left';
         table.style.width = (100 / scale) + '%';
-
         const tableHeight = table.offsetHeight;
         wrap.style.height = (tableHeight * scale) + 'px';
-
         document.getElementById('zoomValue').textContent = currentZoom + '%';
         localStorage.setItem('warehouseZoom', currentZoom);
     }
@@ -996,10 +1769,7 @@
         applyZoom();
     }
 
-    function resetZoom() {
-        currentZoom = 100;
-        applyZoom();
-    }
+    function resetZoom() { currentZoom = 100; applyZoom(); }
 
     // ============ СТАНЦИИ ============
     function recalcStationsArray() {
@@ -1009,9 +1779,7 @@
 
     function saveStationsToStorage() {
         localStorage.setItem('warehouseStations', JSON.stringify({
-            sort: SORT_ZONES,
-            load: LOAD_ZONES,
-            break: BREAK_ZONES
+            sort: SORT_ZONES, load: LOAD_ZONES, break: BREAK_ZONES
         }));
     }
 
@@ -1040,9 +1808,7 @@
         td.classList.add('editing');
         td.innerHTML = `<input type="text" value="${oldName}" maxlength="40">`;
         const input = td.querySelector('input');
-        input.focus();
-        input.select();
-
+        input.focus(); input.select();
         const finish = (save) => {
             const newName = input.value.trim();
             td.classList.remove('editing');
@@ -1058,7 +1824,6 @@
             renderTable();
             loadFromLocal();
         };
-
         input.addEventListener('blur', () => finish(true));
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
@@ -1066,7 +1831,137 @@
         });
     }
 
-    // ============ PWA INSTALL ============
+    // ============ ОТГРУЗКА ============
+    function renderShipment() {
+        const directions = SHIPMENT_DIRECTIONS.map(dir => {
+            const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0 };
+            return {
+                name: dir,
+                gab: Number(d.gab) || 0,
+                negab: Number(d.negab) || 0,
+                ts: Number(d.ts) || 0,
+                sum: (Number(d.gab) || 0) + (Number(d.negab) || 0)
+            };
+        });
+        directions.sort((a, b) => b.sum - a.sum);
+
+        const topList = document.getElementById('shipmentTopList');
+        const top3 = directions.filter(d => d.sum > 0).slice(0, 3);
+        if (top3.length === 0) {
+            topList.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>';
+        } else {
+            topList.innerHTML = top3.map((d, i) => `
+                <div class="shipment-top-item rank-${i+1}">
+                    <div class="rank-dir">
+                        ${i+1}. ${d.name}
+                        <div class="rank-details">Габарит: ${d.gab} | Негабарит: ${d.negab} | ТС: ${d.ts}</div>
+                    </div>
+                    <div class="rank-sum">${d.sum}</div>
+                </div>
+            `).join('');
+        }
+
+        const tbody = document.querySelector('#shipmentTable tbody');
+        tbody.innerHTML = '';
+        directions.forEach((d, i) => {
+            const tr = document.createElement('tr');
+            if (i === 0 && d.sum > 0) tr.className = 'rank-1';
+            else if (i === 1 && d.sum > 0) tr.className = 'rank-2';
+            else if (i === 2 && d.sum > 0) tr.className = 'rank-3';
+            tr.innerHTML = `
+                <td class="dir-name">${d.name}</td>
+                <td>${d.gab}</td>
+                <td>${d.negab}</td>
+                <td class="sum-cell">${d.sum}</td>
+                <td>${d.ts}</td>
+                <td>
+                    <button class="ship-btn-add" onclick="openShipmentModal('${d.name.replace(/'/g, "\\'")}')">+ Добавить</button>
+                    <button class="ship-btn-reset" onclick="resetShipmentDir('${d.name.replace(/'/g, "\\'")}')">Сброс</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        renderShipmentHistory();
+    }
+
+    function renderShipmentHistory() {
+        const container = document.getElementById('shipmentHistoryList');
+        const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        SHIPMENT_HISTORY = SHIPMENT_HISTORY.filter(h => h.time >= dayAgo);
+        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+        if (SHIPMENT_HISTORY.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-dim); font-size: 12px;">История пуста</div>';
+            return;
+        }
+        let html = '';
+        SHIPMENT_HISTORY.slice(0, 50).forEach(h => {
+            const t = new Date(h.time).toTimeString().slice(0,5);
+            html += `<div class="history-item">
+                <span class="h-time">${t}</span>
+                <span class="h-text">${h.direction}: +${h.gab} габ, +${h.negab} негаб, +${h.ts} ТС</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function openShipmentModal(dir) {
+        currentShipmentDir = dir;
+        document.getElementById('shipmentModalSubtitle').textContent = dir;
+        document.getElementById('shipInputGab').value = 0;
+        document.getElementById('shipInputNegab').value = 0;
+        document.getElementById('shipInputTS').value = 0;
+        document.getElementById('shipmentModal').classList.add('active');
+        setTimeout(() => document.getElementById('shipInputGab').focus(), 100);
+    }
+
+    function closeShipmentModal() {
+        document.getElementById('shipmentModal').classList.remove('active');
+        currentShipmentDir = null;
+    }
+
+    function saveShipmentAdd() {
+        if (!currentShipmentDir) return;
+        const gab = Math.max(0, parseInt(document.getElementById('shipInputGab').value) || 0);
+        const negab = Math.max(0, parseInt(document.getElementById('shipInputNegab').value) || 0);
+        const ts = Math.max(0, parseInt(document.getElementById('shipInputTS').value) || 0);
+        if (gab === 0 && negab === 0 && ts === 0) {
+            alert('Введите хотя бы одну цифру');
+            return;
+        }
+        if (!SHIPMENT_DATA[currentShipmentDir]) {
+            SHIPMENT_DATA[currentShipmentDir] = { gab: 0, negab: 0, ts: 0 };
+        }
+        SHIPMENT_DATA[currentShipmentDir].gab += gab;
+        SHIPMENT_DATA[currentShipmentDir].negab += negab;
+        SHIPMENT_DATA[currentShipmentDir].ts += ts;
+        SHIPMENT_HISTORY.unshift({ time: Date.now(), direction: currentShipmentDir, gab, negab, ts });
+        if (SHIPMENT_HISTORY.length > 200) SHIPMENT_HISTORY = SHIPMENT_HISTORY.slice(0, 200);
+        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+        renderShipment();
+        saveDebounced();
+        closeShipmentModal();
+    }
+
+    function resetShipmentDir(dir) {
+        if (!confirm(`Обнулить направление "${dir}"?`)) return;
+        if (SHIPMENT_DATA[dir]) {
+            SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0 };
+            localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+            renderShipment();
+            saveDebounced();
+        }
+    }
+
+    function clearShipmentHistory() {
+        if (!confirm('Очистить всю историю отгрузки?')) return;
+        SHIPMENT_HISTORY = [];
+        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+        renderShipmentHistory();
+        saveDebounced();
+    }
+
+    // ============ PWA ============
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1094,35 +1989,25 @@
         renderTable();
 
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => {
-                calculateTotals();
-                saveDebounced();
-            });
+            input.addEventListener('input', () => { calculateTotals(); saveDebounced(); });
         });
         document.getElementById('reportDate').addEventListener('change', saveDebounced);
         document.getElementById('reportTime').addEventListener('change', saveDebounced);
 
         const savedZoom = parseInt(localStorage.getItem('warehouseZoom'));
-        if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) {
-            currentZoom = savedZoom;
-        }
+        if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) currentZoom = savedZoom;
 
-        // 1. Сначала грузим локальные данные (мгновенно)
         loadFromLocal();
         calculateTotals();
         renderAnalytics();
+        renderShipment();
         setTimeout(applyZoom, 100);
 
-        // 2. Потом грузим с сервера
         await loadFromServer();
-
-        // 3. Запускаем цикл синхронизации
         startSyncLoop();
     });
 
-    window.addEventListener('resize', () => {
-        applyZoom();
-    });
+    window.addEventListener('resize', () => { applyZoom(); });
 
     // ============ РЕНДЕР ТАБЛИЦЫ ============
     function renderTable() {
@@ -1168,8 +2053,8 @@
             if (idx >= breakStart) {
                 const td = document.createElement('td');
                 td.textContent = '—';
-                td.style.background = '#f5f5f5';
-                td.style.color = '#999';
+                td.style.background = '#1a1d21';
+                td.style.color = '#6c757d';
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
@@ -1279,7 +2164,7 @@
     function renderHistory(archive) {
         const container = document.getElementById('historyTableContainer');
         if (archive.length === 0) {
-            container.innerHTML = '<p style="color: #999; font-size: 12px;">Нет сохраненных отчетов.</p>';
+            container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нет сохраненных отчетов.</p>';
             return;
         }
         const last7 = archive.slice(0, 7);
@@ -1305,7 +2190,7 @@
             if (total > 0) zones.push({ station, total });
         });
         if (zones.length === 0) {
-            container.innerHTML = '<li style="color: #999; font-size: 12px;">Нет данных.</li>';
+            container.innerHTML = '<li style="color: var(--text-dim); font-size: 12px;">Нет данных.</li>';
             return;
         }
         zones.sort((a, b) => b.total - a.total);
@@ -1322,13 +2207,13 @@
     function renderCompare(archive) {
         const container = document.getElementById('compareContainer');
         if (archive.length < 2) {
-            container.innerHTML = '<p style="color: #999; font-size: 12px;">Нужно минимум 2 отчета.</p>';
+            container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нужно минимум 2 отчета.</p>';
             return;
         }
         const current = archive[0], previous = archive[1];
         const formatDiff = (d) => d === 0 ? '<span class="diff-zero">0</span>' : (d > 0 ? `<span class="diff-positive">+${d}</span>` : `<span class="diff-negative">${d}</span>`);
         container.innerHTML = `
-            <div style="font-size: 11px; color: #666; margin-bottom: 6px;">Сравнение с <b>${previous.date} ${previous.time}</b></div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 6px;">Сравнение с <b>${previous.date} ${previous.time}</b></div>
             <div class="compare-item"><span>На смене:</span> <span>${previous.declaredTotal} → ${current.declaredTotal} ${formatDiff(current.declaredTotal - previous.declaredTotal)}</span></div>
             <div class="compare-item"><span>Распределено:</span> <span>${previous.actualTotal} → ${current.actualTotal} ${formatDiff(current.actualTotal - previous.actualTotal)}</span></div>
             <div class="compare-item"><span>Бриг. Стаф:</span> <span>${previous.bst} → ${current.bst} ${formatDiff(current.bst - previous.bst)}</span></div>
@@ -1339,7 +2224,7 @@
         const container = document.getElementById('archiveContainer');
         document.getElementById('archiveCount').textContent = archive.length;
         if (archive.length === 0) {
-            container.innerHTML = '<p style="color: #999; font-size: 12px;">Архив пуст.</p>';
+            container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Архив пуст.</p>';
             return;
         }
         let html = '';
