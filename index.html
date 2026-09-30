@@ -1748,16 +1748,18 @@
     let currentZoom = 100;
     const ZOOM_STEP = 10, ZOOM_MIN = 50, ZOOM_MAX = 130;
 
-    function applyZoom() {
+        function applyZoom() {
         const table = document.querySelector('#reportTable');
         const wrap = document.getElementById('tableWrap');
         if (!table || !wrap) return;
+
         const scale = currentZoom / 100;
         table.style.transform = `scale(${scale})`;
         table.style.transformOrigin = 'top left';
         table.style.width = (100 / scale) + '%';
-        const tableHeight = table.offsetHeight;
-        wrap.style.height = (tableHeight * scale) + 'px';
+        // НЕ задаём высоту — пусть wrap растягивается под таблицу
+        wrap.style.height = '';
+
         document.getElementById('zoomValue').textContent = currentZoom + '%';
         localStorage.setItem('warehouseZoom', currentZoom);
     }
