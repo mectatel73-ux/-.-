@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Отчет по складу</title>
-
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
     <link rel="shortcut icon" href="icon-192.png">
-
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -70,7 +68,29 @@
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; font-weight: 600; font-size: 12px; padding: 8px 4px; white-space: nowrap; }
-        .station-name { text-align: left; font-weight: 600; background-color: #f8f9fa; font-size: 13px; white-space: nowrap; padding: 6px 8px; }
+        .station-name { 
+            text-align: left; 
+            font-weight: 600; 
+            background-color: #f8f9fa; 
+            font-size: 13px; 
+            white-space: nowrap; 
+            padding: 6px 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        .station-name:hover, .station-name:active { background-color: #e2e6ea; }
+        .station-name.editing { padding: 0; background: #fff3cd; }
+        .station-name input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 6px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            outline: 2px solid #ffc107;
+            border-radius: 3px;
+        }
         .zone-sort { background-color: #f0f7ff; }
         .zone-load { background-color: #fff7e6; }
         .zone-break { background-color: #f5f5f5; }
@@ -126,16 +146,18 @@
             padding: 4px 8px; font-size: 12px; font-weight: 600; white-space: nowrap;
         }
         .company-chip .remove-chip {
-            cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 14px;
-            line-height: 1; margin-left: 2px; padding: 0 2px;
+            cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 16px;
+            line-height: 1; margin-left: 2px; padding: 0 4px;
             border-radius: 50%; background: rgba(255,255,255,0.5);
+            min-width: 20px; text-align: center;
         }
         .company-chip .remove-chip:active { background: #ffcdd2; }
         .add-company-btn {
             display: inline-flex; align-items: center; justify-content: center;
             background: #4CAF50; color: white; border: none;
-            border-radius: 14px; padding: 5px 10px;
-            font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap;
+            border-radius: 14px; padding: 6px 12px;
+            font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+            min-height: 32px;
         }
         .add-company-btn:active { background: #388e3c; }
 
@@ -147,23 +169,66 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: white; border-radius: 12px; padding: 20px;
-            max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;
+            max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         .modal h3 { margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center; }
         .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .modal-company-item {
-            padding: 12px 8px; background: #f5f5f5; border: 2px solid transparent;
+            padding: 14px 8px; background: #f5f5f5; border: 2px solid transparent;
             border-radius: 8px; text-align: center; font-weight: 600;
-            font-size: 13px; cursor: pointer; user-select: none;
+            font-size: 14px; cursor: pointer; user-select: none;
+            min-height: 48px;
+            display: flex; align-items: center; justify-content: center;
         }
         .modal-company-item:hover { background: #e0e0e0; }
         .modal-company-item.selected { background: #c8e6c9; border-color: #4CAF50; color: #1b5e20; }
-        .modal-close-btn {
-            display: block; margin: 15px auto 0; padding: 10px 30px;
-            background: #dc3545; color: white; border: none;
-            border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer;
+
+        .modal-add-company {
+            display: flex;
+            gap: 6px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #eee;
         }
+        .modal-add-company input {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 46px;
+        }
+        .modal-add-company button {
+            padding: 12px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 46px;
+            white-space: nowrap;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            min-height: 46px;
+        }
+        .modal-close-btn { background: #dc3545; }
+        .modal-reset-btn { background: #6c757d; }
 
         .grand-total-box { 
             background: #d1e7dd; border: 2px solid #198754; border-radius: 6px; 
@@ -224,10 +289,10 @@
 
         .archive-item { padding: 6px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 6px; }
         .archive-item:last-child { border-bottom: none; }
-        .archive-item button { padding: 5px 10px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; color: white; background: #0d6efd; flex: none; }
+        .archive-item button { padding: 6px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; color: white; background: #0d6efd; flex: none; min-height: 32px; }
 
         .buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
-        .buttons button { padding: 12px 8px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; color: white; font-weight: 700; }
+        .buttons button { padding: 14px 8px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; color: white; font-weight: 700; min-height: 48px; }
         .btn-save { background-color: #0d6efd; }
         .btn-export { background-color: #198754; }
         .btn-img { background-color: #6f42c1; }
@@ -251,8 +316,8 @@
         }
         .zoom-label { margin-right: 4px; }
         .zoom-btn {
-            width: 38px; height: 38px;
-            border: none; border-radius: 6px;
+            width: 42px; height: 42px;
+            border: none; border-radius: 8px;
             background: #6f42c1; color: white;
             font-size: 22px; font-weight: 700;
             cursor: pointer; line-height: 1;
@@ -267,12 +332,13 @@
             color: #6f42c1;
         }
         .zoom-reset {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid #6f42c1;
             background: white; color: #6f42c1;
-            border-radius: 6px; font-size: 12px;
+            border-radius: 8px; font-size: 13px;
             font-weight: 700; cursor: pointer;
             margin-left: 6px;
+            min-height: 42px;
         }
         .zoom-reset:active { background: #f3e8ff; }
 
@@ -307,7 +373,7 @@
         body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
         body.snapshot-mode th { font-size: 9px !important; padding: 4px 2px !important; white-space: normal !important; word-break: break-word !important; }
         body.snapshot-mode td { padding: 2px 1px !important; }
-        body.snapshot-mode .station-name { font-size: 10px !important; padding: 3px 3px !important; white-space: normal !important; word-break: break-word !important; max-width: 70px !important; }
+        body.snapshot-mode .station-name { font-size: 10px !important; padding: 3px 3px !important; white-space: normal !important; word-break: break-word !important; max-width: 70px !important; cursor: default !important; }
         body.snapshot-mode .stepper input { width: 28px !important; height: 26px !important; font-size: 12px !important; border: 1px solid #999 !important; }
         body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 2px 2px !important; }
         body.snapshot-mode .company-chip { font-size: 9px !important; padding: 2px 4px !important; border-radius: 8px !important; }
@@ -342,11 +408,11 @@
             th { font-size: 11px; padding: 6px 3px; }
             .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
             .stepper { gap: 2px; }
-            .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 17px; border-radius: 5px; }
-            .stepper input { width: 36px; height: 30px; font-size: 14px; border-radius: 5px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 34px; height: 34px; font-size: 18px; border-radius: 6px; }
+            .stepper input { width: 40px; height: 34px; font-size: 15px; border-radius: 6px; }
             .brig-cell { padding: 6px 3px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 20px; }
-            .brig-cell .stepper input { width: 50px; height: 36px; font-size: 18px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 38px; height: 38px; font-size: 20px; }
+            .brig-cell .stepper input { width: 52px; height: 38px; font-size: 18px; }
             .grand-total-box { padding: 8px; font-size: 13px; }
             .grand-total-box span { font-size: 20px; }
             .reconciliation-box { padding: 10px; }
@@ -355,19 +421,28 @@
             .rec-item { font-size: 13px; padding: 5px 8px; }
             .rec-status { font-size: 12px; padding: 8px; }
             .buttons { gap: 6px; }
-            .buttons button { padding: 10px 6px; font-size: 13px; }
+            .buttons button { padding: 12px 6px; font-size: 13px; min-height: 46px; }
             table { min-width: 750px; }
-            .company-chip { font-size: 10px; padding: 3px 6px; }
-            .add-company-btn { font-size: 10px; padding: 4px 8px; }
+            .company-chip { font-size: 11px; padding: 4px 8px; }
+            .add-company-btn { font-size: 11px; padding: 6px 10px; }
+            .modal { padding: 16px; }
+            .modal-company-list { gap: 6px; }
+            .modal-company-item { padding: 12px 6px; font-size: 13px; min-height: 46px; }
+            .modal-add-company { flex-direction: column; }
+            .modal-add-company input,
+            .modal-add-company button { width: 100%; }
+            .modal-actions { flex-direction: column; }
+            .modal-actions button { width: 100%; }
         }
 
         @media (max-width: 480px) {
-            .stepper .btn-minus, .stepper .btn-plus { width: 28px; height: 28px; font-size: 16px; }
-            .stepper input { width: 32px; height: 28px; font-size: 13px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; }
-            .brig-cell .stepper input { width: 45px; height: 32px; font-size: 16px; }
+            .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
+            .stepper input { width: 36px; height: 32px; font-size: 14px; }
+            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 34px; height: 34px; font-size: 18px; }
+            .brig-cell .stepper input { width: 48px; height: 34px; font-size: 16px; }
             .station-name { max-width: 80px; font-size: 10px; }
             th { font-size: 10px; }
+            .modal-company-list { grid-template-columns: 1fr; }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -500,7 +575,7 @@
             <div class="analytics-section">
                 <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
                 <div id="archiveContainer">Архив пуст</div>
-                <button onclick="clearArchive()" style="margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Очистить архив</button>
+                <button onclick="clearArchive()" style="margin-top: 8px; padding: 8px 14px; font-size: 13px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Очистить архив</button>
             </div>
         </div>
     </div>
@@ -510,13 +585,19 @@
     <div class="modal">
         <h3>Выберите компанию</h3>
         <div class="modal-company-list" id="modalCompanyList"></div>
-        <button class="modal-close-btn" onclick="closeCompanyModal()">Закрыть</button>
+        <div class="modal-add-company">
+            <input type="text" id="newCompanyInput" placeholder="Новая компания..." maxlength="30">
+            <button onclick="addNewCompany()">+ Добавить</button>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-close-btn" onclick="closeCompanyModal()">Закрыть</button>
+            <button class="modal-reset-btn" onclick="resetCompanies()">Сбросить список</button>
+        </div>
     </div>
 </div>
 
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
-<!-- ============ FIREBASE SDK ============ -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -547,7 +628,8 @@
 </script>
 
 <script>
-    const COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
+    const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
+    let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
 
     const syncStatusEl = () => document.getElementById('syncStatus');
     function setSyncStatus(status, text) {
@@ -618,7 +700,28 @@
             div.onclick = () => toggleCompanyInModal(comp, div);
             modalList.appendChild(div);
         });
+        document.getElementById('newCompanyInput').value = '';
         document.getElementById('companyModal').classList.add('active');
+    }
+
+    function addNewCompany() {
+        const input = document.getElementById('newCompanyInput');
+        const name = input.value.trim();
+        if (!name) { alert('Введите название компании'); return; }
+        if (COMPANIES.includes(name)) { alert('Такая компания уже есть'); return; }
+        COMPANIES.push(name);
+        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
+        saveCompaniesToFirebase();
+        input.value = '';
+        openCompanyModal(currentEditingCompanyRow);
+    }
+
+    function resetCompanies() {
+        if (!confirm('Сбросить список компаний к стандартному?')) return;
+        COMPANIES = [...DEFAULT_COMPANIES];
+        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
+        saveCompaniesToFirebase();
+        openCompanyModal(currentEditingCompanyRow);
     }
 
     function toggleCompanyInModal(comp, el) {
@@ -751,6 +854,7 @@
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
+        loadStationsFromStorage();
         renderTable();
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => {
@@ -785,6 +889,7 @@
         const { db, doc, onSnapshot } = window.FB;
         const reportDoc = doc(db, 'reports', 'current');
         const archiveDoc = doc(db, 'reports', 'archive');
+        const companiesDoc = doc(db, 'reports', 'companies');
 
         onSnapshot(reportDoc, (docSnap) => {
             if (docSnap.exists()) {
@@ -819,6 +924,22 @@
                 }
             }
         });
+
+        onSnapshot(companiesDoc, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.list && Array.isArray(data.list) && data.list.length > 0) {
+                    COMPANIES = data.list;
+                    localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
+                }
+            }
+        });
+    }
+
+    function saveCompaniesToFirebase() {
+        if (!firebaseReady) return;
+        const { db, doc, setDoc } = window.FB;
+        setDoc(doc(db, 'reports', 'companies'), { list: COMPANIES }).catch(err => console.error(err));
     }
 
     function applyDataToUI(data) {
@@ -852,6 +973,41 @@
                 }
             });
         }
+
+        if (data.stations) {
+            if (data.stations.sort && data.stations.sort.length === SORT_ZONES.length) {
+                for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = data.stations.sort[i];
+            }
+            if (data.stations.load && data.stations.load.length === LOAD_ZONES.length) {
+                for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = data.stations.load[i];
+            }
+            if (data.stations.break && data.stations.break.length === BREAK_ZONES.length) {
+                for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = data.stations.break[i];
+            }
+            recalcStationsArray();
+            saveStationsToStorage();
+            renderTable();
+            setTimeout(() => {
+                if (data.rows) {
+                    const rows2 = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
+                    data.rows.forEach((row, index) => {
+                        if (rows2[index]) {
+                            const outInput = rows2[index].querySelector('.input-out');
+                            const bakInput = rows2[index].querySelector('.input-bak');
+                            const shtInput = rows2[index].querySelector('.input-sht');
+                            if (outInput) outInput.value = row.out || '';
+                            if (bakInput) bakInput.value = row.bak || '';
+                            if (shtInput) shtInput.value = row.sht || '';
+                            if (row.companies && Array.isArray(row.companies)) {
+                                setRowCompanies(index, row.companies);
+                            }
+                        }
+                    });
+                    calculateTotals();
+                }
+            }, 50);
+        }
+
         calculateTotals();
     }
 
@@ -894,7 +1050,12 @@
             },
             bstSort: document.getElementById('bstSort')?.value || '',
             bstLoad: document.getElementById('bstLoad')?.value || '',
-            rows: rows
+            rows: rows,
+            stations: {
+                sort: SORT_ZONES,
+                load: LOAD_ZONES,
+                break: BREAK_ZONES
+            }
         };
     }
 
@@ -933,7 +1094,7 @@
 
             const outId = `out_${idx}`, bakId = `bak_${idx}`, shtId = `sht_${idx}`;
             tr.innerHTML = `
-                <td class="station-name">${station}</td>
+                <td class="station-name" data-station-idx="${idx}" onclick="editStationName(${idx})">${station}</td>
                 <td>${createStepperHTML(outId, 'input-out')}</td>
                 <td>${createStepperHTML(bakId, 'input-bak')}</td>
                 <td class="companies-cell">
@@ -978,6 +1139,70 @@
             <td id="total-bst">0</td>
         `;
         tbody.appendChild(totalTr);
+    }
+
+    function editStationName(idx) {
+        const td = document.querySelector(`.station-name[data-station-idx="${idx}"]`);
+        if (!td || td.classList.contains('editing')) return;
+        const oldName = stations[idx];
+        td.classList.add('editing');
+        td.innerHTML = `<input type="text" value="${oldName}" maxlength="40">`;
+        const input = td.querySelector('input');
+        input.focus();
+        input.select();
+
+        const finish = (save) => {
+            const newName = input.value.trim();
+            td.classList.remove('editing');
+            if (save && newName && newName !== oldName) {
+                stations[idx] = newName;
+                if (idx < SORT_ZONES.length) SORT_ZONES[idx] = newName;
+                else if (idx < SORT_ZONES.length + LOAD_ZONES.length) LOAD_ZONES[idx - SORT_ZONES.length] = newName;
+                else BREAK_ZONES[idx - SORT_ZONES.length - LOAD_ZONES.length] = newName;
+                saveStationsToStorage();
+                recalcStationsArray();
+                saveDataToFirebase();
+            }
+            renderTable();
+            loadFromLocalStorage();
+        };
+
+        input.addEventListener('blur', () => finish(true));
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+        });
+    }
+
+    function recalcStationsArray() {
+        stations.length = 0;
+        stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
+    }
+
+    function saveStationsToStorage() {
+        localStorage.setItem('warehouseStations', JSON.stringify({
+            sort: SORT_ZONES,
+            load: LOAD_ZONES,
+            break: BREAK_ZONES
+        }));
+    }
+
+    function loadStationsFromStorage() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('warehouseStations'));
+            if (saved) {
+                if (saved.sort && saved.sort.length === SORT_ZONES.length) {
+                    for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = saved.sort[i];
+                }
+                if (saved.load && saved.load.length === LOAD_ZONES.length) {
+                    for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = saved.load[i];
+                }
+                if (saved.break && saved.break.length === BREAK_ZONES.length) {
+                    for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = saved.break[i];
+                }
+                recalcStationsArray();
+            }
+        } catch (e) { console.error('Ошибка загрузки станций:', e); }
     }
 
     function calculateTotals() {
