@@ -124,16 +124,25 @@
             color: var(--accent); font-weight: 600; font-size: 12px;
             padding: 10px 4px; white-space: nowrap; border-bottom: 2px solid var(--accent);
         }
+        
+        /* === СТОЛБЕЦ "РАБОЧАЯ СТАНЦИЯ" — КРУПНЕЕ === */
         .station-name { 
-            text-align: left; font-weight: 600; background: #1e2227; color: var(--text);
-            font-size: 13px; white-space: nowrap; padding: 8px 10px;
-            cursor: pointer; position: relative; transition: 0.2s;
+            text-align: left; 
+            font-weight: 700; 
+            background: #1e2227; 
+            color: var(--text);
+            font-size: 16px;
+            white-space: nowrap; 
+            padding: 12px 14px;
+            cursor: pointer; 
+            position: relative; 
+            transition: 0.2s;
         }
         .station-name:hover, .station-name:active { background: #262b31; color: var(--accent); }
         .station-name.editing { padding: 0; background: #fff3cd; }
         .station-name input {
-            width: 100%; border: none; background: transparent; padding: 6px 8px;
-            font-size: 13px; font-weight: 600; font-family: inherit;
+            width: 100%; border: none; background: transparent; padding: 8px 10px;
+            font-size: 16px; font-weight: 700; font-family: inherit;
             outline: 2px solid var(--accent); border-radius: 3px; color: #333;
         }
         .zone-sort { background: #1e2227; }
@@ -228,11 +237,15 @@
             background: var(--bg-card); border-radius: 12px; overflow: hidden;
             font-size: 15px;
         }
+        
+        /* === ШАПКА ОТГРУЗКИ — КРУПНЕЕ === */
         .shipment-table th {
             background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); padding: 14px 8px;
-            font-size: 13px;
-            font-weight: 700; border-bottom: 2px solid var(--accent);
+            color: var(--accent); 
+            padding: 16px 10px;
+            font-size: 14px;
+            font-weight: 700; 
+            border-bottom: 2px solid var(--accent);
             white-space: nowrap;
         }
         .shipment-table td {
@@ -240,9 +253,15 @@
             text-align: center; font-size: 15px;
             color: var(--text); font-weight: 600;
         }
+        
+        /* === СТОЛБЕЦ "НАПРАВЛЕНИЕ" — КРУПНЕЕ === */
         .shipment-table td.dir-name {
-            text-align: left; font-weight: 700; background: #1e2227;
-            padding: 12px 16px; color: var(--text); font-size: 15px;
+            text-align: left; 
+            font-weight: 700; 
+            background: #1e2227;
+            padding: 14px 18px;
+            color: var(--text); 
+            font-size: 17px;
             white-space: nowrap;
         }
         .shipment-table td.sum-cell {
@@ -628,7 +647,7 @@
             .date-time-row label { font-size: 12px; }
             .date-time-row input { padding: 6px 8px; font-size: 12px; }
             th { font-size: 11px; padding: 6px 3px; }
-            .station-name { font-size: 11px; padding: 4px 5px; white-space: normal; max-width: 90px; }
+            .station-name { font-size: 13px; padding: 8px 10px; white-space: normal; max-width: 100px; }
             .stepper { gap: 2px; }
             .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
             .stepper input { width: 38px; height: 32px; font-size: 14px; border-radius: 6px; }
@@ -653,7 +672,7 @@
             .modal-actions button { width: 100%; }
             .shipment-table th { font-size: 11px; padding: 8px 4px; }
             .shipment-table td { font-size: 13px; padding: 6px 3px; }
-            .shipment-table td.dir-name { font-size: 12px; padding: 8px; }
+            .shipment-table td.dir-name { font-size: 14px; padding: 10px 12px; }
             .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
             .ship-stepper input { width: 38px; height: 30px; font-size: 13px; }
             .action-btn { font-size: 10px; padding: 10px 2px; min-height: 62px; }
@@ -665,12 +684,13 @@
             .stepper input { width: 34px; height: 30px; font-size: 13px; }
             .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
             .brig-cell .stepper input { width: 44px; height: 32px; font-size: 15px; }
-            .station-name { max-width: 75px; font-size: 10px; }
+            .station-name { max-width: 85px; font-size: 12px; }
             th { font-size: 10px; }
             .modal-company-list { grid-template-columns: 1fr; }
             .shipment-top-item { padding: 8px 10px; font-size: 13px; }
             .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 28px; height: 28px; font-size: 15px; }
             .ship-stepper input { width: 34px; height: 28px; font-size: 12px; }
+            .shipment-table td.dir-name { font-size: 13px; padding: 8px 10px; }
         }
     </style>
 </head>
