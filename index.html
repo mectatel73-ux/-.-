@@ -30,57 +30,67 @@
             -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
             min-height: 100vh;
         }
-        .app-layout { display: flex; min-height: 100vh; }
 
-        /* === БОКОВАЯ ПАНЕЛЬ === */
-        .sidebar {
-            width: 70px; background: #16191d;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 12px 0; position: sticky; top: 0; height: 100vh;
-            flex-shrink: 0; border-right: 1px solid var(--border); z-index: 100;
-        }
-        .sidebar-logo {
-            width: 44px; height: 44px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 22px; margin-bottom: 20px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-        }
-        .sidebar-logo:active { transform: scale(0.95); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; align-items: center; }
-        .sidebar-btn {
-            width: 48px; height: 48px; border: none; background: transparent;
-            color: var(--text-dim); border-radius: 12px; cursor: pointer;
+        /* === ГАМБУРГЕР === */
+        .hamburger {
+            position: fixed; top: 12px; left: 12px;
+            width: 48px; height: 48px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; position: relative; transition: 0.2s;
-            -webkit-tap-highlight-color: transparent;
+            font-size: 26px; color: var(--accent); cursor: pointer;
+            z-index: 1000; transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .sidebar-btn:hover { background: rgba(79, 195, 247, 0.1); color: var(--accent); }
-        .sidebar-btn.active {
+        .hamburger:active { transform: scale(0.92); }
+
+        /* === ПОЛНОЭКРАННОЕ МЕНЮ === */
+        .fullscreen-menu {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: flex; flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .fullscreen-menu.active { transform: translateX(0); }
+        .menu-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .menu-logo { font-size: 18px; font-weight: 700; color: var(--accent); }
+        .menu-close {
+            width: 44px; height: 44px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text);
+            font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .menu-close:active { transform: scale(0.92); }
+        .menu-items {
+            padding: 12px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .menu-item {
+            display: flex; align-items: center; gap: 16px;
+            padding: 18px 20px;
+            background: transparent; border: none;
+            border-radius: 12px; color: var(--text);
+            font-size: 17px; font-weight: 600; text-align: left;
+            cursor: pointer; transition: 0.15s;
+            min-height: 64px; font-family: inherit;
+        }
+        .menu-item:hover, .menu-item:active { background: rgba(79, 195, 247, 0.1); }
+        .menu-item.active {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
-        }
-        .sidebar-btn:active { transform: scale(0.92); }
-        .sidebar-btn.confirm-btn {
-            background: linear-gradient(135deg, #4caf50, #0f5132);
             color: white;
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-            animation: pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
         }
-        .sidebar-btn.confirm-btn.saved {
-            background: linear-gradient(135deg, #2d333b, #1e2227);
-            color: var(--text-muted);
-            box-shadow: none;
-            animation: none;
-        }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4); }
-            50% { box-shadow: 0 4px 20px rgba(76, 175, 80, 0.8); }
-        }
-        .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .menu-icon { font-size: 24px; width: 32px; text-align: center; }
 
         /* === ОСНОВНОЙ КОНТЕНТ === */
-        .main-content { flex: 1; padding: 16px; max-width: calc(100% - 70px); overflow-x: hidden; }
+        .main-content { padding: 72px 16px 16px 16px; min-height: 100vh; }
         .container { max-width: 1100px; margin: auto; }
         h2 { text-align: center; margin: 0 0 16px 0; color: var(--text); font-size: 20px; font-weight: 600; }
 
@@ -95,19 +105,6 @@
         .sync-connecting { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
         .sync-unsaved { background: rgba(255, 152, 0, 0.15); color: #ff9800; border: 1px solid rgba(255, 152, 0, 0.3); }
 
-        .tabs { display: none; gap: 6px; margin-bottom: 12px; background: var(--bg-card); padding: 4px; border-radius: 10px; }
-        .tab-btn {
-            flex: 1; padding: 12px 8px; border: none; border-radius: 8px;
-            background: transparent; font-size: 14px; font-weight: 700;
-            color: var(--text-dim); cursor: pointer; transition: 0.2s; min-height: 44px;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         .date-time-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-weight: 600; }
         .date-time-row input { 
@@ -115,6 +112,9 @@
             border: 1px solid var(--border); border-radius: 8px;
         }
         .date-time-row input:focus { outline: none; border-color: var(--accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .table-wrap { 
             overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -227,41 +227,43 @@
         .shipment-top-item .rank-sum { font-size: 18px; font-weight: 800; }
         .shipment-top-item .rank-details { font-size: 11px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
 
+        /* Таблица отгрузки — компактная */
         .shipment-table {
             width: 100%; border-collapse: collapse; margin-bottom: 16px;
             background: var(--bg-card); border-radius: 12px; overflow: hidden;
+            font-size: 12px;
         }
         .shipment-table th {
             background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); padding: 10px 4px; font-size: 12px;
+            color: var(--accent); padding: 8px 2px; font-size: 11px;
             font-weight: 600; border-bottom: 2px solid var(--accent);
+            white-space: nowrap;
         }
         .shipment-table td {
-            border: 1px solid var(--border); padding: 8px 4px;
-            text-align: center; font-size: 13px; color: var(--text);
+            border: 1px solid var(--border); padding: 4px 2px;
+            text-align: center; font-size: 12px; color: var(--text);
         }
         .shipment-table td.dir-name {
             text-align: left; font-weight: 700; background: #1e2227;
-            padding: 10px 12px; color: var(--text);
+            padding: 8px 8px; color: var(--text); font-size: 12px;
+            white-space: nowrap;
         }
         .shipment-table td.sum-cell {
             font-weight: 800; background: rgba(79, 195, 247, 0.1);
-            color: var(--accent); font-size: 16px;
+            color: var(--accent); font-size: 14px;
+        }
+        .shipment-table td.ts-cell {
+            font-weight: 700; background: rgba(255, 193, 7, 0.08);
+            color: var(--warning); font-size: 13px;
         }
         .shipment-table tr.rank-1 { background: rgba(220, 53, 69, 0.1); }
         .shipment-table tr.rank-2 { background: rgba(255, 193, 7, 0.08); }
         .shipment-table tr.rank-3 { background: rgba(255, 193, 7, 0.04); }
+
+        .ship-stepper { gap: 2px; }
         .ship-stepper .btn-minus,
-        .ship-stepper .btn-plus { width: 32px; height: 32px; font-size: 18px; border-radius: 6px; }
-        .ship-stepper input { width: 44px; height: 32px; font-size: 14px; border-radius: 6px; }
-        .ship-btn-reset {
-            background: linear-gradient(135deg, #dc3545, #b02a37);
-            color: white; border: none; border-radius: 8px; padding: 8px 14px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-            min-height: 38px; transition: 0.15s;
-            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-        }
-        .ship-btn-reset:active { transform: scale(0.95); }
+        .ship-stepper .btn-plus { width: 26px; height: 26px; font-size: 14px; border-radius: 5px; }
+        .ship-stepper input { width: 34px; height: 26px; font-size: 12px; border-radius: 5px; }
 
         .shipment-history {
             background: var(--bg-card); border: 1px solid var(--border);
@@ -285,6 +287,90 @@
         .history-item .h-time { color: var(--accent); font-weight: 700; }
         .history-item .h-text { flex: 1; text-align: right; color: var(--text); }
 
+        /* Кнопка «Изменить направления» */
+        .edit-dirs-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white; border: none; border-radius: 12px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            margin-bottom: 12px; min-height: 50px;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            transition: 0.15s; font-family: inherit;
+        }
+        .edit-dirs-btn:active { transform: scale(0.97); }
+
+        /* Модалка редактирования направлений */
+        .dir-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .dir-item {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px; background: var(--bg-input); border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .dir-item input {
+            flex: 1; padding: 10px 12px;
+            background: var(--bg-dark); color: var(--text);
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: 14px; font-weight: 600; font-family: inherit;
+            min-height: 42px;
+        }
+        .dir-item input:focus { outline: none; border-color: var(--accent); }
+        .dir-item .dir-del {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white; border: none; border-radius: 8px;
+            font-size: 18px; cursor: pointer; flex-shrink: 0;
+        }
+        .dir-item .dir-del:active { transform: scale(0.92); }
+
+        .dir-add-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            margin-bottom: 12px; min-height: 48px;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        .dir-add-btn:active { transform: scale(0.97); }
+
+        /* === КНОПКИ ДЕЙСТВИЙ ВНИЗУ === */
+        .action-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+            margin-bottom: 20px;
+        }
+        .action-btn {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 4px;
+            padding: 12px 4px;
+            border: none; border-radius: 12px;
+            font-size: 11px; font-weight: 700;
+            cursor: pointer; color: white;
+            min-height: 68px;
+            transition: 0.15s;
+            font-family: inherit;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .action-btn .ico { font-size: 22px; line-height: 1; }
+        .action-btn:active { transform: scale(0.95); }
+
+        .act-snapshot { background: linear-gradient(135deg, var(--purple), #553098); }
+        .act-excel { background: linear-gradient(135deg, var(--success), #0f5132); }
+        .act-clear { background: linear-gradient(135deg, #dc3545, #b02a37); }
+        .act-confirm { background: linear-gradient(135deg, #4caf50, #0f5132); }
+        .act-confirm.saved { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); }
+        .act-confirm.unsaved { animation: pulse 2s infinite; }
+        .act-refresh { background: linear-gradient(135deg, #0d6efd, #0a58ca); }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            50% { box-shadow: 0 0 0 12px rgba(76, 175, 80, 0); }
+        }
+
         /* === МОДАЛЬНЫЕ === */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -294,7 +380,7 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--bg-elevated); border-radius: 16px; padding: 24px;
-            max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto;
+            max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid var(--border);
         }
         .modal h3 { margin: 0 0 16px 0; color: var(--text); font-size: 18px; text-align: center; font-weight: 700; }
@@ -336,8 +422,9 @@
             font-size: 14px; font-weight: 700; cursor: pointer; color: white;
             min-height: 50px; transition: 0.15s;
         }
-        .modal-close-btn { background: linear-gradient(135deg, #dc3545, #b02a37); }
-        .modal-reset-btn { background: linear-gradient(135deg, #6c757d, #495057); }
+        .modal-close-btn { background: linear-gradient(135deg, #6c757d, #495057); }
+        .modal-reset-btn { background: linear-gradient(135deg, #dc3545, #b02a37); }
+        .modal-confirm-btn { background: linear-gradient(135deg, #4caf50, #0f5132); }
         .modal-actions button:active { transform: scale(0.97); }
 
         /* === БОЛЬШИЕ БЛОКИ === */
@@ -374,24 +461,13 @@
         .status-neutral { color: #ffc107; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); }
         .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
 
-        .analytics-box { 
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px; margin-top: 20px;
-        }
-        .analytics-box h3 { 
-            margin: 0; color: var(--accent); font-size: 16px;
-            display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
-        }
-        .analytics-box h3 .arrow { transition: transform 0.3s; display: inline-block; }
-        .analytics-box h3.collapsed .arrow { transform: rotate(-90deg); }
-        .analytics-content { margin-top: 14px; }
-        .analytics-content.hidden { display: none; }
-
+        /* === АНАЛИТИКА === */
+        .analytics-container { display: flex; flex-direction: column; gap: 14px; }
         .analytics-section { 
-            background: var(--bg-input); border-radius: 10px; padding: 12px;
-            margin-bottom: 12px; border-left: 4px solid var(--accent);
+            background: var(--bg-input); border-radius: 12px; padding: 14px;
+            border-left: 4px solid var(--accent);
         }
-        .analytics-section h4 { margin: 0 0 10px 0; font-size: 13px; color: var(--accent); }
+        .analytics-section h4 { margin: 0 0 10px 0; font-size: 14px; color: var(--accent); }
 
         .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
         .history-table th { background: var(--bg-elevated); color: var(--accent); padding: 8px; font-size: 11px; border-radius: 6px; }
@@ -431,17 +507,6 @@
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             flex: none; min-height: 32px; font-weight: 600;
         }
-
-        .buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 16px; }
-        .buttons button { 
-            padding: 14px 8px; border: none; border-radius: 10px; font-size: 14px;
-            cursor: pointer; color: white; font-weight: 700; min-height: 50px; transition: 0.15s;
-        }
-        .buttons button:active { transform: scale(0.97); }
-        .btn-save { background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3); }
-        .btn-export { background: linear-gradient(135deg, var(--success), #0f5132); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
-        .btn-img { background: linear-gradient(135deg, var(--purple), #553098); box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3); }
-        .btn-clear { background: linear-gradient(135deg, #dc3545, #b02a37); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
 
         .autosave-indicator { font-size: 12px; color: var(--accent); text-align: center; margin-top: 8px; height: 15px; font-weight: 600; }
 
@@ -485,61 +550,44 @@
         body.snapshot-mode .add-company-btn { display: none !important; }
         body.snapshot-mode .company-chip .remove-chip { display: none !important; }
         body.snapshot-mode .ship-btn-reset { display: none !important; }
-        body.snapshot-mode .buttons,
+        body.snapshot-mode .edit-dirs-btn { display: none !important; }
+        body.snapshot-mode .action-bar,
         body.snapshot-mode .install-btn,
         body.snapshot-mode .autosave-indicator,
-        body.snapshot-mode .analytics-box,
         body.snapshot-mode .date-time-row,
         body.snapshot-mode .sync-status,
-        body.snapshot-mode .sidebar,
+        body.snapshot-mode .hamburger,
         body.snapshot-mode .zoom-panel,
-        body.snapshot-mode .tabs,
         body.snapshot-mode .shipment-history { 
             display: none !important; 
         }
-        body.snapshot-mode .snapshot-hint { display: block !important; }
-        body.snapshot-mode .main-content { max-width: 100%; padding: 6px; }
-        body.snapshot-mode .app-layout { display: block; }
-
+        body.snapshot-mode .main-content { padding: 6px; }
         body.snapshot-mode .table-wrap { overflow: visible !important; }
         body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
-        body.snapshot-mode th { font-size: 9px !important; padding: 4px 2px !important; white-space: normal !important; word-break: break-word !important; }
-        body.snapshot-mode td { padding: 2px 1px !important; }
-        body.snapshot-mode .station-name { font-size: 10px !important; padding: 3px 3px !important; white-space: normal !important; word-break: break-word !important; max-width: 70px !important; cursor: default !important; }
-        body.snapshot-mode .stepper input { width: 28px !important; height: 26px !important; font-size: 12px !important; }
-        body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 2px 2px !important; }
-        body.snapshot-mode .company-chip { font-size: 9px !important; padding: 2px 4px !important; border-radius: 8px !important; }
-        body.snapshot-mode .brig-cell .stepper input { width: 32px !important; height: 28px !important; font-size: 14px !important; }
-        body.snapshot-mode .total-row td { font-size: 11px !important; padding: 4px 1px !important; }
-        body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 12px !important; }
-        body.snapshot-mode .grand-total-box span { font-size: 18px !important; }
-        body.snapshot-mode .reconciliation-box { padding: 8px !important; }
-        body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 4px !important; }
-        body.snapshot-mode .rec-item { font-size: 11px !important; padding: 4px 6px !important; }
-        body.snapshot-mode .rec-status { font-size: 11px !important; padding: 6px !important; }
-        body.snapshot-mode h2 { font-size: 14px !important; margin-bottom: 6px !important; }
-        body.snapshot-mode .shipment-top { padding: 8px !important; margin-bottom: 8px !important; }
-        body.snapshot-mode .shipment-table th { font-size: 9px !important; padding: 4px 2px !important; }
-        body.snapshot-mode .shipment-table td { font-size: 11px !important; padding: 4px 2px !important; }
-        body.snapshot-mode .shipment-table td.dir-name { font-size: 10px !important; padding: 4px 5px !important; }
-
-        .snapshot-hint {
-            display: none; background: rgba(255, 193, 7, 0.15);
-            border: 2px solid var(--warning); color: var(--warning);
-            padding: 16px; border-radius: 12px; text-align: center;
-            font-weight: 700; font-size: 14px; margin-bottom: 14px;
-            cursor: pointer; user-select: none;
-        }
-        .snapshot-hint:hover { background: rgba(255, 193, 7, 0.25); }
-        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: var(--text-dim); }
+        body.snapshot-mode th { font-size: 8px !important; padding: 3px 1px !important; white-space: normal !important; word-break: break-word !important; }
+        body.snapshot-mode td { padding: 1px !important; font-size: 10px !important; }
+        body.snapshot-mode .station-name { font-size: 9px !important; padding: 2px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; }
+        body.snapshot-mode .stepper input { width: 22px !important; height: 22px !important; font-size: 10px !important; }
+        body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 1px !important; }
+        body.snapshot-mode .company-chip { font-size: 8px !important; padding: 1px 3px !important; border-radius: 6px !important; }
+        body.snapshot-mode .brig-cell .stepper input { width: 26px !important; height: 22px !important; font-size: 11px !important; }
+        body.snapshot-mode .total-row td { font-size: 9px !important; padding: 2px !important; }
+        body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 11px !important; }
+        body.snapshot-mode .grand-total-box span { font-size: 16px !important; }
+        body.snapshot-mode .reconciliation-box { padding: 6px !important; }
+        body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 3px !important; }
+        body.snapshot-mode .rec-item { font-size: 10px !important; padding: 3px 5px !important; }
+        body.snapshot-mode .rec-status { font-size: 10px !important; padding: 5px !important; }
+        body.snapshot-mode h2 { font-size: 13px !important; margin-bottom: 6px !important; }
+        body.snapshot-mode .shipment-top { padding: 6px !important; margin-bottom: 6px !important; }
+        body.snapshot-mode .shipment-top h3 { font-size: 11px !important; }
+        body.snapshot-mode .shipment-table th { font-size: 8px !important; padding: 3px 1px !important; }
+        body.snapshot-mode .shipment-table td { font-size: 9px !important; padding: 2px 1px !important; }
+        body.snapshot-mode .shipment-table td.dir-name { font-size: 9px !important; padding: 2px 3px !important; }
+        body.snapshot-mode .shipment-table td.sum-cell { font-size: 10px !important; }
 
         /* === МОБИЛЬНАЯ === */
         @media (max-width: 768px) {
-            .sidebar { width: 60px; padding: 8px 0; }
-            .sidebar-logo { width: 40px; height: 40px; font-size: 20px; margin-bottom: 14px; }
-            .sidebar-btn { width: 44px; height: 44px; font-size: 20px; }
-            .main-content { padding: 10px; max-width: calc(100% - 60px); }
-            .tabs { display: flex; }
             h2 { font-size: 17px; margin-bottom: 12px; }
             .date-time-row { gap: 8px; margin-bottom: 12px; }
             .date-time-row label { font-size: 12px; }
@@ -549,7 +597,6 @@
             .stepper { gap: 2px; }
             .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
             .stepper input { width: 38px; height: 32px; font-size: 14px; border-radius: 6px; }
-            .brig-cell { padding: 6px 3px; }
             .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 19px; }
             .brig-cell .stepper input { width: 50px; height: 36px; font-size: 17px; }
             .grand-total-box { padding: 12px; font-size: 13px; }
@@ -559,8 +606,6 @@
             .rec-grid { grid-template-columns: 1fr; gap: 6px; }
             .rec-item { font-size: 13px; padding: 6px 10px; }
             .rec-status { font-size: 12px; padding: 10px; }
-            .buttons { gap: 8px; }
-            .buttons button { padding: 12px 6px; font-size: 13px; min-height: 48px; }
             table { min-width: 720px; }
             .company-chip { font-size: 11px; padding: 4px 8px; }
             .add-company-btn { font-size: 11px; padding: 6px 10px; }
@@ -571,18 +616,16 @@
             .modal-add-company input, .modal-add-company button { width: 100%; }
             .modal-actions { flex-direction: column; }
             .modal-actions button { width: 100%; }
-            .shipment-table th { font-size: 10px; padding: 6px 3px; }
-            .shipment-table td { font-size: 12px; padding: 6px 3px; }
-            .shipment-table td.dir-name { font-size: 12px; padding: 8px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 28px; height: 28px; font-size: 15px; }
-            .ship-stepper input { width: 38px; height: 28px; font-size: 13px; }
+            .shipment-table th { font-size: 10px; padding: 5px 2px; }
+            .shipment-table td { font-size: 11px; padding: 4px 2px; }
+            .shipment-table td.dir-name { font-size: 11px; padding: 5px 4px; }
+            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 24px; height: 24px; font-size: 13px; }
+            .ship-stepper input { width: 30px; height: 24px; font-size: 11px; }
+            .action-btn { font-size: 10px; padding: 10px 2px; min-height: 62px; }
+            .action-btn .ico { font-size: 20px; }
         }
 
         @media (max-width: 480px) {
-            .sidebar { width: 54px; }
-            .sidebar-btn { width: 40px; height: 40px; font-size: 18px; }
-            .sidebar-logo { width: 36px; height: 36px; font-size: 18px; }
-            .main-content { padding: 8px; max-width: calc(100% - 54px); }
             .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
             .stepper input { width: 34px; height: 30px; font-size: 13px; }
             .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
@@ -591,169 +634,188 @@
             th { font-size: 10px; }
             .modal-company-list { grid-template-columns: 1fr; }
             .shipment-top-item { padding: 8px 10px; font-size: 13px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 26px; height: 26px; font-size: 14px; }
-            .ship-stepper input { width: 34px; height: 26px; font-size: 12px; }
+            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 22px; height: 22px; font-size: 12px; }
+            .ship-stepper input { width: 28px; height: 22px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
 
-<div class="app-layout">
-    <aside class="sidebar">
-        <div class="sidebar-logo" onclick="switchTab('report')" title="Отчет по складу">📦</div>
-        <nav class="sidebar-nav">
-            <button class="sidebar-btn active" id="sideBtnReport" onclick="switchTab('report')" title="Отчёт">📋</button>
-            <button class="sidebar-btn" id="sideBtnShipment" onclick="switchTab('shipment')" title="Отгрузка">🚚</button>
-            <button class="sidebar-btn" onclick="scrollToAnalytics()" title="Аналитика">📊</button>
-            <button class="sidebar-btn" onclick="exportCSV()" title="Excel">📥</button>
-        </nav>
-        <div class="sidebar-bottom">
-            <button class="sidebar-btn confirm-btn saved" id="confirmBtn" onclick="confirmSave()" title="Подтвердить изменения">✅</button>
-            <button class="sidebar-btn" onclick="forceRefreshFromServer()" title="Обновить с сервера">🔄</button>
-            <button class="sidebar-btn" onclick="toggleSnapshot()" title="Скриншот">📸</button>
-            <button class="sidebar-btn" onclick="clearData()" title="Очистить" style="color: #ff6b6b;">🗑️</button>
-        </div>
-    </aside>
+<div class="hamburger" onclick="toggleMenu()">☰</div>
 
-    <main class="main-content">
-        <div class="container" id="captureArea">
-            <h2>📦 Отчет по складу</h2>
-
-            <div class="sync-status sync-connecting" id="syncStatus" onclick="forceRefreshFromServer()" title="Нажми, чтобы обновить с сервера">🔄 Подключение к серверу...</div>
-
-            <div class="snapshot-hint" id="snapshotHint" onclick="toggleSnapshot()">
-                📸 <b>Готово к скриншоту!</b>
-                <small>Сделайте скриншот. Нажмите сюда, чтобы вернуть интерфейс.</small>
-            </div>
-
-            <div class="tabs">
-                <button class="tab-btn active" id="tabBtnReport" onclick="switchTab('report')">📋 Отчёт</button>
-                <button class="tab-btn" id="tabBtnShipment" onclick="switchTab('shipment')">🚚 Отгрузка</button>
-            </div>
-
-            <div class="tab-content active" id="tabReport">
-                <div class="date-time-row">
-                    <label>Дата: <input type="date" id="reportDate"></label>
-                    <label>Время: <input type="time" id="reportTime"></label>
-                </div>
-
-                <div class="grand-total-box">
-                    Итого человек на смене: <span id="grandTotal">0</span> чел.
-                    <div style="font-size: 11px; font-weight: 400; margin-top: 4px; color: var(--text-dim);">(включая админку — для справки)</div>
-                </div>
-
-                <div class="reconciliation-box">
-                    <h3>👥 Всего людей на смене (для сверки)</h3>
-                    <div class="rec-grid">
-                        <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
-                        <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
-                        <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
-                        <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
-                    </div>
-                    <input type="hidden" id="totalAdmin" value="0">
-                    <input type="hidden" id="totalStaff" value="0">
-                    <input type="hidden" id="totalOut" value="0">
-                    <input type="hidden" id="totalBrig" value="0">
-                    <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
-                </div>
-
-                <div class="table-wrap" id="tableWrap">
-                    <table id="reportTable">
-                        <thead>
-                            <tr>
-                                <th>Рабочая станция</th>
-                                <th>Аутстафф</th>
-                                <th>Бриг. АК</th>
-                                <th>АК Компания</th>
-                                <th>Штат</th>
-                                <th>Бриг. Стаф</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-
-                <div class="autosave-indicator" id="autosaveIndicator"></div>
-
-                <div class="buttons">
-                    <button class="btn-save" onclick="archiveCurrentReport()">💾 В архив</button>
-                    <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
-                    <button class="btn-img" id="snapshotBtn" onclick="toggleSnapshot()">📸 Скрин</button>
-                    <button class="btn-clear" onclick="clearData()">🗑️ Очистить</button>
-                </div>
-
-                <div class="zoom-panel" id="zoomPanel">
-                    <span class="zoom-label">🔍 Масштаб:</span>
-                    <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
-                    <span class="zoom-value" id="zoomValue">100%</span>
-                    <button class="zoom-btn" onclick="changeZoom(1)">+</button>
-                    <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
-                </div>
-
-                <div class="analytics-box" id="analyticsBox">
-                    <h3 onclick="toggleAnalytics()" id="analyticsTitle">
-                        <span class="arrow">▼</span> 📊 Аналитика
-                    </h3>
-                    <div class="analytics-content" id="analyticsContent">
-                        <div class="analytics-section">
-                            <h4>📈 История за последние 7 дней</h4>
-                            <div id="historyTableContainer">Нет сохраненных отчетов</div>
-                        </div>
-                        <div class="analytics-section">
-                            <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
-                            <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
-                        </div>
-                        <div class="analytics-section">
-                            <h4>📉 Сравнение с прошлым отчетом</h4>
-                            <div id="compareContainer">Нет данных</div>
-                        </div>
-                        <div class="analytics-section">
-                            <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
-                            <div id="archiveContainer">Архив пуст</div>
-                            <button onclick="clearArchive()" style="margin-top: 10px; padding: 8px 14px; font-size: 13px; background: linear-gradient(135deg,#dc3545,#b02a37); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">Очистить архив</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="tabShipment">
-                <div class="shipment-top" id="shipmentTop">
-                    <h3>🔥 Топ-3 направления (больше всего накопилось)</h3>
-                    <div class="shipment-top-list" id="shipmentTopList">
-                        <div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>
-                    </div>
-                </div>
-
-                <div class="table-wrap">
-                    <table class="shipment-table" id="shipmentTable">
-                        <thead>
-                            <tr>
-                                <th>Направление</th>
-                                <th>Габарит</th>
-                                <th>Негабарит</th>
-                                <th>Итого</th>
-                                <th>ТС</th>
-                                <th>Действие</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-
-                <div class="shipment-history">
-                    <h3>
-                        <span>📜 История за сутки</span>
-                        <button onclick="clearShipmentHistory()">Очистить</button>
-                    </h3>
-                    <div id="shipmentHistoryList">
-                        <div style="color: var(--text-dim); font-size: 12px;">История пуста</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+<div class="fullscreen-menu" id="fullscreenMenu">
+    <div class="menu-header">
+        <div class="menu-logo">📦 Отчет по складу</div>
+        <button class="menu-close" onclick="toggleMenu()">✕</button>
+    </div>
+    <div class="menu-items">
+        <button class="menu-item active" id="menuItemReport" onclick="menuGo('report')">
+            <span class="menu-icon">📋</span>
+            <span>Распределение людей</span>
+        </button>
+        <button class="menu-item" id="menuItemShipment" onclick="menuGo('shipment')">
+            <span class="menu-icon">🚚</span>
+            <span>Отгрузка</span>
+        </button>
+        <button class="menu-item" id="menuItemAnalytics" onclick="menuGo('analytics')">
+            <span class="menu-icon">📊</span>
+            <span>Аналитика</span>
+        </button>
+    </div>
 </div>
 
+<main class="main-content">
+    <div class="container" id="captureArea">
+        <h2 id="pageTitle">📋 Распределение людей</h2>
+
+        <div class="sync-status sync-connecting" id="syncStatus" onclick="forceRefreshFromServer()">🔄 Подключение к серверу...</div>
+
+        <!-- ЭКРАН 1: РАСПРЕДЕЛЕНИЕ -->
+        <div class="tab-content active" id="tabReport">
+            <div class="date-time-row">
+                <label>Дата: <input type="date" id="reportDate"></label>
+                <label>Время: <input type="time" id="reportTime"></label>
+            </div>
+
+            <div class="grand-total-box">
+                Итого человек на смене: <span id="grandTotal">0</span> чел.
+                <div style="font-size: 11px; font-weight: 400; margin-top: 4px; color: var(--text-dim);">(включая админку — для справки)</div>
+            </div>
+
+            <div class="reconciliation-box">
+                <h3>👥 Всего людей на смене (для сверки)</h3>
+                <div class="rec-grid">
+                    <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
+                    <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
+                    <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
+                    <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
+                </div>
+                <input type="hidden" id="totalAdmin" value="0">
+                <input type="hidden" id="totalStaff" value="0">
+                <input type="hidden" id="totalOut" value="0">
+                <input type="hidden" id="totalBrig" value="0">
+                <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
+            </div>
+
+            <div class="table-wrap" id="tableWrap">
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Рабочая станция</th>
+                            <th>Аутстафф</th>
+                            <th>Бриг. АК</th>
+                            <th>АК Компания</th>
+                            <th>Штат</th>
+                            <th>Бриг. Стаф</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="autosave-indicator" id="autosaveIndicator"></div>
+
+            <div class="zoom-panel" id="zoomPanel">
+                <span class="zoom-label">🔍 Масштаб:</span>
+                <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
+                <span class="zoom-value" id="zoomValue">100%</span>
+                <button class="zoom-btn" onclick="changeZoom(1)">+</button>
+                <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 2: ОТГРУЗКА -->
+        <div class="tab-content" id="tabShipment">
+            <div class="shipment-top" id="shipmentTop">
+                <h3>🔥 Топ-3 направления (больше всего накопилось)</h3>
+                <div class="shipment-top-list" id="shipmentTopList">
+                    <div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>
+                </div>
+            </div>
+
+            <button class="edit-dirs-btn" onclick="openEditDirsModal()">
+                ⚙️ Изменить направления
+            </button>
+
+            <div class="table-wrap">
+                <table class="shipment-table" id="shipmentTable">
+                    <thead>
+                        <tr>
+                            <th>Направление</th>
+                            <th>Габарит</th>
+                            <th>Негабарит</th>
+                            <th>Тотал</th>
+                            <th>Потр. ТС</th>
+                            <th>Есть ТС</th>
+                            <th>X-dok</th>
+                            <th>ВП</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="shipment-history">
+                <h3>
+                    <span>📜 История за сутки</span>
+                    <button onclick="clearShipmentHistory()">Очистить</button>
+                </h3>
+                <div id="shipmentHistoryList">
+                    <div style="color: var(--text-dim); font-size: 12px;">История пуста</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 3: АНАЛИТИКА -->
+        <div class="tab-content" id="tabAnalytics">
+            <div class="analytics-container">
+                <div class="analytics-section">
+                    <h4>📈 История за последние 7 дней</h4>
+                    <div id="historyTableContainer">Нет сохраненных отчетов</div>
+                </div>
+                <div class="analytics-section">
+                    <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
+                    <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
+                </div>
+                <div class="analytics-section">
+                    <h4>📉 Сравнение с прошлым отчетом</h4>
+                    <div id="compareContainer">Нет данных</div>
+                </div>
+                <div class="analytics-section">
+                    <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
+                    <div id="archiveContainer">Архив пуст</div>
+                    <button onclick="clearArchive()" style="margin-top: 10px; padding: 8px 14px; font-size: 13px; background: linear-gradient(135deg,#dc3545,#b02a37); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">Очистить архив</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- КНОПКИ ВНИЗУ -->
+        <div class="action-bar">
+            <button class="action-btn act-snapshot" onclick="toggleSnapshot()">
+                <span class="ico">📸</span>
+                <span>Скрин</span>
+            </button>
+            <button class="action-btn act-excel" onclick="exportCSV()">
+                <span class="ico">📥</span>
+                <span>Excel</span>
+            </button>
+            <button class="action-btn act-clear" onclick="clearData()">
+                <span class="ico">🗑️</span>
+                <span>Очистить</span>
+            </button>
+            <button class="action-btn act-confirm saved" id="confirmBtn" onclick="confirmSave()">
+                <span class="ico">✅</span>
+                <span>Подтвердить</span>
+            </button>
+            <button class="action-btn act-refresh" onclick="forceRefreshFromServer()">
+                <span class="ico">🔄</span>
+                <span>Обновить</span>
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- МОДАЛКА КОМПАНИЙ -->
 <div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
     <div class="modal">
         <h3>Выберите компанию</h3>
@@ -769,6 +831,19 @@
     </div>
 </div>
 
+<!-- МОДАЛКА РЕДАКТИРОВАНИЯ НАПРАВЛЕНИЙ -->
+<div class="modal-overlay" id="dirsModal" onclick="if(event.target===this) closeEditDirsModal()">
+    <div class="modal">
+        <h3>Направления</h3>
+        <div class="dir-list" id="dirList"></div>
+        <button class="dir-add-btn" onclick="addNewDirection()">+ Добавить направление</button>
+        <div class="modal-actions">
+            <button class="modal-close-btn" onclick="closeEditDirsModal()">Отмена</button>
+            <button class="modal-confirm-btn" onclick="saveDirections()">✅ Подтвердить</button>
+        </div>
+    </div>
+</div>
+
 <button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
@@ -777,6 +852,15 @@
 
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
+
+    // Направления отгрузки по умолчанию
+    const DEFAULT_DIRECTIONS = [
+        "Ижевск", "Чебоксары", "Челы", "Киров", "Екатеринбург",
+        "Самара", "Самара Возврат", "Уфа", "Ростов", "Ульяновск",
+        "Оренбург", "Нижний Новгород", "Пенза", "Саратов", "Дзержинский",
+        "Софьино", "Домодедово", "Казань ВП", "ДМД ЕВСЦ"
+    ];
+    let SHIPMENT_DIRECTIONS = JSON.parse(localStorage.getItem('warehouseDirections')) || [...DEFAULT_DIRECTIONS];
 
     const SORT_ZONES = [
         "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
@@ -788,49 +872,37 @@
     const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
     const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
 
-    const SHIPMENT_DIRECTIONS = [
-        "Ижевск", "Чебоксары", "Челы", "Киров", "ЕКБ",
-        "Самара", "Уфа", "Ростов", "Ульяновск", "Оренбург",
-        "Нижний Новгород", "Пенза", "Саратов", "Дзержинский"
-    ];
-
     let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
     let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
+    let SHIPMENT_SORTED = false;
     let saveTimer = null, syncTimer = null, isSaving = false;
     let serverLoaded = false;
     let hasUnsavedChanges = false;
+    let editingDirs = [];
 
-    // ============ ВКЛАДКИ ============
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.sidebar-nav .sidebar-btn').forEach(el => el.classList.remove('active'));
-
-        if (tab === 'report') {
-            document.getElementById('tabReport').classList.add('active');
-            const tb = document.getElementById('tabBtnReport'); if (tb) tb.classList.add('active');
-            document.getElementById('sideBtnReport').classList.add('active');
-        } else {
-            document.getElementById('tabShipment').classList.add('active');
-            const tb = document.getElementById('tabBtnShipment'); if (tb) tb.classList.add('active');
-            document.getElementById('sideBtnShipment').classList.add('active');
-            renderShipment();
-        }
+    // ============ МЕНЮ ============
+    function toggleMenu() {
+        document.getElementById('fullscreenMenu').classList.toggle('active');
     }
 
-    function scrollToAnalytics() {
-        switchTab('report');
-        setTimeout(() => {
-            const box = document.getElementById('analyticsBox');
-            if (box) {
-                box.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                const content = document.getElementById('analyticsContent');
-                if (content.classList.contains('hidden')) {
-                    content.classList.remove('hidden');
-                    document.getElementById('analyticsTitle').classList.remove('collapsed');
-                }
-            }
-        }, 100);
+    function menuGo(screen) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        if (screen === 'report') {
+            document.getElementById('tabReport').classList.add('active');
+            document.getElementById('pageTitle').textContent = '📋 Распределение людей';
+        } else if (screen === 'shipment') {
+            document.getElementById('tabShipment').classList.add('active');
+            document.getElementById('pageTitle').textContent = '🚚 Отгрузка';
+            renderShipment(SHIPMENT_SORTED);
+        } else if (screen === 'analytics') {
+            document.getElementById('tabAnalytics').classList.add('active');
+            document.getElementById('pageTitle').textContent = '📊 Аналитика';
+            renderAnalytics();
+        }
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('menuItem' + screen.charAt(0).toUpperCase() + screen.slice(1)).classList.add('active');
+        toggleMenu();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ============ СТАТУС ============
@@ -845,23 +917,17 @@
         hasUnsavedChanges = true;
         setSyncStatus('unsaved', '⚠️ Есть несохранённые — нажмите ✅');
         const btn = document.getElementById('confirmBtn');
-        if (btn) {
-            btn.classList.remove('saved');
-            btn.title = 'Есть несохранённые изменения — нажмите, чтобы сохранить';
-        }
+        if (btn) { btn.classList.remove('saved'); btn.classList.add('unsaved'); }
     }
 
     function markSaved() {
         hasUnsavedChanges = false;
         setSyncStatus('online', '✅ Все изменения сохранены');
         const btn = document.getElementById('confirmBtn');
-        if (btn) {
-            btn.classList.add('saved');
-            btn.title = 'Все изменения сохранены';
-        }
+        if (btn) { btn.classList.add('saved'); btn.classList.remove('unsaved'); }
     }
 
-    // ============ ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ============
+    // ============ СЕРВЕР ============
     async function forceRefreshFromServer() {
         if (hasUnsavedChanges) {
             if (!confirm('Есть несохранённые изменения. Они будут потеряны. Продолжить?')) return;
@@ -870,7 +936,6 @@
         await loadFromServer();
     }
 
-    // ============ СЕРВЕР ============
     async function loadFromServer() {
         try {
             setSyncStatus('connecting', '🔄 Загрузка с сервера...');
@@ -882,6 +947,10 @@
                 COMPANIES = data.companies.list;
                 localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
             }
+            if (data?.directions?.list) {
+                SHIPMENT_DIRECTIONS = data.directions.list;
+                localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
+            }
             if (data?.archive?.archive) localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
             if (data?.shipment?.data) {
                 SHIPMENT_DATA = data.shipment.data;
@@ -891,7 +960,7 @@
                 SHIPMENT_HISTORY = data.shipment.history;
                 localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
             }
-            renderShipment();
+            renderShipment(SHIPMENT_SORTED);
             serverLoaded = true;
             markSaved();
             saveDataToLocal();
@@ -911,6 +980,7 @@
             const payload = {
                 current: collectDataFromUI(),
                 companies: { list: COMPANIES },
+                directions: { list: SHIPMENT_DIRECTIONS },
                 archive: { archive: JSON.parse(localStorage.getItem('warehouseArchive')) || [] },
                 shipment: { data: SHIPMENT_DATA, history: SHIPMENT_HISTORY }
             };
@@ -923,7 +993,6 @@
             });
             if (!response.ok) throw new Error('HTTP ' + response.status);
             markSaved();
-            console.log('📤 Сохранено на сервер');
         } catch (err) {
             console.error('Ошибка сохранения:', err);
             setSyncStatus('offline', '📴 Ошибка сохранения — попробуйте ещё раз');
@@ -933,28 +1002,20 @@
     }
 
     async function confirmSave() {
-        if (!serverLoaded) {
-            alert('Подождите, идёт подключение к серверу...');
-            return;
-        }
+        if (!serverLoaded) { alert('Подождите, идёт подключение к серверу...'); return; }
         saveDataToLocal();
         await saveToServer();
     }
 
     function saveDebounced() {
         if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
-            saveDataToLocal();
-            markUnsaved();
-        }, 300);
+        saveTimer = setTimeout(() => { saveDataToLocal(); markUnsaved(); }, 300);
     }
 
     function startSyncLoop() {
         if (syncTimer) clearInterval(syncTimer);
         syncTimer = setInterval(async () => {
-            if (isSaving) return;
-            if (!serverLoaded) return;
-            if (hasUnsavedChanges) return;
+            if (isSaving || !serverLoaded || hasUnsavedChanges) return;
             try {
                 const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!response.ok) return;
@@ -970,6 +1031,10 @@
                         COMPANIES = data.companies.list;
                         localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
                     }
+                    if (data.directions?.list) {
+                        SHIPMENT_DIRECTIONS = data.directions.list;
+                        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
+                    }
                     if (data.archive?.archive) {
                         localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
                         renderAnalytics();
@@ -982,7 +1047,7 @@
                         SHIPMENT_HISTORY = data.shipment.history;
                         localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
                     }
-                    renderShipment();
+                    renderShipment(SHIPMENT_SORTED);
                     markSaved();
                     saveDataToLocal();
                 }
@@ -996,6 +1061,7 @@
         localStorage.setItem('warehouseReport', JSON.stringify(data));
         localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
         localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
+        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
         const indicator = document.getElementById('autosaveIndicator');
         if (indicator) {
             const now = new Date();
@@ -1074,7 +1140,6 @@
         calculateTotals();
     }
 
-    // ============ СТЕППЕРЫ ============
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
@@ -1178,23 +1243,6 @@
         saveDebounced();
     }
 
-    // ============ СКРИН ============
-    function toggleSnapshot() {
-        const body = document.body;
-        const btn = document.getElementById('snapshotBtn');
-        if (body.classList.contains('snapshot-mode')) {
-            body.classList.remove('snapshot-mode');
-            if (btn) btn.innerHTML = '📸 Скрин';
-            setTimeout(applyZoom, 50);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            body.classList.add('snapshot-mode');
-            if (btn) btn.innerHTML = '↩️ Вернуть';
-            setTimeout(applyZoom, 50);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
     // ============ МАСШТАБ ============
     let currentZoom = 100;
     const ZOOM_STEP = 10, ZOOM_MIN = 50, ZOOM_MAX = 130;
@@ -1270,21 +1318,31 @@
     }
 
     // ============ ОТГРУЗКА ============
-    function renderShipment() {
+    function renderShipment(sort) {
+        if (typeof sort === 'undefined') sort = SHIPMENT_SORTED;
+        else SHIPMENT_SORTED = sort;
+
         const directions = SHIPMENT_DIRECTIONS.map(dir => {
-            const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0 };
+            const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
             return {
                 name: dir,
                 gab: Number(d.gab) || 0,
                 negab: Number(d.negab) || 0,
                 ts: Number(d.ts) || 0,
+                needTS: Number(d.needTS) || 0,
+                haveTS: Number(d.haveTS) || 0,
+                xdok: Number(d.xdok) || 0,
+                vp: Number(d.vp) || 0,
                 sum: (Number(d.gab) || 0) + (Number(d.negab) || 0)
             };
         });
-        directions.sort((a, b) => b.sum - a.sum);
 
+        if (sort) directions.sort((a, b) => b.sum - a.sum);
+
+        // Топ-3 — всегда по сумме
         const topList = document.getElementById('shipmentTopList');
-        const top3 = directions.filter(d => d.sum > 0).slice(0, 3);
+        const sortedForTop = [...directions].sort((a, b) => b.sum - a.sum);
+        const top3 = sortedForTop.filter(d => d.sum > 0).slice(0, 3);
         if (top3.length === 0) {
             topList.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>';
         } else {
@@ -1292,7 +1350,7 @@
                 <div class="shipment-top-item rank-${i+1}">
                     <div class="rank-dir">
                         ${i+1}. ${d.name}
-                        <div class="rank-details">Габарит: ${d.gab} | Негабарит: ${d.negab} | ТС: ${d.ts}</div>
+                        <div class="rank-details">Габарит: ${d.gab} | Негабарит: ${d.negab} | Тотал: ${d.sum}</div>
                     </div>
                     <div class="rank-sum">${d.sum}</div>
                 </div>
@@ -1303,26 +1361,28 @@
         tbody.innerHTML = '';
         directions.forEach((d, i) => {
             const tr = document.createElement('tr');
-            if (i === 0 && d.sum > 0) tr.className = 'rank-1';
-            else if (i === 1 && d.sum > 0) tr.className = 'rank-2';
-            else if (i === 2 && d.sum > 0) tr.className = 'rank-3';
+            if (sort) {
+                if (i === 0 && d.sum > 0) tr.className = 'rank-1';
+                else if (i === 1 && d.sum > 0) tr.className = 'rank-2';
+                else if (i === 2 && d.sum > 0) tr.className = 'rank-3';
+            }
             const safeName = d.name.replace(/'/g, "\\'");
             tr.innerHTML = `
                 <td class="dir-name">${d.name}</td>
-                <td>${shipStepperHTML(safeName, 'gab', d.gab)}</td>
-                <td>${shipStepperHTML(safeName, 'negab', d.negab)}</td>
+                <td>${shipStepHTML(safeName, 'gab', d.gab)}</td>
+                <td>${shipStepHTML(safeName, 'negab', d.negab)}</td>
                 <td class="sum-cell">${d.sum}</td>
-                <td>${shipStepperHTML(safeName, 'ts', d.ts)}</td>
-                <td>
-                    <button class="ship-btn-reset" onclick="resetShipmentDir('${safeName}')">Сброс</button>
-                </td>
+                <td class="ts-cell">${shipStepHTML(safeName, 'needTS', d.needTS)}</td>
+                <td>${shipStepHTML(safeName, 'haveTS', d.haveTS)}</td>
+                <td>${shipStepHTML(safeName, 'xdok', d.xdok)}</td>
+                <td>${shipStepHTML(safeName, 'vp', d.vp)}</td>
             `;
             tbody.appendChild(tr);
         });
         renderShipmentHistory();
     }
 
-    function shipStepperHTML(dir, field, value) {
+    function shipStepHTML(dir, field, value) {
         return `<div class="stepper ship-stepper">
             <button type="button" class="btn-minus" onclick="shipStep('${dir}', '${field}', -1)">−</button>
             <input type="number" value="${value}" min="0" inputmode="none" readonly>
@@ -1331,11 +1391,11 @@
     }
 
     function shipStep(dir, field, delta) {
-        if (!SHIPMENT_DATA[dir]) SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0 };
+        if (!SHIPMENT_DATA[dir]) SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
         const newVal = Math.max(0, (SHIPMENT_DATA[dir][field] || 0) + delta);
         if (newVal === SHIPMENT_DATA[dir][field]) return;
         SHIPMENT_DATA[dir][field] = newVal;
-        if (delta > 0) {
+        if (delta > 0 && (field === 'gab' || field === 'negab' || field === 'ts')) {
             const entry = { time: Date.now(), direction: dir, gab: 0, negab: 0, ts: 0 };
             entry[field] = delta;
             SHIPMENT_HISTORY.unshift(entry);
@@ -1343,7 +1403,7 @@
             localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
         }
         localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-        renderShipment();
+        renderShipment(false);  // Не сортировать пока
         saveDebounced();
     }
 
@@ -1371,14 +1431,6 @@
         container.innerHTML = html;
     }
 
-    function resetShipmentDir(dir) {
-        if (!confirm(`Обнулить "${dir}"?`)) return;
-        SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0 };
-        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-        renderShipment();
-        saveDebounced();
-    }
-
     function clearShipmentHistory() {
         if (!confirm('Очистить всю историю?')) return;
         SHIPMENT_HISTORY = [];
@@ -1387,19 +1439,89 @@
         saveDebounced();
     }
 
-    // ============ PWA ============
-    let deferredPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
-    });
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
+    // ============ РЕДАКТИРОВАНИЕ НАПРАВЛЕНИЙ ============
+    function openEditDirsModal() {
+        editingDirs = [...SHIPMENT_DIRECTIONS];
+        renderEditDirsList();
+        document.getElementById('dirsModal').classList.add('active');
+    }
+
+    function closeEditDirsModal() {
+        document.getElementById('dirsModal').classList.remove('active');
+        editingDirs = [];
+    }
+
+    function renderEditDirsList() {
+        const list = document.getElementById('dirList');
+        list.innerHTML = '';
+        editingDirs.forEach((dir, i) => {
+            const div = document.createElement('div');
+            div.className = 'dir-item';
+            div.innerHTML = `
+                <input type="text" value="${dir.replace(/"/g, '&quot;')}" maxlength="40" oninput="updateEditingDir(${i}, this.value)">
+                <button class="dir-del" onclick="removeEditingDir(${i})">🗑</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function updateEditingDir(idx, value) {
+        editingDirs[idx] = value;
+    }
+
+    function removeEditingDir(idx) {
+        if (editingDirs.length <= 1) { alert('Должно остаться хотя бы одно направление'); return; }
+        editingDirs.splice(idx, 1);
+        renderEditDirsList();
+    }
+
+    function addNewDirection() {
+        editingDirs.push('Новое направление');
+        renderEditDirsList();
+        // Фокус на последнее поле
+        setTimeout(() => {
+            const inputs = document.querySelectorAll('#dirList input');
+            if (inputs.length > 0) {
+                const last = inputs[inputs.length - 1];
+                last.focus();
+                last.select();
+            }
+        }, 50);
+    }
+
+    function saveDirections() {
+        // Проверка
+        const cleaned = editingDirs.map(d => d.trim()).filter(d => d.length > 0);
+        if (cleaned.length === 0) { alert('Введите хотя бы одно направление'); return; }
+        // Проверка дубликатов
+        const unique = [...new Set(cleaned)];
+        if (unique.length !== cleaned.length) { alert('Есть одинаковые названия — уберите дубли'); return; }
+
+        // Сохраняем
+        SHIPMENT_DIRECTIONS = unique;
+        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
+        closeEditDirsModal();
+        renderShipment(SHIPMENT_SORTED);
+        saveDebounced();
+    }
+
+    // ============ СКРИН ============
+    function toggleSnapshot() {
+        const body = document.body;
+        if (body.classList.contains('snapshot-mode')) {
+            body.classList.remove('snapshot-mode');
+            setTimeout(applyZoom, 50);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            // Перед скрином — сортируем отгрузку
+            if (document.getElementById('tabShipment').classList.contains('active')) {
+                renderShipment(true);
+            }
+            body.classList.add('snapshot-mode');
+            setTimeout(applyZoom, 50);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
-    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
     // ============ ИНИЦИАЛИЗАЦИЯ ============
     window.addEventListener('load', async function() {
@@ -1425,7 +1547,7 @@
         loadFromLocal();
         calculateTotals();
         renderAnalytics();
-        renderShipment();
+        renderShipment(false);
         setTimeout(applyZoom, 100);
 
         await loadFromServer();
@@ -1535,43 +1657,7 @@
         renderAnalytics();
     }
 
-    function archiveCurrentReport() {
-        const data = collectDataFromUI();
-        let totalOut = 0, totalBak = 0, totalSht = 0;
-        const archiveRows = [];
-        data.rows.forEach(r => {
-            const out = Number(r.out) || 0, bak = Number(r.bak) || 0, sht = Number(r.sht) || 0;
-            archiveRows.push({ station: r.station, out, bak, companies: r.companies, sht });
-            totalOut += out; totalBak += bak; totalSht += sht;
-        });
-        const totalAdmin = Number(data.totals.admin) || 0;
-        const totalStaff = Number(data.totals.staff) || 0;
-        const declaredOut = Number(data.totals.out) || 0;
-        const totalBrig = Number(data.totals.brig) || 0;
-        const bst = (Number(data.bstSort) || 0) + (Number(data.bstLoad) || 0);
-        const actualTotal = totalOut + totalSht + totalBak;
-        const declaredTotal = totalStaff + declaredOut + totalBrig;
-        const report = {
-            id: Date.now(), date: data.date, time: data.time,
-            admin: totalAdmin, staff: totalStaff, out: declaredOut, brig: totalBrig, bst,
-            grandTotal: totalAdmin + totalStaff + declaredOut + totalBrig + bst,
-            actualTotal, declaredTotal, diff: declaredTotal - actualTotal, rows: archiveRows
-        };
-        let archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
-        const existingIndex = archive.findIndex(r => r.date === report.date && r.time === report.time);
-        if (existingIndex !== -1) archive[existingIndex] = report;
-        else archive.unshift(report);
-        if (archive.length > 50) archive = archive.slice(0, 50);
-        localStorage.setItem('warehouseArchive', JSON.stringify(archive));
-        renderAnalytics(); saveDebounced();
-        alert('✅ Отчет добавлен в архив! Не забудьте нажать ✅ для синхронизации.');
-    }
-
-    function toggleAnalytics() {
-        document.getElementById('analyticsContent').classList.toggle('hidden');
-        document.getElementById('analyticsTitle').classList.toggle('collapsed');
-    }
-
+    // ============ АРХИВ И АНАЛИТИКА ============
     function renderAnalytics() {
         const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
         renderHistory(archive);
@@ -1582,6 +1668,7 @@
 
     function renderHistory(archive) {
         const container = document.getElementById('historyTableContainer');
+        if (!container) return;
         if (archive.length === 0) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нет отчетов.</p>'; return; }
         const last7 = archive.slice(0, 7);
         let html = '<table class="history-table"><thead><tr><th>Дата</th><th>Время</th><th>На смене</th><th>Распр.</th><th>Расх.</th></tr></thead><tbody>';
@@ -1596,6 +1683,7 @@
 
     function renderTopZones() {
         const container = document.getElementById('topZonesList');
+        if (!container) return;
         const zones = [];
         document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
             const station = tr.querySelector('.station-name').textContent;
@@ -1619,6 +1707,7 @@
 
     function renderCompare(archive) {
         const container = document.getElementById('compareContainer');
+        if (!container) return;
         if (archive.length < 2) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нужно минимум 2 отчета.</p>'; return; }
         const current = archive[0], previous = archive[1];
         const formatDiff = (d) => d === 0 ? '<span class="diff-zero">0</span>' : (d > 0 ? `<span class="diff-positive">+${d}</span>` : `<span class="diff-negative">${d}</span>`);
@@ -1632,6 +1721,7 @@
 
     function renderArchive(archive) {
         const container = document.getElementById('archiveContainer');
+        if (!container) return;
         document.getElementById('archiveCount').textContent = archive.length;
         if (archive.length === 0) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Архив пуст.</p>'; return; }
         let html = '';
@@ -1681,6 +1771,38 @@
         renderAnalytics(); saveDebounced();
     }
 
+    function archiveCurrentReport() {
+        const data = collectDataFromUI();
+        let totalOut = 0, totalBak = 0, totalSht = 0;
+        const archiveRows = [];
+        data.rows.forEach(r => {
+            const out = Number(r.out) || 0, bak = Number(r.bak) || 0, sht = Number(r.sht) || 0;
+            archiveRows.push({ station: r.station, out, bak, companies: r.companies, sht });
+            totalOut += out; totalBak += bak; totalSht += sht;
+        });
+        const totalAdmin = Number(data.totals.admin) || 0;
+        const totalStaff = Number(data.totals.staff) || 0;
+        const declaredOut = Number(data.totals.out) || 0;
+        const totalBrig = Number(data.totals.brig) || 0;
+        const bst = (Number(data.bstSort) || 0) + (Number(data.bstLoad) || 0);
+        const actualTotal = totalOut + totalSht + totalBak;
+        const declaredTotal = totalStaff + declaredOut + totalBrig;
+        const report = {
+            id: Date.now(), date: data.date, time: data.time,
+            admin: totalAdmin, staff: totalStaff, out: declaredOut, brig: totalBrig, bst,
+            grandTotal: totalAdmin + totalStaff + declaredOut + totalBrig + bst,
+            actualTotal, declaredTotal, diff: declaredTotal - actualTotal, rows: archiveRows
+        };
+        let archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
+        const existingIndex = archive.findIndex(r => r.date === report.date && r.time === report.time);
+        if (existingIndex !== -1) archive[existingIndex] = report;
+        else archive.unshift(report);
+        if (archive.length > 50) archive = archive.slice(0, 50);
+        localStorage.setItem('warehouseArchive', JSON.stringify(archive));
+        renderAnalytics(); saveDebounced();
+        alert('✅ Отчет добавлен в архив!');
+    }
+
     function clearData() {
         if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
             document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
@@ -1699,6 +1821,21 @@
         }
     }
 
+    // ============ PWA ============
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
+    });
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
+        }
+    }
+    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+
+    // ============ EXPORT CSV ============
     function exportCSV() {
         let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
         const sortBst = document.getElementById('bstSort')?.value || '';
@@ -1721,15 +1858,17 @@
         csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
         csv += `Бриг. Стаф Сорт;${sortBst}\n`;
         csv += `Бриг. Стаф Отгр;${loadBst}\n`;
-        csv += `\n--- ОТГРУЗКА ---\n`;
-        csv += `Направление;Габарит;Негабарит;Итого;ТС\n`;
-        const dirs = SHIPMENT_DIRECTIONS.map(dir => {
-            const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0 };
-            return { name: dir, gab: d.gab || 0, negab: d.negab || 0, ts: d.ts || 0, sum: (d.gab || 0) + (d.negab || 0) };
-        }).sort((a, b) => b.sum - a.sum);
-        dirs.forEach(d => {
-            csv += `${d.name};${d.gab};${d.negab};${d.sum};${d.ts}\n`;
+
+        csv += '\n--- ОТГРУЗКА ---\n';
+        csv += 'Направление;Габарит;Негабарит;Тотал;Потр ТС;Есть ТС;X-dok;ВП\n';
+        SHIPMENT_DIRECTIONS.forEach(dir => {
+            const d = SHIPMENT_DATA[dir] || {};
+            const gab = Number(d.gab) || 0;
+            const negab = Number(d.negab) || 0;
+            const sum = gab + negab;
+            csv += `${dir};${gab};${negab};${sum};${d.needTS || 0};${d.haveTS || 0};${d.xdok || 0};${d.vp || 0}\n`;
         });
+
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.setAttribute('href', URL.createObjectURL(blob));
