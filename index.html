@@ -205,7 +205,6 @@
         }
         .add-company-btn:active { transform: scale(0.95); }
 
-        /* === ОТГРУЗКА (увеличенная) === */
         .shipment-top {
             background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
             border: 2px solid var(--warning); border-radius: 12px;
@@ -543,49 +542,85 @@
             box-shadow: 0 8px 24px rgba(79, 195, 247, 0.4); display: none; z-index: 9999; 
         }
 
-        body.snapshot-mode .stepper .btn-minus,
-        body.snapshot-mode .stepper .btn-plus { 
-            visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
+        /* === РЕЖИМ СКРИНА — ТОЛЬКО ДЛЯ МОБИЛЬНЫХ === */
+        @media (max-width: 768px) {
+            body.snapshot-mode .stepper .btn-minus,
+            body.snapshot-mode .stepper .btn-plus { 
+                visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
+            }
+            body.snapshot-mode .stepper { gap: 0; }
+            body.snapshot-mode .add-company-btn { display: none !important; }
+            body.snapshot-mode .company-chip .remove-chip { display: none !important; }
+            body.snapshot-mode .ship-btn-reset { display: none !important; }
+            body.snapshot-mode .edit-dirs-btn { display: none !important; }
+            body.snapshot-mode .action-bar,
+            body.snapshot-mode .install-btn,
+            body.snapshot-mode .autosave-indicator,
+            body.snapshot-mode .date-time-row,
+            body.snapshot-mode .sync-status,
+            body.snapshot-mode .hamburger,
+            body.snapshot-mode .zoom-panel,
+            body.snapshot-mode .shipment-history { 
+                display: none !important; 
+            }
+            body.snapshot-mode .main-content { padding: 6px; }
+            body.snapshot-mode .table-wrap { overflow: visible !important; }
+            body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
+            body.snapshot-mode th { font-size: 8px !important; padding: 3px 1px !important; white-space: normal !important; word-break: break-word !important; }
+            body.snapshot-mode td { padding: 1px !important; font-size: 10px !important; }
+            body.snapshot-mode .station-name { font-size: 9px !important; padding: 2px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; }
+            body.snapshot-mode .stepper input { width: 22px !important; height: 22px !important; font-size: 10px !important; }
+            body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 1px !important; }
+            body.snapshot-mode .company-chip { font-size: 8px !important; padding: 1px 3px !important; border-radius: 6px !important; }
+            body.snapshot-mode .brig-cell .stepper input { width: 26px !important; height: 22px !important; font-size: 11px !important; }
+            body.snapshot-mode .total-row td { font-size: 9px !important; padding: 2px !important; }
+            body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 11px !important; }
+            body.snapshot-mode .grand-total-box span { font-size: 16px !important; }
+            body.snapshot-mode .reconciliation-box { padding: 6px !important; }
+            body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 3px !important; }
+            body.snapshot-mode .rec-item { font-size: 10px !important; padding: 3px 5px !important; }
+            body.snapshot-mode .rec-status { font-size: 10px !important; padding: 5px !important; }
+            body.snapshot-mode h2 { font-size: 13px !important; margin-bottom: 6px !important; }
+            body.snapshot-mode .shipment-top { padding: 6px !important; margin-bottom: 6px !important; }
+            body.snapshot-mode .shipment-top h3 { font-size: 11px !important; }
+            body.snapshot-mode .shipment-table th { font-size: 8px !important; padding: 3px 1px !important; }
+            body.snapshot-mode .shipment-table td { font-size: 9px !important; padding: 2px 1px !important; }
+            body.snapshot-mode .shipment-table td.dir-name { font-size: 9px !important; padding: 2px 3px !important; }
+            body.snapshot-mode .shipment-table td.sum-cell { font-size: 10px !important; }
         }
-        body.snapshot-mode .stepper { gap: 0; }
-        body.snapshot-mode .add-company-btn { display: none !important; }
-        body.snapshot-mode .company-chip .remove-chip { display: none !important; }
-        body.snapshot-mode .ship-btn-reset { display: none !important; }
-        body.snapshot-mode .edit-dirs-btn { display: none !important; }
-        body.snapshot-mode .action-bar,
-        body.snapshot-mode .install-btn,
-        body.snapshot-mode .autosave-indicator,
-        body.snapshot-mode .date-time-row,
-        body.snapshot-mode .sync-status,
-        body.snapshot-mode .hamburger,
-        body.snapshot-mode .zoom-panel,
-        body.snapshot-mode .shipment-history { 
-            display: none !important; 
+
+        /* === РЕЖИМ СКРИНА НА ПК — БЕЗ СЖАТИЯ === */
+        @media (min-width: 769px) {
+            body.snapshot-mode .stepper .btn-minus,
+            body.snapshot-mode .stepper .btn-plus { 
+                display: none !important;
+            }
+            body.snapshot-mode .add-company-btn { display: none !important; }
+            body.snapshot-mode .company-chip .remove-chip { display: none !important; }
+            body.snapshot-mode .ship-btn-reset { display: none !important; }
+            body.snapshot-mode .edit-dirs-btn { display: none !important; }
+            body.snapshot-mode .action-bar,
+            body.snapshot-mode .install-btn,
+            body.snapshot-mode .autosave-indicator,
+            body.snapshot-mode .date-time-row,
+            body.snapshot-mode .sync-status,
+            body.snapshot-mode .hamburger,
+            body.snapshot-mode .zoom-panel,
+            body.snapshot-mode .shipment-history { 
+                display: none !important; 
+            }
+            body.snapshot-mode .container { max-width: 100%; padding: 20px; }
         }
-        body.snapshot-mode .main-content { padding: 6px; }
-        body.snapshot-mode .table-wrap { overflow: visible !important; }
-        body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
-        body.snapshot-mode th { font-size: 8px !important; padding: 3px 1px !important; white-space: normal !important; word-break: break-word !important; }
-        body.snapshot-mode td { padding: 1px !important; font-size: 10px !important; }
-        body.snapshot-mode .station-name { font-size: 9px !important; padding: 2px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; }
-        body.snapshot-mode .stepper input { width: 22px !important; height: 22px !important; font-size: 10px !important; }
-        body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 1px !important; }
-        body.snapshot-mode .company-chip { font-size: 8px !important; padding: 1px 3px !important; border-radius: 6px !important; }
-        body.snapshot-mode .brig-cell .stepper input { width: 26px !important; height: 22px !important; font-size: 11px !important; }
-        body.snapshot-mode .total-row td { font-size: 9px !important; padding: 2px !important; }
-        body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 11px !important; }
-        body.snapshot-mode .grand-total-box span { font-size: 16px !important; }
-        body.snapshot-mode .reconciliation-box { padding: 6px !important; }
-        body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 3px !important; }
-        body.snapshot-mode .rec-item { font-size: 10px !important; padding: 3px 5px !important; }
-        body.snapshot-mode .rec-status { font-size: 10px !important; padding: 5px !important; }
-        body.snapshot-mode h2 { font-size: 13px !important; margin-bottom: 6px !important; }
-        body.snapshot-mode .shipment-top { padding: 6px !important; margin-bottom: 6px !important; }
-        body.snapshot-mode .shipment-top h3 { font-size: 11px !important; }
-        body.snapshot-mode .shipment-table th { font-size: 8px !important; padding: 3px 1px !important; }
-        body.snapshot-mode .shipment-table td { font-size: 9px !important; padding: 2px 1px !important; }
-        body.snapshot-mode .shipment-table td.dir-name { font-size: 9px !important; padding: 2px 3px !important; }
-        body.snapshot-mode .shipment-table td.sum-cell { font-size: 10px !important; }
+
+        .snapshot-hint {
+            display: none; background: rgba(255, 193, 7, 0.15);
+            border: 2px solid var(--warning); color: var(--warning);
+            padding: 16px; border-radius: 12px; text-align: center;
+            font-weight: 700; font-size: 14px; margin-bottom: 14px;
+            cursor: pointer; user-select: none;
+        }
+        .snapshot-hint:hover { background: rgba(255, 193, 7, 0.25); }
+        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: var(--text-dim); }
 
         @media (max-width: 768px) {
             h2 { font-size: 17px; margin-bottom: 12px; }
