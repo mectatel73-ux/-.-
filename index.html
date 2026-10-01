@@ -31,7 +31,6 @@
             min-height: 100vh;
         }
 
-        /* === ГАМБУРГЕР === */
         .hamburger {
             position: fixed; top: 12px; left: 12px;
             width: 48px; height: 48px;
@@ -44,7 +43,6 @@
         }
         .hamburger:active { transform: scale(0.92); }
 
-        /* === ПОЛНОЭКРАННОЕ МЕНЮ === */
         .fullscreen-menu {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-dark);
@@ -89,9 +87,8 @@
         }
         .menu-icon { font-size: 24px; width: 32px; text-align: center; }
 
-        /* === ОСНОВНОЙ КОНТЕНТ === */
         .main-content { padding: 72px 16px 16px 16px; min-height: 100vh; }
-        .container { max-width: 1100px; margin: auto; }
+        .container { max-width: 1400px; margin: auto; }
         h2 { text-align: center; margin: 0 0 16px 0; color: var(--text); font-size: 20px; font-weight: 600; }
 
         .sync-status {
@@ -208,86 +205,96 @@
         }
         .add-company-btn:active { transform: scale(0.95); }
 
-        /* === ОТГРУЗКА === */
+        /* === ОТГРУЗКА (увеличенная) === */
         .shipment-top {
             background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
             border: 2px solid var(--warning); border-radius: 12px;
-            padding: 14px; margin-bottom: 16px;
+            padding: 18px; margin-bottom: 16px;
         }
-        .shipment-top h3 { margin: 0 0 12px 0; color: var(--warning); font-size: 15px; }
+        .shipment-top h3 { margin: 0 0 14px 0; color: var(--warning); font-size: 16px; }
         .shipment-top-list { display: flex; flex-direction: column; gap: 8px; }
         .shipment-top-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 14px;
+            padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: 15px;
         }
         .shipment-top-item.rank-1 { background: linear-gradient(135deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
         .shipment-top-item.rank-2 { background: linear-gradient(135deg, #ffc107, #e0a800); color: #333; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
         .shipment-top-item.rank-3 { background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2)); color: var(--warning); border: 1px solid var(--warning); }
         .shipment-top-item .rank-dir { flex: 1; text-align: left; }
-        .shipment-top-item .rank-sum { font-size: 18px; font-weight: 800; }
-        .shipment-top-item .rank-details { font-size: 11px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
+        .shipment-top-item .rank-sum { font-size: 20px; font-weight: 800; }
+        .shipment-top-item .rank-details { font-size: 12px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
 
-        /* Таблица отгрузки — компактная */
         .shipment-table {
             width: 100%; border-collapse: collapse; margin-bottom: 16px;
             background: var(--bg-card); border-radius: 12px; overflow: hidden;
-            font-size: 12px;
+            font-size: 15px;
         }
         .shipment-table th {
             background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); padding: 8px 2px; font-size: 11px;
-            font-weight: 600; border-bottom: 2px solid var(--accent);
+            color: var(--accent); padding: 14px 8px;
+            font-size: 13px;
+            font-weight: 700; border-bottom: 2px solid var(--accent);
             white-space: nowrap;
         }
         .shipment-table td {
-            border: 1px solid var(--border); padding: 4px 2px;
-            text-align: center; font-size: 12px; color: var(--text);
+            border: 1px solid var(--border); padding: 10px 6px;
+            text-align: center; font-size: 15px;
+            color: var(--text); font-weight: 600;
         }
         .shipment-table td.dir-name {
             text-align: left; font-weight: 700; background: #1e2227;
-            padding: 8px 8px; color: var(--text); font-size: 12px;
+            padding: 12px 16px; color: var(--text); font-size: 15px;
             white-space: nowrap;
         }
         .shipment-table td.sum-cell {
             font-weight: 800; background: rgba(79, 195, 247, 0.1);
-            color: var(--accent); font-size: 14px;
+            color: var(--accent); font-size: 17px;
         }
         .shipment-table td.ts-cell {
             font-weight: 700; background: rgba(255, 193, 7, 0.08);
-            color: var(--warning); font-size: 13px;
+            color: var(--warning); font-size: 16px;
         }
         .shipment-table tr.rank-1 { background: rgba(220, 53, 69, 0.1); }
         .shipment-table tr.rank-2 { background: rgba(255, 193, 7, 0.08); }
         .shipment-table tr.rank-3 { background: rgba(255, 193, 7, 0.04); }
 
-        .ship-stepper { gap: 2px; }
+        .ship-stepper { gap: 3px; }
         .ship-stepper .btn-minus,
-        .ship-stepper .btn-plus { width: 26px; height: 26px; font-size: 14px; border-radius: 5px; }
-        .ship-stepper input { width: 34px; height: 26px; font-size: 12px; border-radius: 5px; }
+        .ship-stepper .btn-plus { 
+            width: 32px;
+            height: 32px;
+            font-size: 17px;
+            border-radius: 6px;
+        }
+        .ship-stepper input { 
+            width: 42px;
+            height: 32px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
 
         .shipment-history {
             background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 14px; margin-top: 16px;
+            border-radius: 12px; padding: 16px; margin-top: 16px;
         }
         .shipment-history h3 {
-            margin: 0 0 10px 0; font-size: 14px; color: var(--text-dim);
+            margin: 0 0 10px 0; font-size: 15px; color: var(--text-dim);
             display: flex; justify-content: space-between; align-items: center;
         }
         .shipment-history h3 button {
             background: linear-gradient(135deg, #dc3545, #b02a37);
             color: white; border: none; border-radius: 6px; padding: 6px 12px;
-            font-size: 11px; font-weight: 600; cursor: pointer;
+            font-size: 12px; font-weight: 600; cursor: pointer;
         }
         .history-item {
             padding: 8px 0; border-bottom: 1px dashed var(--border);
-            font-size: 12px; display: flex; justify-content: space-between;
+            font-size: 13px; display: flex; justify-content: space-between;
             gap: 8px; color: var(--text-dim);
         }
         .history-item:last-child { border-bottom: none; }
         .history-item .h-time { color: var(--accent); font-weight: 700; }
         .history-item .h-text { flex: 1; text-align: right; color: var(--text); }
 
-        /* Кнопка «Изменить направления» */
         .edit-dirs-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%; padding: 14px;
@@ -300,7 +307,6 @@
         }
         .edit-dirs-btn:active { transform: scale(0.97); }
 
-        /* Модалка редактирования направлений */
         .dir-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .dir-item {
             display: flex; align-items: center; gap: 6px;
@@ -333,7 +339,6 @@
         }
         .dir-add-btn:active { transform: scale(0.97); }
 
-        /* === КНОПКИ ДЕЙСТВИЙ ВНИЗУ === */
         .action-bar {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -371,7 +376,6 @@
             50% { box-shadow: 0 0 0 12px rgba(76, 175, 80, 0); }
         }
 
-        /* === МОДАЛЬНЫЕ === */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
@@ -427,7 +431,6 @@
         .modal-confirm-btn { background: linear-gradient(135deg, #4caf50, #0f5132); }
         .modal-actions button:active { transform: scale(0.97); }
 
-        /* === БОЛЬШИЕ БЛОКИ === */
         .grand-total-box { 
             background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(3, 169, 244, 0.08));
             border: 2px solid var(--accent); border-radius: 12px; padding: 16px;
@@ -461,7 +464,6 @@
         .status-neutral { color: #ffc107; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); }
         .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
 
-        /* === АНАЛИТИКА === */
         .analytics-container { display: flex; flex-direction: column; gap: 14px; }
         .analytics-section { 
             background: var(--bg-input); border-radius: 12px; padding: 14px;
@@ -541,7 +543,6 @@
             box-shadow: 0 8px 24px rgba(79, 195, 247, 0.4); display: none; z-index: 9999; 
         }
 
-        /* === РЕЖИМ СКРИНА === */
         body.snapshot-mode .stepper .btn-minus,
         body.snapshot-mode .stepper .btn-plus { 
             visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
@@ -586,7 +587,6 @@
         body.snapshot-mode .shipment-table td.dir-name { font-size: 9px !important; padding: 2px 3px !important; }
         body.snapshot-mode .shipment-table td.sum-cell { font-size: 10px !important; }
 
-        /* === МОБИЛЬНАЯ === */
         @media (max-width: 768px) {
             h2 { font-size: 17px; margin-bottom: 12px; }
             .date-time-row { gap: 8px; margin-bottom: 12px; }
@@ -616,11 +616,11 @@
             .modal-add-company input, .modal-add-company button { width: 100%; }
             .modal-actions { flex-direction: column; }
             .modal-actions button { width: 100%; }
-            .shipment-table th { font-size: 10px; padding: 5px 2px; }
-            .shipment-table td { font-size: 11px; padding: 4px 2px; }
-            .shipment-table td.dir-name { font-size: 11px; padding: 5px 4px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 24px; height: 24px; font-size: 13px; }
-            .ship-stepper input { width: 30px; height: 24px; font-size: 11px; }
+            .shipment-table th { font-size: 11px; padding: 8px 4px; }
+            .shipment-table td { font-size: 13px; padding: 6px 3px; }
+            .shipment-table td.dir-name { font-size: 12px; padding: 8px; }
+            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
+            .ship-stepper input { width: 38px; height: 30px; font-size: 13px; }
             .action-btn { font-size: 10px; padding: 10px 2px; min-height: 62px; }
             .action-btn .ico { font-size: 20px; }
         }
@@ -634,8 +634,8 @@
             th { font-size: 10px; }
             .modal-company-list { grid-template-columns: 1fr; }
             .shipment-top-item { padding: 8px 10px; font-size: 13px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 22px; height: 22px; font-size: 12px; }
-            .ship-stepper input { width: 28px; height: 22px; font-size: 10px; }
+            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 28px; height: 28px; font-size: 15px; }
+            .ship-stepper input { width: 34px; height: 28px; font-size: 12px; }
         }
     </style>
 </head>
@@ -670,7 +670,6 @@
 
         <div class="sync-status sync-connecting" id="syncStatus" onclick="forceRefreshFromServer()">🔄 Подключение к серверу...</div>
 
-        <!-- ЭКРАН 1: РАСПРЕДЕЛЕНИЕ -->
         <div class="tab-content active" id="tabReport">
             <div class="date-time-row">
                 <label>Дата: <input type="date" id="reportDate"></label>
@@ -724,7 +723,6 @@
             </div>
         </div>
 
-        <!-- ЭКРАН 2: ОТГРУЗКА -->
         <div class="tab-content" id="tabShipment">
             <div class="shipment-top" id="shipmentTop">
                 <h3>🔥 Топ-3 направления (больше всего накопилось)</h3>
@@ -766,7 +764,6 @@
             </div>
         </div>
 
-        <!-- ЭКРАН 3: АНАЛИТИКА -->
         <div class="tab-content" id="tabAnalytics">
             <div class="analytics-container">
                 <div class="analytics-section">
@@ -789,7 +786,6 @@
             </div>
         </div>
 
-        <!-- КНОПКИ ВНИЗУ -->
         <div class="action-bar">
             <button class="action-btn act-snapshot" onclick="toggleSnapshot()">
                 <span class="ico">📸</span>
@@ -815,7 +811,6 @@
     </div>
 </main>
 
-<!-- МОДАЛКА КОМПАНИЙ -->
 <div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
     <div class="modal">
         <h3>Выберите компанию</h3>
@@ -831,7 +826,6 @@
     </div>
 </div>
 
-<!-- МОДАЛКА РЕДАКТИРОВАНИЯ НАПРАВЛЕНИЙ -->
 <div class="modal-overlay" id="dirsModal" onclick="if(event.target===this) closeEditDirsModal()">
     <div class="modal">
         <h3>Направления</h3>
@@ -853,9 +847,8 @@
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
 
-    // Направления отгрузки по умолчанию
     const DEFAULT_DIRECTIONS = [
-        "Ижевск", "Чебоксары", "Челы", "Киров", "Екатеринбург",
+        "Ижевск", "Чебоксары", "Челны", "Киров", "Екатеринбург",
         "Самара", "Самара Возврат", "Уфа", "Ростов", "Ульяновск",
         "Оренбург", "Нижний Новгород", "Пенза", "Саратов", "Дзержинский",
         "Софьино", "Домодедово", "Казань ВП", "ДМД ЕВСЦ"
@@ -880,7 +873,6 @@
     let hasUnsavedChanges = false;
     let editingDirs = [];
 
-    // ============ МЕНЮ ============
     function toggleMenu() {
         document.getElementById('fullscreenMenu').classList.toggle('active');
     }
@@ -905,7 +897,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ============ СТАТУС ============
     function setSyncStatus(status, text) {
         const el = document.getElementById('syncStatus');
         if (!el) return;
@@ -927,7 +918,6 @@
         if (btn) { btn.classList.add('saved'); btn.classList.remove('unsaved'); }
     }
 
-    // ============ СЕРВЕР ============
     async function forceRefreshFromServer() {
         if (hasUnsavedChanges) {
             if (!confirm('Есть несохранённые изменения. Они будут потеряны. Продолжить?')) return;
@@ -1157,7 +1147,6 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // ============ КОМПАНИИ ============
     let currentEditingCompanyRow = null;
 
     function openCompanyModal(rowIdx) {
@@ -1243,7 +1232,6 @@
         saveDebounced();
     }
 
-    // ============ МАСШТАБ ============
     let currentZoom = 100;
     const ZOOM_STEP = 10, ZOOM_MIN = 50, ZOOM_MAX = 130;
 
@@ -1267,7 +1255,6 @@
 
     function resetZoom() { currentZoom = 100; applyZoom(); }
 
-    // ============ СТАНЦИИ ============
     function recalcStationsArray() {
         stations.length = 0;
         stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
@@ -1317,7 +1304,6 @@
         });
     }
 
-    // ============ ОТГРУЗКА ============
     function renderShipment(sort) {
         if (typeof sort === 'undefined') sort = SHIPMENT_SORTED;
         else SHIPMENT_SORTED = sort;
@@ -1339,7 +1325,6 @@
 
         if (sort) directions.sort((a, b) => b.sum - a.sum);
 
-        // Топ-3 — всегда по сумме
         const topList = document.getElementById('shipmentTopList');
         const sortedForTop = [...directions].sort((a, b) => b.sum - a.sum);
         const top3 = sortedForTop.filter(d => d.sum > 0).slice(0, 3);
@@ -1403,7 +1388,7 @@
             localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
         }
         localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-        renderShipment(false);  // Не сортировать пока
+        renderShipment(false);
         saveDebounced();
     }
 
@@ -1439,7 +1424,6 @@
         saveDebounced();
     }
 
-    // ============ РЕДАКТИРОВАНИЕ НАПРАВЛЕНИЙ ============
     function openEditDirsModal() {
         editingDirs = [...SHIPMENT_DIRECTIONS];
         renderEditDirsList();
@@ -1478,7 +1462,6 @@
     function addNewDirection() {
         editingDirs.push('Новое направление');
         renderEditDirsList();
-        // Фокус на последнее поле
         setTimeout(() => {
             const inputs = document.querySelectorAll('#dirList input');
             if (inputs.length > 0) {
@@ -1490,14 +1473,11 @@
     }
 
     function saveDirections() {
-        // Проверка
         const cleaned = editingDirs.map(d => d.trim()).filter(d => d.length > 0);
         if (cleaned.length === 0) { alert('Введите хотя бы одно направление'); return; }
-        // Проверка дубликатов
         const unique = [...new Set(cleaned)];
         if (unique.length !== cleaned.length) { alert('Есть одинаковые названия — уберите дубли'); return; }
 
-        // Сохраняем
         SHIPMENT_DIRECTIONS = unique;
         localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
         closeEditDirsModal();
@@ -1505,7 +1485,6 @@
         saveDebounced();
     }
 
-    // ============ СКРИН ============
     function toggleSnapshot() {
         const body = document.body;
         if (body.classList.contains('snapshot-mode')) {
@@ -1513,7 +1492,6 @@
             setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            // Перед скрином — сортируем отгрузку
             if (document.getElementById('tabShipment').classList.contains('active')) {
                 renderShipment(true);
             }
@@ -1523,7 +1501,6 @@
         }
     }
 
-    // ============ ИНИЦИАЛИЗАЦИЯ ============
     window.addEventListener('load', async function() {
         const now = new Date();
         document.getElementById('reportDate').value = now.toISOString().split('T')[0];
@@ -1556,7 +1533,6 @@
 
     window.addEventListener('resize', () => { applyZoom(); });
 
-    // ============ РЕНДЕР ТАБЛИЦЫ ============
     function renderTable() {
         const tbody = document.querySelector('#reportTable tbody');
         tbody.innerHTML = '';
@@ -1657,7 +1633,6 @@
         renderAnalytics();
     }
 
-    // ============ АРХИВ И АНАЛИТИКА ============
     function renderAnalytics() {
         const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
         renderHistory(archive);
@@ -1771,38 +1746,6 @@
         renderAnalytics(); saveDebounced();
     }
 
-    function archiveCurrentReport() {
-        const data = collectDataFromUI();
-        let totalOut = 0, totalBak = 0, totalSht = 0;
-        const archiveRows = [];
-        data.rows.forEach(r => {
-            const out = Number(r.out) || 0, bak = Number(r.bak) || 0, sht = Number(r.sht) || 0;
-            archiveRows.push({ station: r.station, out, bak, companies: r.companies, sht });
-            totalOut += out; totalBak += bak; totalSht += sht;
-        });
-        const totalAdmin = Number(data.totals.admin) || 0;
-        const totalStaff = Number(data.totals.staff) || 0;
-        const declaredOut = Number(data.totals.out) || 0;
-        const totalBrig = Number(data.totals.brig) || 0;
-        const bst = (Number(data.bstSort) || 0) + (Number(data.bstLoad) || 0);
-        const actualTotal = totalOut + totalSht + totalBak;
-        const declaredTotal = totalStaff + declaredOut + totalBrig;
-        const report = {
-            id: Date.now(), date: data.date, time: data.time,
-            admin: totalAdmin, staff: totalStaff, out: declaredOut, brig: totalBrig, bst,
-            grandTotal: totalAdmin + totalStaff + declaredOut + totalBrig + bst,
-            actualTotal, declaredTotal, diff: declaredTotal - actualTotal, rows: archiveRows
-        };
-        let archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
-        const existingIndex = archive.findIndex(r => r.date === report.date && r.time === report.time);
-        if (existingIndex !== -1) archive[existingIndex] = report;
-        else archive.unshift(report);
-        if (archive.length > 50) archive = archive.slice(0, 50);
-        localStorage.setItem('warehouseArchive', JSON.stringify(archive));
-        renderAnalytics(); saveDebounced();
-        alert('✅ Отчет добавлен в архив!');
-    }
-
     function clearData() {
         if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
             document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
@@ -1821,7 +1764,6 @@
         }
     }
 
-    // ============ PWA ============
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1835,7 +1777,6 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // ============ EXPORT CSV ============
     function exportCSV() {
         let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
         const sortBst = document.getElementById('bstSort')?.value || '';
