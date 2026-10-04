@@ -17,51 +17,41 @@
     <style>
         * { box-sizing: border-box; }
         :root {
-            /* Новая светлая тема в стиле "Учёт ТСД" */
-            --bg-body: #fdfbf7;
-            --bg-card: #ffffff;
-            --bg-elevated: #f4f1ea;
-            --bg-input: #f9f7f2;
-            --accent: #8b7355; /* Теплый коричневый */
-            --accent-dark: #6b5740;
-            --text-main: #3a3226;
-            --text-dim: #7a7268;
-            --text-muted: #a89f94;
-            --border: #e0dcd3;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --danger: #dc3545;
-            --purple: #6f42c1;
-            --shadow: 0 2px 8px rgba(0,0,0,0.04);
+            --bg-body: #fdfbf7; --bg-card: #ffffff; --bg-elevated: #f4f1ea;
+            --bg-input: #f9f7f2; --accent: #8b7355; --accent-dark: #6b5740;
+            --text-main: #2c241b; --text-dim: #6b6359; --text-muted: #a89f94;
+            --border: #dcd6cc; --success: #4caf50; --warning: #ff9800;
+            --danger: #dc3545; --purple: #6f42c1; --shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        /* Тёмная тема */
+        body.dark-theme {
+            --bg-body: #1a1d21; --bg-card: #252a31; --bg-elevated: #2d333b;
+            --bg-input: #1e2227; --accent: #4fc3f7; --accent-dark: #0288d1;
+            --text-main: #e4e6eb; --text-dim: #9aa0a6; --text-muted: #6c757d;
+            --border: #353b44; --shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-body); color: var(--text-main);
             margin: 0; padding: 0; font-size: 15px; 
             -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
-            min-height: 100vh;
+            min-height: 100vh; transition: background 0.3s, color 0.3s;
         }
 
         .hamburger {
-            position: fixed; top: 12px; left: 12px;
-            width: 48px; height: 48px;
+            position: fixed; top: 12px; left: 12px; width: 48px; height: 48px;
             background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; color: var(--accent); cursor: pointer;
-            z-index: 1000; transition: 0.2s;
-            box-shadow: var(--shadow);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: var(--accent); cursor: pointer; z-index: 1000;
+            transition: 0.2s; box-shadow: var(--shadow);
         }
         .hamburger:active { transform: scale(0.92); }
 
         .fullscreen-menu {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-body);
-            z-index: 2000;
+            background: var(--bg-body); z-index: 2000;
             display: flex; flex-direction: column;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            overflow-y: auto;
+            transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto;
         }
         .fullscreen-menu.active { transform: translateX(0); }
         .menu-header {
@@ -70,50 +60,52 @@
         }
         .menu-logo { font-size: 18px; font-weight: 700; color: var(--accent); }
         .menu-close {
-            width: 44px; height: 44px;
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 10px; color: var(--text-main);
-            font-size: 20px; cursor: pointer;
+            width: 44px; height: 44px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text-main); font-size: 20px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
         .menu-items { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
         .menu-item {
-            display: flex; align-items: center; gap: 16px;
-            padding: 18px 20px; background: transparent; border: none;
-            border-radius: 12px; color: var(--text-main);
-            font-size: 17px; font-weight: 600; text-align: left;
-            cursor: pointer; transition: 0.15s; min-height: 64px; font-family: inherit;
+            display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+            background: transparent; border: none; border-radius: 12px; color: var(--text-main);
+            font-size: 17px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.15s;
+            min-height: 64px; font-family: inherit;
         }
         .menu-item:hover, .menu-item:active { background: rgba(139, 115, 85, 0.08); }
         .menu-item.active {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white;
-            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+            color: white; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
         }
         .menu-icon { font-size: 24px; width: 32px; text-align: center; }
 
         .main-content { padding: 72px 16px 16px 16px; min-height: 100vh; }
         .container { max-width: 1400px; margin: auto; }
-        h2 { text-align: center; margin: 0 0 16px 0; color: var(--text-main); font-size: 22px; font-weight: 700; }
+        h2 { text-align: center; margin: 0 0 16px 0; color: var(--text-main); font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
 
         .sync-status {
-            text-align: center; font-size: 13px; font-weight: 600;
+            text-align: center; font-size: 13px; font-weight: 700;
             padding: 10px; border-radius: 8px; margin-bottom: 12px; transition: 0.3s;
-            cursor: pointer; border: 1px solid transparent;
+            cursor: pointer; border: 1px solid transparent; letter-spacing: 0.5px;
         }
         .sync-status:hover { opacity: 0.85; }
-        .sync-online { background: rgba(76, 175, 80, 0.1); color: #388e3c; border-color: rgba(76, 175, 80, 0.3); }
-        .sync-offline { background: rgba(220, 53, 69, 0.1); color: #d32f2f; border-color: rgba(220, 53, 69, 0.3); }
+        .sync-online { background: rgba(76, 175, 80, 0.1); color: #2e7d32; border-color: rgba(76, 175, 80, 0.3); }
+        .sync-offline { background: rgba(220, 53, 69, 0.1); color: #c62828; border-color: rgba(220, 53, 69, 0.3); }
         .sync-connecting { background: rgba(255, 193, 7, 0.1); color: #f57c00; border-color: rgba(255, 193, 7, 0.3); }
         .sync-unsaved { background: rgba(255, 152, 0, 0.1); color: #e65100; border-color: rgba(255, 152, 0, 0.3); }
 
-        .date-time-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-        .date-time-row label { font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-weight: 600; }
+        .date-time-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+        .date-time-row label { font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-weight: 700; }
         .date-time-row input { 
             padding: 8px 12px; font-size: 14px; background: var(--bg-card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 8px;
+            border: 1px solid var(--border); border-radius: 8px; font-weight: 600;
         }
         .date-time-row input:focus { outline: none; border-color: var(--accent); }
+        .now-btn {
+            padding: 8px 14px; background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none; border-radius: 8px; font-size: 13px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+        .now-btn:active { transform: scale(0.95); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -123,29 +115,32 @@
             margin-bottom: 16px; width: 100%; border-radius: 12px; background: var(--bg-card);
             box-shadow: var(--shadow); border: 1px solid var(--border);
         }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { border: 1px solid var(--border); padding: 6px; text-align: center; vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
+        th, td { border: 1px solid var(--border); padding: 10px 6px; text-align: center; vertical-align: middle; }
         th { 
-            background: var(--bg-elevated); color: var(--accent); font-weight: 700; font-size: 13px;
-            padding: 12px 6px; white-space: nowrap; border-bottom: 2px solid var(--accent);
-            text-transform: uppercase; letter-spacing: 0.5px;
+            background: var(--bg-elevated); color: var(--accent); font-weight: 800; font-size: 14px;
+            padding: 14px 8px; white-space: nowrap; border-bottom: 3px solid var(--accent);
+            letter-spacing: 0.5px; cursor: pointer; user-select: none;
         }
-        
+        th:hover { background: var(--bg-input); }
+        td { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: 0.3px; }
+
         .station-name { 
-            text-align: left; font-weight: 700; background: #fcfaf7; color: var(--text-main);
-            font-size: 16px; white-space: nowrap; padding: 12px 14px;
+            text-align: left; font-weight: 800; background: var(--bg-input); color: var(--text-main);
+            font-size: 16px; white-space: nowrap; padding: 14px 16px;
             cursor: pointer; position: relative; transition: 0.2s;
+            overflow: hidden; text-overflow: ellipsis;
         }
-        .station-name:hover, .station-name:active { background: #f0ede6; color: var(--accent); }
+        .station-name:hover, .station-name:active { background: var(--bg-elevated); color: var(--accent); }
         .station-name.editing { padding: 0; background: #fff3cd; }
         .station-name input {
             width: 100%; border: none; background: transparent; padding: 8px 10px;
             font-size: 16px; font-weight: 700; font-family: inherit;
             outline: 2px solid var(--accent); border-radius: 3px; color: #333;
         }
-        .zone-sort { background: #fcfaf7; }
-        .zone-load { background: #f4f1ea; }
-        .zone-break { background: #ece7df; }
+        .zone-sort { background: var(--bg-input); }
+        .zone-load { background: var(--bg-elevated); }
+        .zone-break { background: var(--bg-body); }
 
         .stepper { display: inline-flex; align-items: center; justify-content: center; gap: 4px; user-select: none; }
         .stepper .btn-minus, .stepper .btn-plus {
@@ -158,31 +153,35 @@
         .stepper .btn-plus { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
         .stepper .btn-minus:active, .stepper .btn-plus:active { transform: scale(0.9); }
         .stepper input {
-            width: 42px; height: 34px; text-align: center;
+            width: 46px; height: 36px; text-align: center;
             background: var(--bg-input); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 8px;
-            font-size: 16px; font-weight: 700; padding: 0; margin: 0;
+            font-size: 17px; font-weight: 800; padding: 0; margin: 0;
+            letter-spacing: 0.5px;
         }
+        .stepper input:focus { outline: 2px solid var(--accent); border-color: transparent; }
         .stepper input::-webkit-outer-spin-button,
         .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .stepper input[type=number] { -moz-appearance: textfield; }
 
-        .total-row { font-weight: 700; background: var(--bg-elevated); }
-        .total-row td { border-top: 2px solid var(--accent); padding: 12px 6px; color: var(--accent); font-size: 16px; }
+        .total-row { font-weight: 800; background: var(--bg-elevated); }
+        .total-row td { border-top: 3px solid var(--accent); padding: 14px 6px; color: var(--accent); font-size: 18px; letter-spacing: 0.5px; }
 
         .brig-cell { vertical-align: middle; padding: 10px 6px; text-align: center; }
         .brig-cell.sort { background: #eef4ff; }
         .brig-cell.load { background: #fff4e5; }
-        .brig-cell .stepper input { width: 64px; height: 46px; font-size: 22px; border: 2px solid var(--accent); }
+        body.dark-theme .brig-cell.sort { background: #1a3a5c; }
+        body.dark-theme .brig-cell.load { background: #5c3a1a; }
+        .brig-cell .stepper input { width: 64px; height: 46px; font-size: 22px; border: 2px solid var(--accent); font-weight: 800; }
         .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 46px; height: 46px; font-size: 24px; }
 
-        .companies-cell { text-align: left; padding: 6px 8px; vertical-align: top; min-width: 180px; }
+        .companies-cell { text-align: left; padding: 8px 10px; vertical-align: top; min-width: 180px; }
         .companies-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .company-chip {
             display: inline-flex; align-items: center; gap: 4px;
             background: rgba(139, 115, 85, 0.1); color: var(--accent);
             border: 1px solid rgba(139, 115, 85, 0.3); border-radius: 14px;
-            padding: 4px 10px; font-size: 13px; font-weight: 600; white-space: nowrap;
+            padding: 4px 10px; font-size: 13px; font-weight: 700; white-space: nowrap;
         }
         .company-chip .remove-chip {
             cursor: pointer; color: #ef5350; font-weight: bold; font-size: 16px;
@@ -194,7 +193,7 @@
             display: inline-flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             color: white; border: none; border-radius: 14px; padding: 6px 14px;
-            font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+            font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
             min-height: 32px; transition: 0.15s;
             box-shadow: 0 2px 8px rgba(139, 115, 85, 0.2);
         }
@@ -204,58 +203,95 @@
             background: #fff8e1; border: 2px solid var(--warning); border-radius: 12px;
             padding: 18px; margin-bottom: 16px;
         }
-        .shipment-top h3 { margin: 0 0 14px 0; color: #e65100; font-size: 16px; font-weight: 700; }
+        body.dark-theme .shipment-top { background: #3d3010; }
+        .shipment-top h3 { margin: 0 0 14px 0; color: #e65100; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
+        body.dark-theme .shipment-top h3 { color: #ffb74d; }
         .shipment-top-list { display: flex; flex-direction: column; gap: 8px; }
         .shipment-top-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: 15px;
+            padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 15px;
             background: var(--bg-card); border: 1px solid var(--border);
         }
         .shipment-top-item.rank-1 { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #b71c1c; border-color: #ef9a9a; }
         .shipment-top-item.rank-2 { background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #e65100; border-color: #ffe082; }
         .shipment-top-item.rank-3 { background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #6a1b9a; border-color: #ce93d8; }
+        body.dark-theme .shipment-top-item.rank-1 { background: #4a1a1a; color: #ff8a80; }
+        body.dark-theme .shipment-top-item.rank-2 { background: #4a3a1a; color: #ffb74d; }
+        body.dark-theme .shipment-top-item.rank-3 { background: #3a1a4a; color: #ce93d8; }
         .shipment-top-item .rank-dir { flex: 1; text-align: left; }
-        .shipment-top-item .rank-sum { font-size: 20px; font-weight: 800; }
-        .shipment-top-item .rank-details { font-size: 12px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
+        .shipment-top-item .rank-sum { font-size: 22px; font-weight: 800; }
+        .shipment-top-item .rank-details { font-size: 13px; opacity: 0.9; margin-top: 2px; font-weight: 600; }
 
-        .shipment-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; background: var(--bg-card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); font-size: 15px; }
-        .shipment-table th { background: var(--bg-elevated); color: var(--accent); padding: 16px 10px; font-size: 14px; font-weight: 700; border-bottom: 2px solid var(--accent); white-space: nowrap; text-transform: uppercase; }
-        .shipment-table td { border: 1px solid var(--border); padding: 10px 6px; text-align: center; font-size: 15px; color: var(--text-main); font-weight: 600; }
+        .shipment-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; background: var(--bg-card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); font-size: 15px; table-layout: fixed; }
+        .shipment-table th { 
+            background: var(--bg-elevated); color: var(--accent); padding: 16px 10px; font-size: 14px;
+            font-weight: 800; border-bottom: 3px solid var(--accent); white-space: nowrap; letter-spacing: 0.5px;
+            cursor: pointer; user-select: none;
+        }
+        .shipment-table th:hover { background: var(--bg-input); }
+        .shipment-table td { 
+            border: 1px solid var(--border); padding: 12px 8px; text-align: center;
+            font-size: 16px; color: var(--text-main); font-weight: 700; letter-spacing: 0.3px;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .shipment-table td.dir-name { 
+            text-align: left; font-weight: 800; background: var(--bg-input); padding: 14px 18px;
+            color: var(--text-main); font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .shipment-table td.sum-cell { font-weight: 800; background: rgba(139, 115, 85, 0.08); color: var(--accent); font-size: 19px; }
+        .shipment-table td.ts-cell { font-weight: 800; background: rgba(255, 193, 7, 0.1); color: #f57c00; font-size: 19px; }
         
-        .shipment-table td.dir-name { text-align: left; font-weight: 700; background: #fcfaf7; padding: 14px 18px; color: var(--text-main); font-size: 17px; white-space: nowrap; }
-        .shipment-table td.sum-cell { font-weight: 800; background: rgba(139, 115, 85, 0.08); color: var(--accent); font-size: 18px; }
-        .shipment-table td.ts-cell { font-weight: 700; background: rgba(255, 193, 7, 0.1); color: #f57c00; font-size: 17px; }
+        /* Подсветка Есть ТС vs Потр. ТС */
+        .ts-ok { background: rgba(76, 175, 80, 0.15) !important; color: #2e7d32 !important; }
+        .ts-shortage { background: rgba(220, 53, 69, 0.15) !important; color: #c62828 !important; animation: pulse-red 2s infinite; }
+        .ts-surplus { background: rgba(255, 193, 7, 0.15) !important; color: #f57c00 !important; }
+        @keyframes pulse-red { 0%, 100% { box-shadow: inset 0 0 0 0 rgba(220, 53, 69, 0.3); } 50% { box-shadow: inset 0 0 0 4px rgba(220, 53, 69, 0.1); } }
+
         .shipment-table tr.rank-1 { background: rgba(255, 235, 238, 0.5); }
         .shipment-table tr.rank-2 { background: rgba(255, 248, 225, 0.5); }
         .shipment-table tr.rank-3 { background: rgba(243, 229, 245, 0.5); }
+        body.dark-theme .shipment-table tr.rank-1 { background: rgba(74, 26, 26, 0.3); }
+        body.dark-theme .shipment-table tr.rank-2 { background: rgba(74, 58, 26, 0.3); }
+        body.dark-theme .shipment-table tr.rank-3 { background: rgba(58, 26, 74, 0.3); }
 
         .ship-stepper { gap: 3px; }
         .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
-        .ship-stepper input { width: 42px; height: 32px; font-size: 15px; border-radius: 6px; }
+        .ship-stepper input { width: 46px; height: 34px; font-size: 16px; border-radius: 6px; font-weight: 800; }
+
+        .search-box {
+            display: flex; gap: 8px; margin-bottom: 12px; padding: 10px;
+            background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border);
+        }
+        .search-box input {
+            flex: 1; padding: 10px 14px; background: var(--bg-input); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600;
+            font-family: inherit;
+        }
+        .search-box input:focus { outline: none; border-color: var(--accent); }
 
         .shipment-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; box-shadow: var(--shadow); }
-        .shipment-history h3 { margin: 0 0 10px 0; font-size: 15px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; }
-        .shipment-history h3 button { background: linear-gradient(135deg, #ef5350, #c62828); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .history-item { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; display: flex; justify-content: space-between; gap: 8px; color: var(--text-dim); }
+        .shipment-history h3 { margin: 0 0 10px 0; font-size: 15px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .shipment-history h3 button { background: linear-gradient(135deg, #ef5350, #c62828); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .history-item { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; display: flex; justify-content: space-between; gap: 8px; color: var(--text-dim); font-weight: 600; }
         .history-item:last-child { border-bottom: none; }
-        .history-item .h-time { color: var(--accent); font-weight: 700; }
-        .history-item .h-text { flex: 1; text-align: right; color: var(--text-main); }
+        .history-item .h-time { color: var(--accent); font-weight: 800; }
+        .history-item .h-text { flex: 1; text-align: right; color: var(--text-main); font-weight: 700; }
 
-        .edit-dirs-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: linear-gradient(135deg, #78909c, #546e7a); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 12px; min-height: 50px; box-shadow: 0 4px 12px rgba(120, 144, 156, 0.3); transition: 0.15s; font-family: inherit; }
+        .edit-dirs-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: linear-gradient(135deg, #78909c, #546e7a); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 12px; min-height: 50px; box-shadow: 0 4px 12px rgba(120, 144, 156, 0.3); transition: 0.15s; font-family: inherit; letter-spacing: 0.5px; }
         .edit-dirs-btn:active { transform: scale(0.97); }
 
         .dir-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .dir-item { display: flex; align-items: center; gap: 6px; padding: 6px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border); }
-        .dir-item input { flex: 1; padding: 10px 12px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; font-family: inherit; min-height: 42px; }
+        .dir-item input { flex: 1; padding: 10px 12px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 700; font-family: inherit; min-height: 42px; }
         .dir-item input:focus { outline: none; border-color: var(--accent); }
         .dir-item .dir-del { width: 42px; height: 42px; background: linear-gradient(135deg, #ef5350, #c62828); color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; flex-shrink: 0; }
         .dir-item .dir-del:active { transform: scale(0.92); }
 
-        .dir-add-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 12px; min-height: 48px; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); }
+        .dir-add-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 12px; min-height: 48px; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); letter-spacing: 0.5px; }
         .dir-add-btn:active { transform: scale(0.97); }
 
         .action-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; margin-bottom: 20px; }
-        .action-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 4px; border: none; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; color: white; min-height: 68px; transition: 0.15s; font-family: inherit; line-height: 1.2; text-align: center; box-shadow: var(--shadow); }
+        .action-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 4px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; color: white; min-height: 68px; transition: 0.15s; font-family: inherit; line-height: 1.2; text-align: center; box-shadow: var(--shadow); letter-spacing: 0.3px; }
         .action-btn .ico { font-size: 22px; line-height: 1; }
         .action-btn:active { transform: scale(0.95); }
         .act-snapshot { background: linear-gradient(135deg, var(--purple), #553098); }
@@ -271,59 +307,59 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--bg-card); border-radius: 16px; padding: 24px; max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-        .modal h3 { margin: 0 0 16px 0; color: var(--text-main); font-size: 18px; text-align: center; font-weight: 700; }
+        .modal h3 { margin: 0 0 16px 0; color: var(--text-main); font-size: 18px; text-align: center; font-weight: 800; letter-spacing: 0.5px; }
 
         .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .modal-company-item { padding: 14px 10px; background: var(--bg-input); color: var(--text-main); border: 2px solid transparent; border-radius: 10px; text-align: center; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; min-height: 52px; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
-        .modal-company-item:hover { background: #e8e4dc; }
+        .modal-company-item { padding: 14px 10px; background: var(--bg-input); color: var(--text-main); border: 2px solid transparent; border-radius: 10px; text-align: center; font-weight: 700; font-size: 14px; cursor: pointer; user-select: none; min-height: 52px; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+        .modal-company-item:hover { background: var(--bg-elevated); }
         .modal-company-item.selected { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border-color: var(--accent); box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); }
 
         .modal-add-company { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-        .modal-add-company input { flex: 1; padding: 12px 14px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 10px; font-size: 14px; min-height: 48px; }
+        .modal-add-company input { flex: 1; padding: 12px 14px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 10px; font-size: 14px; min-height: 48px; font-weight: 600; }
         .modal-add-company input:focus { outline: none; border-color: var(--accent); }
-        .modal-add-company button { padding: 12px 18px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; min-height: 48px; white-space: nowrap; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); }
+        .modal-add-company button { padding: 12px 18px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; min-height: 48px; white-space: nowrap; box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3); }
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .modal-actions button { flex: 1; padding: 14px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: white; min-height: 50px; transition: 0.15s; }
+        .modal-actions button { flex: 1; padding: 14px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; color: white; min-height: 50px; transition: 0.15s; letter-spacing: 0.5px; }
         .modal-close-btn { background: linear-gradient(135deg, #78909c, #546e7a); }
         .modal-reset-btn { background: linear-gradient(135deg, #ef5350, #c62828); }
         .modal-confirm-btn { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
         .modal-actions button:active { transform: scale(0.97); }
 
-        .grand-total-box { background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(139, 115, 85, 0.05)); border: 2px solid var(--accent); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: center; font-size: 15px; font-weight: 700; color: var(--accent); }
-        .grand-total-box span { font-size: 28px; color: var(--text-main); }
+        .grand-total-box { background: linear-gradient(135deg, rgba(139, 115, 85, 0.1), rgba(139, 115, 85, 0.05)); border: 2px solid var(--accent); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: center; font-size: 15px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; }
+        .grand-total-box span { font-size: 28px; color: var(--text-main); font-weight: 800; }
 
         .reconciliation-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
-        .reconciliation-box h3 { margin: 0 0 12px 0; color: var(--accent); font-size: 16px; }
+        .reconciliation-box h3 { margin: 0 0 12px 0; color: var(--accent); font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
         .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px; }
-        .rec-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 600; font-size: 15px; background: var(--bg-input); color: var(--text-main); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); }
+        .rec-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 700; font-size: 15px; background: var(--bg-input); color: var(--text-main); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); }
         .rec-item.admin { opacity: 0.7; }
-        .rec-status { margin-top: 12px; font-size: 14px; font-weight: 700; padding: 12px; border-radius: 8px; line-height: 1.5; }
+        .rec-status { margin-top: 12px; font-size: 14px; font-weight: 800; padding: 12px; border-radius: 8px; line-height: 1.5; letter-spacing: 0.3px; }
         .status-ok { color: #2e7d32; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); }
-        .status-error { color: #c62828; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); }
+        .status-error { color: #c62828; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); animation: pulse-red 2s infinite; }
         .status-neutral { color: #f57c00; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); }
-        .details { font-weight: 400; font-size: 13px; opacity: 0.85; }
+        .details { font-weight: 600; font-size: 13px; opacity: 0.9; }
 
         .analytics-container { display: flex; flex-direction: column; gap: 14px; }
         .analytics-section { background: var(--bg-card); border-radius: 12px; padding: 14px; border-left: 4px solid var(--accent); box-shadow: var(--shadow); }
-        .analytics-section h4 { margin: 0 0 10px 0; font-size: 15px; color: var(--accent); }
+        .analytics-section h4 { margin: 0 0 10px 0; font-size: 15px; color: var(--accent); font-weight: 800; letter-spacing: 0.5px; }
 
         .history-table { width: 100%; font-size: 13px; border-collapse: collapse; }
-        .history-table th { background: var(--bg-elevated); color: var(--accent); padding: 8px; font-size: 12px; border-radius: 6px; }
-        .history-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text-main); }
-        .diff-positive { color: #2e7d32; font-weight: bold; }
-        .diff-negative { color: #c62828; font-weight: bold; }
-        .diff-zero { color: var(--text-muted); }
+        .history-table th { background: var(--bg-elevated); color: var(--accent); padding: 8px; font-size: 12px; border-radius: 6px; font-weight: 800; }
+        .history-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text-main); font-weight: 700; }
+        .diff-positive { color: #2e7d32; font-weight: 800; }
+        .diff-negative { color: #c62828; font-weight: 800; }
+        .diff-zero { color: var(--text-muted); font-weight: 700; }
 
         .top-zones-list { list-style: none; padding: 0; margin: 0; }
-        .top-zones-list li { padding: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); }
+        .top-zones-list li { padding: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); font-weight: 700; }
         .top-zones-list li:last-child { border-bottom: none; }
         .top-zones-list .zone-bar { display: inline-block; height: 8px; background: linear-gradient(90deg, var(--accent), #a1887f); border-radius: 4px; margin-right: 8px; vertical-align: middle; }
-        .top-zones-list .zone-name { font-weight: 600; }
+        .top-zones-list .zone-name { font-weight: 800; }
 
-        .compare-item { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; color: var(--text-dim); }
+        .compare-item { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; color: var(--text-dim); font-weight: 700; }
         .compare-item:last-child { border-bottom: none; }
 
-        .archive-item { padding: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 8px; color: var(--text-main); }
+        .archive-item { padding: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 8px; color: var(--text-main); font-weight: 700; }
         .archive-item:last-child { border-bottom: none; }
         .archive-item button { padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px; cursor: pointer; color: white; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); flex: none; min-height: 32px; font-weight: 600; }
 
@@ -338,33 +374,49 @@
 
         .install-btn { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; border: none; border-radius: 50px; padding: 14px 24px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(139, 115, 85, 0.4); display: none; z-index: 9999; }
 
-        /* === РЕЖИМ СКРИНА — УЛУЧШЕННЫЙ === */
-        body.snapshot-mode .stepper .btn-minus,
-        body.snapshot-mode .stepper .btn-plus { display: none !important; }
+        /* Тост-уведомления */
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; max-width: 320px; }
+        .toast { padding: 14px 18px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; border: 1px solid transparent; }
+        .toast-info { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        .toast-success { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .toast-error { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .toast-warning { background: #fff8e1; color: #f57c00; border-color: #ffcc80; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Тема переключатель */
+        .theme-toggle {
+            position: fixed; top: 12px; right: 12px;
+            width: 48px; height: 48px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: var(--accent); cursor: pointer; z-index: 1000;
+            transition: 0.2s; box-shadow: var(--shadow);
+        }
+        .theme-toggle:active { transform: scale(0.92); }
+
+        /* Snapshot mode */
+        body.snapshot-mode .stepper .btn-minus, body.snapshot-mode .stepper .btn-plus { display: none !important; }
         body.snapshot-mode .add-company-btn { display: none !important; }
         body.snapshot-mode .company-chip .remove-chip { display: none !important; }
         body.snapshot-mode .ship-btn-reset { display: none !important; }
         body.snapshot-mode .edit-dirs-btn { display: none !important; }
-        body.snapshot-mode .action-bar,
-        body.snapshot-mode .install-btn,
-        body.snapshot-mode .autosave-indicator,
-        body.snapshot-mode .date-time-row,
-        body.snapshot-mode .sync-status,
-        body.snapshot-mode .hamburger,
-        body.snapshot-mode .zoom-panel,
-        body.snapshot-mode .shipment-history { display: none !important; }
+        body.snapshot-mode .action-bar, body.snapshot-mode .install-btn,
+        body.snapshot-mode .autosave-indicator, body.snapshot-mode .date-time-row,
+        body.snapshot-mode .sync-status, body.snapshot-mode .hamburger,
+        body.snapshot-mode .zoom-panel, body.snapshot-mode .shipment-history,
+        body.snapshot-mode .search-box, body.snapshot-mode .theme-toggle { display: none !important; }
         
         body.snapshot-mode .main-content { padding: 20px; }
         body.snapshot-mode .table-wrap { overflow: visible !important; box-shadow: none; border: none; }
         body.snapshot-mode table { min-width: 100% !important; width: 100% !important; table-layout: fixed !important; }
-        body.snapshot-mode th { font-size: 16px !important; padding: 12px 4px !important; white-space: normal !important; word-break: break-word !important; background: #f4f1ea; color: #3a3226; }
-        body.snapshot-mode td { padding: 8px 2px !important; font-size: 16px !important; border-color: #d0c8bc; }
-        body.snapshot-mode .station-name { font-size: 18px !important; padding: 12px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; background: #fcfaf7; }
-        body.snapshot-mode .stepper input { width: 50px !important; height: 36px !important; font-size: 18px !important; border: 1px solid #d0c8bc; }
+        body.snapshot-mode th { font-size: 16px !important; padding: 12px 4px !important; white-space: normal !important; word-break: break-word !important; }
+        body.snapshot-mode td { padding: 8px 2px !important; font-size: 16px !important; }
+        body.snapshot-mode .station-name { font-size: 18px !important; padding: 12px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; }
+        body.snapshot-mode .stepper input { width: 50px !important; height: 36px !important; font-size: 18px !important; }
         body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 4px !important; }
         body.snapshot-mode .company-chip { font-size: 14px !important; padding: 4px 8px !important; border-radius: 8px !important; }
         body.snapshot-mode .brig-cell .stepper input { width: 60px !important; height: 40px !important; font-size: 20px !important; }
-        body.snapshot-mode .total-row td { font-size: 18px !important; padding: 12px !important; background: #f4f1ea; }
+        body.snapshot-mode .total-row td { font-size: 18px !important; padding: 12px !important; }
         body.snapshot-mode .grand-total-box { padding: 16px !important; font-size: 18px !important; }
         body.snapshot-mode .grand-total-box span { font-size: 32px !important; }
         body.snapshot-mode .reconciliation-box { padding: 16px !important; }
@@ -382,15 +434,15 @@
         body.snapshot-mode .ship-stepper input { width: 50px !important; height: 36px !important; font-size: 18px !important; }
 
         @media (max-width: 768px) {
-            h2 { font-size: 18px; margin-bottom: 12px; }
-            .date-time-row { gap: 8px; margin-bottom: 12px; }
+            h2 { font-size: 18px; }
+            .date-time-row { gap: 8px; }
             .date-time-row label { font-size: 13px; }
             .date-time-row input { padding: 6px 8px; font-size: 13px; }
             th { font-size: 12px; padding: 8px 4px; }
             .station-name { font-size: 14px; padding: 8px 10px; white-space: normal; max-width: 100px; }
             .stepper { gap: 2px; }
             .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
-            .stepper input { width: 38px; height: 32px; font-size: 14px; border-radius: 6px; }
+            .stepper input { width: 42px; height: 32px; font-size: 14px; border-radius: 6px; }
             .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 19px; }
             .brig-cell .stepper input { width: 50px; height: 36px; font-size: 17px; }
             .grand-total-box { padding: 12px; font-size: 14px; }
@@ -417,11 +469,12 @@
             .ship-stepper input { width: 38px; height: 30px; font-size: 13px; }
             .action-btn { font-size: 11px; padding: 10px 2px; min-height: 62px; }
             .action-btn .ico { font-size: 20px; }
+            .toast-container { top: 70px; right: 10px; left: 10px; max-width: none; }
         }
 
         @media (max-width: 480px) {
             .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
-            .stepper input { width: 34px; height: 30px; font-size: 13px; }
+            .stepper input { width: 38px; height: 30px; font-size: 13px; }
             .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
             .brig-cell .stepper input { width: 44px; height: 32px; font-size: 15px; }
             .station-name { max-width: 85px; font-size: 13px; }
@@ -437,6 +490,7 @@
 <body>
 
 <div class="hamburger" onclick="toggleMenu()">☰</div>
+<div class="theme-toggle" onclick="toggleTheme()" title="Переключить тему">🌙</div>
 
 <div class="fullscreen-menu" id="fullscreenMenu">
     <div class="menu-header">
@@ -459,6 +513,8 @@
     </div>
 </div>
 
+<div class="toast-container" id="toastContainer"></div>
+
 <main class="main-content">
     <div class="container" id="captureArea">
         <h2 id="pageTitle">📋 Распределение людей</h2>
@@ -469,6 +525,7 @@
             <div class="date-time-row">
                 <label>Дата: <input type="date" id="reportDate"></label>
                 <label>Время: <input type="time" id="reportTime"></label>
+                <button class="now-btn" onclick="setNow()">🕒 Сейчас</button>
             </div>
 
             <div class="grand-total-box">
@@ -495,11 +552,11 @@
                 <table id="reportTable">
                     <thead>
                         <tr>
-                            <th>Рабочая станция</th>
-                            <th>Аутстафф</th>
-                            <th>Бриг. АК</th>
+                            <th onclick="sortReportBy('station')">Рабочая станция</th>
+                            <th onclick="sortReportBy('out')">Аутстафф</th>
+                            <th onclick="sortReportBy('bak')">Бриг. АК</th>
                             <th>АК Компания</th>
-                            <th>Штат</th>
+                            <th onclick="sortReportBy('sht')">Штат</th>
                             <th>Бриг. Стаф</th>
                         </tr>
                     </thead>
@@ -530,18 +587,22 @@
                 ⚙️ Изменить направления
             </button>
 
+            <div class="search-box">
+                <input type="text" id="searchShipment" placeholder="🔍 Поиск по направлению..." oninput="renderShipment(SHIPMENT_SORTED)">
+            </div>
+
             <div class="table-wrap">
                 <table class="shipment-table" id="shipmentTable">
                     <thead>
                         <tr>
-                            <th>Направление</th>
-                            <th>Габарит</th>
-                            <th>Негабарит</th>
-                            <th>Тотал</th>
-                            <th>Потр. ТС</th>
-                            <th>Есть ТС</th>
-                            <th>X-dok</th>
-                            <th>ВП</th>
+                            <th onclick="sortShipmentBy('name')">Направление</th>
+                            <th onclick="sortShipmentBy('gab')">Габарит</th>
+                            <th onclick="sortShipmentBy('negab')">Негабарит</th>
+                            <th onclick="sortShipmentBy('sum')">Тотал</th>
+                            <th onclick="sortShipmentBy('needTS')">Потр. ТС</th>
+                            <th onclick="sortShipmentBy('haveTS')">Есть ТС</th>
+                            <th onclick="sortShipmentBy('xdok')">X-dok</th>
+                            <th onclick="sortShipmentBy('vp')">ВП</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -638,6 +699,7 @@
 <script>
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
     const SYNC_INTERVAL = 30000;
+    const AUTOSAVE_INTERVAL = 30000;
 
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
@@ -663,10 +725,66 @@
     let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
     let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
     let SHIPMENT_SORTED = false;
-    let saveTimer = null, syncTimer = null, isSaving = false;
+    let SHIPMENT_SORT_FIELD = null;
+    let SHIPMENT_SORT_DIR = 'desc';
+
+    let REPORT_SORT_FIELD = null;
+    let REPORT_SORT_DIR = 'asc';
+
+    let saveTimer = null, syncTimer = null, autosaveTimer = null, isSaving = false;
     let serverLoaded = false;
     let hasUnsavedChanges = false;
     let editingDirs = [];
+    let lastDiffState = null;
+
+    // === Тема ===
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+        body.classList.toggle('dark-theme');
+        const isDark = body.classList.contains('dark-theme');
+        btn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('warehouseTheme', isDark ? 'dark' : 'light');
+    }
+
+    function loadTheme() {
+        const saved = localStorage.getItem('warehouseTheme');
+        if (saved === 'dark') {
+            document.body.classList.add('dark-theme');
+            document.querySelector('.theme-toggle').textContent = '☀️';
+        }
+    }
+
+    // === Тост-уведомления ===
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(400px)';
+            toast.style.transition = 'all 0.3s';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // === Звуковой сигнал ===
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 800;
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+    }
 
     function toggleMenu() { document.getElementById('fullscreenMenu').classList.toggle('active'); }
 
@@ -711,6 +829,14 @@
         if (btn) { btn.classList.add('saved'); btn.classList.remove('unsaved'); }
     }
 
+    function setNow() {
+        const now = new Date();
+        document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+        document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
+        saveDebounced();
+        showToast('Дата и время обновлены', 'info');
+    }
+
     async function forceRefreshFromServer() {
         if (hasUnsavedChanges) {
             if (!confirm('Есть несохранённые изменения. Они будут потеряны. Продолжить?')) return;
@@ -747,11 +873,13 @@
             serverLoaded = true;
             markSaved();
             saveDataToLocal();
+            showToast('Данные загружены с сервера', 'success');
         } catch (err) {
             console.error('Ошибка загрузки:', err);
             setSyncStatus('offline', '📴 Нет связи, работаем локально');
             serverLoaded = true;
             markSaved();
+            showToast('Нет связи с сервером, работаем локально', 'warning');
         }
     }
 
@@ -776,9 +904,11 @@
             });
             if (!response.ok) throw new Error('HTTP ' + response.status);
             markSaved();
+            showToast('Все данные сохранены на сервере', 'success');
         } catch (err) {
             console.error('Ошибка сохранения:', err);
             setSyncStatus('offline', '📴 Ошибка сохранения — попробуйте ещё раз');
+            showToast('Ошибка сохранения', 'error');
         } finally {
             isSaving = false;
         }
@@ -833,9 +963,21 @@
                     renderShipment(SHIPMENT_SORTED);
                     markSaved();
                     saveDataToLocal();
+                    showToast('Данные обновлены с сервера', 'info');
                 }
             } catch (err) {}
         }, SYNC_INTERVAL);
+    }
+
+    function startAutosaveLoop() {
+        if (autosaveTimer) clearInterval(autosaveTimer);
+        autosaveTimer = setInterval(() => {
+            if (hasUnsavedChanges && serverLoaded && !isSaving) {
+                console.log('Автосохранение...');
+                saveDataToLocal();
+                saveToServer();
+            }
+        }, AUTOSAVE_INTERVAL);
     }
 
     function saveDataToLocal() {
@@ -926,7 +1068,7 @@
     function createStepperHTML(id, className, defaultValue = '') {
         return `<div class="stepper">
             <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
-            <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
+            <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="numeric" onchange="calculateTotals(); saveDebounced();">
             <button type="button" class="btn-plus" onclick="stepperChange('${id}', 1)">+</button>
         </div>`;
     }
@@ -938,6 +1080,8 @@
         let newVal = Math.max(0, current + delta);
         input.value = newVal;
         input.dispatchEvent(new Event('input', { bubbles: true }));
+        calculateTotals();
+        saveDebounced();
     }
 
     let currentEditingCompanyRow = null;
@@ -969,6 +1113,7 @@
         saveDebounced();
         input.value = '';
         openCompanyModal(currentEditingCompanyRow);
+        showToast('Компания добавлена', 'success');
     }
 
     function resetCompanies() {
@@ -977,6 +1122,7 @@
         localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
         saveDebounced();
         openCompanyModal(currentEditingCompanyRow);
+        showToast('Список компаний сброшен', 'info');
     }
 
     function toggleCompanyInModal(comp, el) { el.classList.toggle('selected'); applySelectedCompanies(); }
@@ -1097,38 +1243,59 @@
         });
     }
 
-    // === НОВАЯ ФУНКЦИЯ: Автоматический расчет потребности ТС ===
+    // === АВТОРАСЧЕТ ПОТРЕБНОСТИ ТС ===
     function calculateNeedTS(dir) {
         if (!SHIPMENT_DATA[dir]) return 0;
         const gab = Number(SHIPMENT_DATA[dir].gab) || 0;
         const negab = Number(SHIPMENT_DATA[dir].negab) || 0;
-        // Формула как в Google Таблицах: ОКРВВЕРХ((Габарит + Негабарит * 1.5) / 33)
         const rawValue = (gab + negab * 1.5) / 33;
-        return Math.ceil(rawValue); // Округление вверх до целого
+        return Math.ceil(rawValue);
     }
 
-    // === ОБНОВЛЕННАЯ ФУНКЦИЯ: Отрисовка таблицы отгрузки ===
+    // === СОРТИРОВКА ОТГРУЗКИ ===
+    function sortShipmentBy(field) {
+        if (SHIPMENT_SORT_FIELD === field) {
+            SHIPMENT_SORT_DIR = SHIPMENT_SORT_DIR === 'asc' ? 'desc' : 'asc';
+        } else {
+            SHIPMENT_SORT_FIELD = field;
+            SHIPMENT_SORT_DIR = 'desc';
+        }
+        renderShipment(SHIPMENT_SORTED);
+    }
+
+    // === СОРТИРОВКА РАСПРЕДЕЛЕНИЯ ===
+    function sortReportBy(field) {
+        if (REPORT_SORT_FIELD === field) {
+            REPORT_SORT_DIR = REPORT_SORT_DIR === 'asc' ? 'desc' : 'asc';
+        } else {
+            REPORT_SORT_FIELD = field;
+            REPORT_SORT_DIR = 'asc';
+        }
+        renderTable();
+        loadFromLocal();
+    }
+
+    // === ОТРИСОВКА ТАБЛИЦЫ ОТГРУЗКИ ===
     function renderShipment(sort) {
         if (typeof sort === 'undefined') sort = SHIPMENT_SORTED;
         else SHIPMENT_SORTED = sort;
 
-        const directions = SHIPMENT_DIRECTIONS.map(dir => {
+        const searchQuery = (document.getElementById('searchShipment')?.value || '').toLowerCase().trim();
+
+        let directions = SHIPMENT_DIRECTIONS.map(dir => {
             const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
             const gabVal = Number(d.gab) || 0;
             const negabVal = Number(d.negab) || 0;
-            
-            // Принудительно пересчитываем needTS при каждой отрисовке
             const calculatedNeedTS = calculateNeedTS(dir);
             if (SHIPMENT_DATA[dir]) {
                 SHIPMENT_DATA[dir].needTS = calculatedNeedTS;
             }
-
             return {
                 name: dir,
                 gab: gabVal,
                 negab: negabVal,
                 ts: Number(d.ts) || 0,
-                needTS: calculatedNeedTS, // Используем расчетное значение
+                needTS: calculatedNeedTS,
                 haveTS: Number(d.haveTS) || 0,
                 xdok: Number(d.xdok) || 0,
                 vp: Number(d.vp) || 0,
@@ -1136,7 +1303,23 @@
             };
         });
 
-        if (sort) directions.sort((a, b) => b.sum - a.sum);
+        // Поиск
+        if (searchQuery) {
+            directions = directions.filter(d => d.name.toLowerCase().includes(searchQuery));
+        }
+
+        // Сортировка
+        if (SHIPMENT_SORT_FIELD) {
+            const dir = SHIPMENT_SORT_DIR === 'asc' ? 1 : -1;
+            directions.sort((a, b) => {
+                const va = a[SHIPMENT_SORT_FIELD];
+                const vb = b[SHIPMENT_SORT_FIELD];
+                if (typeof va === 'string') return va.localeCompare(vb) * dir;
+                return (va - vb) * dir;
+            });
+        } else if (sort) {
+            directions.sort((a, b) => b.sum - a.sum);
+        }
 
         const topList = document.getElementById('shipmentTopList');
         const sortedForTop = [...directions].sort((a, b) => b.sum - a.sum);
@@ -1157,52 +1340,103 @@
 
         const tbody = document.querySelector('#shipmentTable tbody');
         tbody.innerHTML = '';
+        let totalGab = 0, totalNegab = 0, totalSum = 0, totalNeedTS = 0, totalHaveTS = 0, totalXdok = 0, totalVp = 0;
+        
         directions.forEach((d, i) => {
+            totalGab += d.gab;
+            totalNegab += d.negab;
+            totalSum += d.sum;
+            totalNeedTS += d.needTS;
+            totalHaveTS += d.haveTS;
+            totalXdok += d.xdok;
+            totalVp += d.vp;
+
             const tr = document.createElement('tr');
-            if (sort) {
+            if (SHIPMENT_SORTED && !SHIPMENT_SORT_FIELD) {
                 if (i === 0 && d.sum > 0) tr.className = 'rank-1';
                 else if (i === 1 && d.sum > 0) tr.className = 'rank-2';
                 else if (i === 2 && d.sum > 0) tr.className = 'rank-3';
             }
             const safeName = d.name.replace(/'/g, "\\'");
+            
+            // Подсветка Есть ТС vs Потр. ТС
+            let tsClass = '';
+            if (d.haveTS < d.needTS) tsClass = 'ts-shortage';
+            else if (d.haveTS > d.needTS && d.needTS > 0) tsClass = 'ts-surplus';
+            else if (d.haveTS === d.needTS && d.needTS > 0) tsClass = 'ts-ok';
+            
             tr.innerHTML = `
                 <td class="dir-name">${d.name}</td>
                 <td>${shipStepHTML(safeName, 'gab', d.gab)}</td>
                 <td>${shipStepHTML(safeName, 'negab', d.negab)}</td>
                 <td class="sum-cell">${d.sum}</td>
-                <td class="ts-cell">${d.needTS}</td> <!-- Убраны кнопки, только число -->
-                <td>${shipStepHTML(safeName, 'haveTS', d.haveTS)}</td>
+                <td class="ts-cell">${d.needTS}</td>
+                <td class="${tsClass}">${shipStepHTML(safeName, 'haveTS', d.haveTS)}</td>
                 <td>${shipStepHTML(safeName, 'xdok', d.xdok)}</td>
                 <td>${shipStepHTML(safeName, 'vp', d.vp)}</td>
             `;
             tbody.appendChild(tr);
         });
+        
+        // Итоговая строка
+        const totalTr = document.createElement('tr');
+        totalTr.className = 'total-row';
+        totalTr.innerHTML = `
+            <td style="text-align: right; padding-right: 10px;">ИТОГО:</td>
+            <td>${totalGab}</td>
+            <td>${totalNegab}</td>
+            <td>${totalSum}</td>
+            <td>${totalNeedTS}</td>
+            <td>${totalHaveTS}</td>
+            <td>${totalXdok}</td>
+            <td>${totalVp}</td>
+        `;
+        tbody.appendChild(totalTr);
+        
         renderShipmentHistory();
-        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA)); // Сохраняем пересчитанные данные
+        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
     }
 
-    // === Вспомогательная функция для кнопок (осталась без изменений) ===
+    // === HTML для ячейки отгрузки (редактируемая) ===
     function shipStepHTML(dir, field, value) {
         return `<div class="stepper ship-stepper">
             <button type="button" class="btn-minus" onclick="shipStep('${dir}', '${field}', -1)">−</button>
-            <input type="number" value="${value}" min="0" inputmode="none" readonly>
+            <input type="number" value="${value}" min="0" inputmode="numeric" 
+                   onchange="shipManualInput('${dir}', '${field}', this.value)">
             <button type="button" class="btn-plus" onclick="shipStep('${dir}', '${field}', 1)">+</button>
         </div>`;
     }
 
-    // === ОБНОВЛЕННАЯ ФУНКЦИЯ: Обработка нажатий + и - ===
+    // === Ручной ввод в отгрузке ===
+    function shipManualInput(dir, field, value) {
+        if (!SHIPMENT_DATA[dir]) SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
+        let newVal = parseInt(value) || 0;
+        if (newVal < 0) newVal = 0;
+        
+        if (field === 'needTS') {
+            renderShipment(SHIPMENT_SORTED);
+            return;
+        }
+        
+        SHIPMENT_DATA[dir][field] = newVal;
+        if (field === 'gab' || field === 'negab') {
+            SHIPMENT_DATA[dir].needTS = calculateNeedTS(dir);
+        }
+        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
+        renderShipment(false);
+        saveDebounced();
+    }
+
+    // === Кнопки +/- в отгрузке ===
     function shipStep(dir, field, delta) {
         if (!SHIPMENT_DATA[dir]) SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
         const newVal = Math.max(0, (SHIPMENT_DATA[dir][field] || 0) + delta);
         if (newVal === SHIPMENT_DATA[dir][field]) return;
         SHIPMENT_DATA[dir][field] = newVal;
 
-        // === АВТОРАСЧЕТ ПОТРЕБНОСТИ ТС ===
-        // Если изменили Габарит или Негабарит — пересчитываем needTS
         if (field === 'gab' || field === 'negab') {
             SHIPMENT_DATA[dir].needTS = calculateNeedTS(dir);
         }
-        // =================================
 
         if (delta > 0 && (field === 'gab' || field === 'negab' || field === 'ts')) {
             const entry = { time: Date.now(), direction: dir, gab: 0, negab: 0, ts: 0 };
@@ -1246,6 +1480,7 @@
         localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
         renderShipmentHistory();
         saveDebounced();
+        showToast('История очищена', 'info');
     }
 
     function openEditDirsModal() {
@@ -1307,12 +1542,20 @@
         closeEditDirsModal();
         renderShipment(SHIPMENT_SORTED);
         saveDebounced();
+        showToast('Направления обновлены', 'success');
     }
 
+    // === ОБНОВЛЕННАЯ ФУНКЦИЯ: Переключение режима "Скрин" ===
     function toggleSnapshot() {
         const body = document.body;
+        const btn = document.querySelector('.act-snapshot');
+        
         if (body.classList.contains('snapshot-mode')) {
             body.classList.remove('snapshot-mode');
+            if (btn) {
+                btn.querySelector('.ico').textContent = '📸';
+                btn.querySelector('span:last-child').textContent = 'Скрин';
+            }
             setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
@@ -1320,6 +1563,10 @@
                 renderShipment(true);
             }
             body.classList.add('snapshot-mode');
+            if (btn) {
+                btn.querySelector('.ico').textContent = '↩️';
+                btn.querySelector('span:last-child').textContent = 'Выход';
+            }
             setTimeout(applyZoom, 50);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1334,6 +1581,7 @@
             const targetId = container.dataset.target;
             container.outerHTML = createStepperHTML(targetId, 'rec-input');
         });
+        loadTheme();
         loadStationsFromStorage();
         renderTable();
         document.querySelectorAll('input[type="number"]').forEach(input => {
@@ -1353,6 +1601,7 @@
 
         await loadFromServer();
         startSyncLoop();
+        startAutosaveLoop();
     });
 
     window.addEventListener('resize', () => { applyZoom(); });
@@ -1364,44 +1613,67 @@
         const loadEnd = loadStart + LOAD_ZONES.length - 1;
         const breakStart = loadEnd + 1;
 
-        stations.forEach((station, idx) => {
+        // Сортировка
+        let sortedStations = [...stations];
+        if (REPORT_SORT_FIELD) {
+            const dir = REPORT_SORT_DIR === 'asc' ? 1 : -1;
+            // Сортируем только сортировочные и погрузочные зоны, оставляя обед/перекур в конце
+            const sortable = sortedStations.slice(0, loadStart + LOAD_ZONES.length);
+            const nonSortable = sortedStations.slice(loadStart + LOAD_ZONES.length);
+            sortable.sort((a, b) => {
+                const idxA = stations.indexOf(a);
+                const idxB = stations.indexOf(b);
+                if (REPORT_SORT_FIELD === 'station') return a.localeCompare(b) * dir;
+                // Для числовых полей - извлекаем значения из DOM по индексу
+                const trA = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[idxA];
+                const trB = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[idxB];
+                if (!trA || !trB) return 0;
+                const valA = Number(trA.querySelector('.input-' + REPORT_SORT_FIELD)?.value) || 0;
+                const valB = Number(trB.querySelector('.input-' + REPORT_SORT_FIELD)?.value) || 0;
+                return (valA - valB) * dir;
+            });
+            sortedStations = [...sortable, ...nonSortable];
+        }
+
+        sortedStations.forEach((station, idx) => {
+            const originalIdx = stations.indexOf(station);
             const tr = document.createElement('tr');
             let zoneClass = 'zone-sort';
-            if (idx >= loadStart && idx <= loadEnd) zoneClass = 'zone-load';
-            if (idx >= breakStart) zoneClass = 'zone-break';
+            if (originalIdx >= loadStart && originalIdx <= loadEnd) zoneClass = 'zone-load';
+            if (originalIdx >= breakStart) zoneClass = 'zone-break';
             tr.className = zoneClass;
 
-            const outId = `out_${idx}`, bakId = `bak_${idx}`, shtId = `sht_${idx}`;
+            const outId = `out_${originalIdx}`, bakId = `bak_${originalIdx}`, shtId = `sht_${originalIdx}`;
             tr.innerHTML = `
-                <td class="station-name" data-station-idx="${idx}" onclick="editStationName(${idx})">${station}</td>
+                <td class="station-name" data-station-idx="${originalIdx}" onclick="editStationName(${originalIdx})">${station}</td>
                 <td>${createStepperHTML(outId, 'input-out')}</td>
                 <td>${createStepperHTML(bakId, 'input-bak')}</td>
                 <td class="companies-cell">
-                    <div class="companies-list" data-row="${idx}">
-                        <button type="button" class="add-company-btn" onclick="openCompanyModal(${idx})">+ Добавить</button>
+                    <div class="companies-list" data-row="${originalIdx}">
+                        <button type="button" class="add-company-btn" onclick="openCompanyModal(${originalIdx})">+ Добавить</button>
                     </div>
                 </td>
                 <td>${createStepperHTML(shtId, 'input-sht')}</td>
             `;
-            if (idx === 0) {
+            if (originalIdx === 0) {
                 const td = document.createElement('td');
                 td.rowSpan = SORT_ZONES.length;
                 td.className = 'brig-cell sort';
                 td.innerHTML = createStepperHTML('bstSort', 'input-bst-sort');
                 tr.appendChild(td);
             }
-            if (idx === loadStart) {
+            if (originalIdx === loadStart) {
                 const td = document.createElement('td');
                 td.rowSpan = LOAD_ZONES.length;
                 td.className = 'brig-cell load';
                 td.innerHTML = createStepperHTML('bstLoad', 'input-bst-load');
                 tr.appendChild(td);
             }
-            if (idx >= breakStart) {
+            if (originalIdx >= breakStart) {
                 const td = document.createElement('td');
                 td.textContent = '—';
-                td.style.background = '#ece7df';
-                td.style.color = '#a89f94';
+                td.style.background = 'var(--bg-body)';
+                td.style.color = 'var(--text-muted)';
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
@@ -1443,6 +1715,13 @@
         const actualTotal = out + sht + bak;
         const diff = declaredTotal - actualTotal;
         const statusDiv = document.getElementById('recStatus');
+
+        // Звуковой сигнал при появлении расхождения
+        const currentDiffState = diff !== 0 && (declaredTotal > 0 || actualTotal > 0);
+        if (currentDiffState && lastDiffState === false) {
+            playBeep();
+        }
+        lastDiffState = currentDiffState;
 
         if (declaredTotal === 0 && actualTotal === 0) {
             statusDiv.innerHTML = "Введите данные для сверки...";
@@ -1561,31 +1840,40 @@
         });
         calculateTotals(); saveDebounced();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        alert('✅ Отчет загружен!');
+        showToast('Отчет загружен из архива', 'success');
     }
 
     function clearArchive() {
         if (!confirm('Удалить весь архив?')) return;
+        if (!confirm('Вы точно уверены? Это действие нельзя отменить!')) return;
         localStorage.removeItem('warehouseArchive');
         renderAnalytics(); saveDebounced();
+        showToast('Архив очищен', 'info');
     }
 
+    // === ДВОЙНОЕ ПОДТВЕРЖДЕНИЕ ПРИ ОЧИСТКЕ ===
     function clearData() {
-        if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
-            document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
-            document.getElementById('totalAdmin').value = '0';
-            document.getElementById('totalStaff').value = '0';
-            document.getElementById('totalOut').value = '0';
-            document.getElementById('totalBrig').value = '0';
-            document.querySelectorAll('.companies-list').forEach(list => {
-                list.querySelectorAll('.company-chip').forEach(c => c.remove());
-            });
-            localStorage.removeItem('warehouseReport');
-            calculateTotals();
-            document.getElementById('autosaveIndicator').textContent = '🧹 Очищено';
-            setTimeout(() => { document.getElementById('autosaveIndicator').textContent = ''; }, 2000);
-            saveDebounced();
+        if (!confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) return;
+        if (!confirm('Вы точно уверены? Введите "УДАЛИТЬ" в следующем окне, чтобы подтвердить.')) return;
+        const confirmation = prompt('Введите слово УДАЛИТЬ (заглавными буквами) для подтверждения:');
+        if (confirmation !== 'УДАЛИТЬ') {
+            showToast('Отменено — слово не совпало', 'warning');
+            return;
         }
+        document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
+        document.getElementById('totalAdmin').value = '0';
+        document.getElementById('totalStaff').value = '0';
+        document.getElementById('totalOut').value = '0';
+        document.getElementById('totalBrig').value = '0';
+        document.querySelectorAll('.companies-list').forEach(list => {
+            list.querySelectorAll('.company-chip').forEach(c => c.remove());
+        });
+        localStorage.removeItem('warehouseReport');
+        calculateTotals();
+        document.getElementById('autosaveIndicator').textContent = '🧹 Очищено';
+        setTimeout(() => { document.getElementById('autosaveIndicator').textContent = ''; }, 2000);
+        saveDebounced();
+        showToast('Все данные очищены', 'info');
     }
 
     let deferredPrompt = null;
@@ -1639,6 +1927,7 @@
         link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', `Отчет_склад_${document.getElementById('reportDate').value}.csv`);
         link.click();
+        showToast('Файл Excel скачан', 'success');
     }
 </script>
 
